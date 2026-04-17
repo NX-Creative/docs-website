@@ -1,4 +1,5 @@
 import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
+import { ArrowUpRight } from 'lucide-react';
 import { NxLogo } from '@/components/brand/nx-logo';
 
 /**
@@ -39,10 +40,19 @@ export const baseOptions: BaseLayoutProps = {
       external: true,
     },
     {
-      text: '← nxcreative.tech',
-      url: 'https://nxcreative.tech',
-      external: true,
+      type: 'custom',
+      children: (
+        <a
+          href="https://nxcreative.tech"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 rounded-md border border-fd-border px-3 py-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-fd-muted-foreground transition-colors hover:border-fd-primary/50 hover:text-fd-primary"
+        >
+          nxcreative.tech
+          <ArrowUpRight size={12} strokeWidth={2.25} />
+        </a>
+      ),
     },
   ],
-  githubUrl: 'https://github.com/NX-Creative',
+  githubUrl: 'https://github.com/NX-Creative/docs-website',
 };

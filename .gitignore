@@ -9,3 +9,4 @@ out
 
 # fumadocs-mdx generated source
 .source
+.claude/settings.local.json

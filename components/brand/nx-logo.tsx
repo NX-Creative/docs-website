@@ -1,31 +1,24 @@
-import type { SVGProps } from 'react';
-
 /**
- * NX Creative monogram — geometric "NX" lockup, stroked in currentColor so
- * it picks up the surrounding text color (and therefore the brand red on
- * hover when used as a link).
+ * NX Creative monogram, loaded from the branded PNG shipped with the
+ * marketing site (white glyph on transparent). Used in the nav and
+ * footer — read the file directly from /public so Next's static export
+ * doesn't try to optimize it at build time.
  */
 export function NxLogo({
   className,
-  ...props
-}: SVGProps<SVGSVGElement>) {
+  size = 28,
+}: {
+  className?: string;
+  size?: number;
+}) {
   return (
-    <svg
-      viewBox="0 0 32 32"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.2"
-      strokeLinecap="square"
-      strokeLinejoin="miter"
-      aria-hidden="true"
+    <img
+      src="/logo.png"
+      alt="NX Creative"
+      width={size}
+      height={size}
       className={className}
-      {...props}
-    >
-      {/* N */}
-      <path d="M5 26 V6 L14 26 V6" />
-      {/* X */}
-      <path d="M18 6 L28 26" />
-      <path d="M28 6 L18 26" />
-    </svg>
+      style={{ objectFit: 'contain' }}
+    />
   );
 }
