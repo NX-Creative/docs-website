@@ -1,0 +1,87 @@
+---
+title: Installation
+description: Resource-specific setup for nx_fourseasons. Dependencies, SQL import, and server.cfg order.
+---
+
+For server-wide prerequisites (artifacts, `oxmysql`, `ox_lib`), work
+through the [generic install guide](/docs/getting-started/installation)
+first. This page only lists what is specific to `nx_fourseasons`.
+
+## Dependencies
+
+<DependencyList
+  dependencies={[
+    {
+      name: 'ox_lib',
+      description: 'Context menu UI, callbacks, and keybind registration for the admin menu.',
+      required: true,
+      href: 'https://github.com/overextended/ox_lib'
+    },
+    {
+      name: 'oxmysql',
+      description: 'Database driver. Required for cycle persistence and optional analytics.',
+      required: true,
+      href: 'https://github.com/overextended/oxmysql'
+    },
+    {
+      name: 'ox_target',
+      description: 'Optional. Used by the newspaper-stand forecast interaction.',
+      required: false,
+      href: 'https://github.com/overextended/ox_target'
+    }
+  ]}
+>
+  Framework detection is automatic: ESX or QBCore. Force it with
+  <code>Config.Framework</code> if detection picks the wrong one.
+</DependencyList>
+
+## Database import
+
+Import `sql/install.sql` into the database `oxmysql` points at:
+
+```bash
+mysql -u <user> -p <database> < sql/install.sql
+```
+
+The install script creates:
+
+- `weather_settings`. Required. Stores the active weather cycle and
+  settings.
+- `nx_fourseasons_events`. Seasonal and system event log.
+- `weather_logs`, `weather_stats`, `player_weather_effects`. Optional
+  analytics tables. Only populated when `Config.EnableLogging = true`.
+
+The resource also auto-creates these tables on startup if they are
+missing, so the manual import is only required if your MySQL user
+lacks `CREATE TABLE`.
+
+## Streamed data files
+
+`nx_fourseasons` ships two XML files that the game needs at stream
+time:
+
+- `flood.xml`. Custom water plane used by gameplay and admin flooding.
+- `water.xml`. Reset target the resource returns to after a flood.
+
+The `fxmanifest.lua` already declares `data_file 'WATER_FILE' 'flood.xml'`
+and lists both XMLs in `files`, so no extra configuration is needed as
+long as the resource starts in a streamed context.
+
+## server.cfg order
+
+```bash
+ensure oxmysql
+ensure ox_lib
+# ensure your framework here (es_extended or qb-core)
+ensure nx_fourseasons
+```
+
+If you use the newspaper stand, `ox_target` must be running too. The
+resource reads `ox_target` at runtime and silently skips the
+interaction if it is not started.
+
+## Config location
+
+All settings live in `shared/config.lua`. The file is in
+`escrow_ignore` so it remains editable after install. See
+[Configuration](./configuration) for every option.

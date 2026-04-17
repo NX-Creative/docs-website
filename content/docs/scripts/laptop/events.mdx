@@ -1,0 +1,34 @@
+---
+title: Events
+description: Net events you can trigger or listen to from your own resources.
+---
+
+Only events that form a stable integration surface are listed here.
+Internal protocol events (UI callbacks, casino settlement, darknet
+delivery handshake) are intentionally undocumented, since their shape
+is subject to change.
+
+## Client events
+
+### `nx_laptop:client:useLaptop`
+
+Enters laptop placement mode for the player. This is the event an
+inventory system fires when the player uses the laptop item, and it
+is the supported entry point for integrating with custom inventories.
+
+For `ox_inventory`, wire it through the item's `client.event` field
+(see [Installation](./installation#ox_inventory)). For other
+inventories, fire it client-side when the laptop item is used.
+
+```lua
+-- From a server script (any inventory)
+TriggerClientEvent('nx_laptop:client:useLaptop', source)
+```
+
+```lua
+-- From a client script
+TriggerEvent('nx_laptop:client:useLaptop')
+```
+
+No payload is required. The client handles placement, target zone
+registration, and the pickup flow from there.

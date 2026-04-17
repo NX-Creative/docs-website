@@ -1,0 +1,107 @@
+---
+title: Configuration
+description: Every entry in config.lua. Defaults, types, and purpose.
+---
+
+All settings live in `config.lua`. The file is in `escrow_ignore`, so
+it stays editable after install. Server-only Discord webhooks live in
+`server/webhooks.lua`, which is covered in
+[Installation](./installation#discord-webhooks).
+
+## General
+
+<ConfigOption name="Config.Framework" type="string" default="'esx'" description="Framework integration. One of 'esx', 'qbcore', 'qbox'. 'qbx' is accepted as an alias for 'qbox'." />
+
+<ConfigOption name="Config.Inventory" type="string" default="'ox_inventory'" description="Inventory provider. One of 'ox_inventory', 'qb-inventory'." />
+
+<ConfigOption name="Config.Target" type="string" default="'ox_target'" description="Target provider used for the laptop's open and pickup interactions. One of 'ox_target', 'qb-target'." />
+
+<ConfigOption name="Config.Account" type="string" default="'bank'" description="Which account balances settle trading, casino, marketplace, and darknet transactions against. Typically 'bank', 'money', or 'cash'." />
+
+<ConfigOption name="Config.TableName" type="string" default="'nx_laptop_assets'" description="Database table that stores per-player stock and crypto holdings. Change only if you renamed the imported SQL table." />
+
+<ConfigOption name="Config.LaptopItem" type="string" default="'laptop'" description="Inventory item name that represents the laptop. Must match the item registered in your inventory system." />
+
+## Placement
+
+<ConfigOption name="Config.PlaceDistance" type="number" default="5.0" description="Max distance in meters between the player and the placement preview when placing the laptop." />
+
+<ConfigOption name="Config.PreviewAlpha" type="number" default="100" description="Alpha value (0 to 255) for the translucent placement preview prop." />
+
+## Target
+
+<ConfigOption name="Config.TargetDistance" type="number" default="1.5" description="Interaction distance in meters for the laptop target zone." />
+
+<ConfigOption name="Config.TargetOpenLabel" type="string" default="'Open Laptop'" description="Label shown on the target prompt for opening the laptop." />
+
+<ConfigOption name="Config.TargetOpenIcon" type="string" default="'fa-solid fa-laptop'" description="Font Awesome icon for the open-laptop target prompt." />
+
+<ConfigOption name="Config.TargetPickupLabel" type="string" default="'Pick Up Laptop'" description="Label shown on the target prompt for picking the laptop back up." />
+
+<ConfigOption name="Config.TargetPickupIcon" type="string" default="'fa-solid fa-box'" description="Font Awesome icon for the pickup target prompt." />
+
+<ConfigOption name="Config.EnablePickup" type="boolean" default="true" description="Whether the pickup target prompt is registered. If false, placed laptops cannot be picked back up." />
+
+## Jobs hub
+
+<ConfigOption name="Config.JobsHub.Enabled" type="boolean" default="true" description="Master toggle for the jobs app. If false, the app is hidden in the UI." />
+
+<ConfigOption name="Config.JobsHub.Jobs" type="table" description="Array of job definitions. Each entry: { id, label, description, requirements, questions }. The id must match a key in ServerConfig.JobWebhooks. Shipped with police, ems, and mechanic. Each questions entry: { id, label, placeholder, required }." />
+
+## Vehicle marketplace
+
+<ConfigOption name="Config.VehicleMarket.Enabled" type="boolean" default="true" description="Master toggle for the marketplace app." />
+
+<ConfigOption name="Config.VehicleMarket.ListingFee" type="number" default="0" description="Flat fee charged to the seller to create a listing." />
+
+<ConfigOption name="Config.VehicleMarket.TaxPercent" type="number" default="0" description="Percentage deducted from the sale price on a successful purchase." />
+
+<ConfigOption name="Config.VehicleMarket.MinPrice" type="number" default="1000" description="Minimum allowed listing price." />
+
+<ConfigOption name="Config.VehicleMarket.MaxPrice" type="number" default="2500000" description="Maximum allowed listing price." />
+
+<ConfigOption name="Config.VehicleTables" type="table" description="Per-framework mapping of the owned-vehicle table used to source listable vehicles. Shipped entries: esx, qbcore, qbox, qbx. Each entry defines the table name and the column names the resource will read and update. Only change if your server uses a non-standard schema." />
+
+## Darknet
+
+<ConfigOption name="Config.Darknet.Enabled" type="boolean" default="true" description="Master toggle for the darknet app." />
+
+<ConfigOption name="Config.Darknet.AccessItem" type="string" default="'usb'" description="Inventory item required in the player's inventory to access the darknet app." />
+
+<ConfigOption name="Config.Darknet.DeliveryCheckInterval" type="number" default="30" description="Seconds between server-side checks for matured catalog deliveries." />
+
+<ConfigOption name="Config.Darknet.ListingFee" type="number" default="0" description="Flat fee charged to create a player-run listing." />
+
+<ConfigOption name="Config.Darknet.MinPrice" type="number" default="250" description="Minimum price for a player-run listing." />
+
+<ConfigOption name="Config.Darknet.MaxPrice" type="number" default="500000" description="Maximum price for a player-run listing." />
+
+<ConfigOption name="Config.Darknet.Pickup" type="table" description="Pickup ped configuration. Fields: coords (vector4), model (ped), scenario, label, icon, distance, hintRadius, hintDuration, hintClearDistance. The hint fields control the in-world marker that points the player toward the pickup after a delivery is ready." />
+
+<ConfigOption name="Config.Darknet.Catalog" type="table" description="Fixed contraband catalog. Each entry: { id, label, item, amount, price, delivery }. The delivery field is the delivery delay in seconds. Shipped with advanced_lockpick, thermite, and radio entries." />
+
+## Casino
+
+<ConfigOption name="Config.Casino.BlackjackBets" type="number[]" default="{ 10, 25, 50, 100 }" description="Selectable bet amounts in the blackjack app." />
+
+<ConfigOption name="Config.Casino.HiLoBets" type="number[]" default="{ 10, 25, 50, 100 }" description="Selectable bet amounts in hi-lo." />
+
+<ConfigOption name="Config.Casino.VideoPokerBets" type="number[]" default="{ 25, 50, 100, 250 }" description="Selectable bet amounts in video poker." />
+
+<ConfigOption name="Config.Casino.RouletteBets" type="number[]" default="{ 10, 25, 50, 100 }" description="Selectable chip values on the roulette table." />
+
+### Payouts
+
+<ConfigOption name="Config.Casino.Payouts.BlackjackWin" type="number" default="2.0" description="Payout multiplier for a standard blackjack win (pays stake times this value)." />
+<ConfigOption name="Config.Casino.Payouts.Blackjack" type="number" default="2.5" description="Payout multiplier for a natural blackjack." />
+<ConfigOption name="Config.Casino.Payouts.BlackjackPush" type="number" default="1.0" description="Payout multiplier when the hand pushes (stake returned)." />
+<ConfigOption name="Config.Casino.Payouts.HiLoWin" type="number" default="1.9" description="Payout multiplier for a correct hi-lo call." />
+<ConfigOption name="Config.Casino.Payouts.HiLoTie" type="number" default="1.0" description="Payout multiplier for a hi-lo tie (stake returned)." />
+
+### Video poker paytable
+
+<ConfigOption name="Config.Casino.VideoPokerPaytable" type="table" description="Hand ranking to payout multiplier. Shipped entries: Royal Flush (250), Straight Flush (50), Four of a Kind (25), Full House (9), Flush (6), Straight (4), Three of a Kind (3), Two Pair (2), Jacks or Better (1), Nothing (0)." />
+
+### Roulette payouts
+
+<ConfigOption name="Config.Casino.RoulettePayouts" type="table" description="Bet type to payout multiplier. Shipped entries: straight (35), split (17), street (11), corner (8), sixline (5), dozen (2), column (2), red, black, even, odd, low, high (all 1)." />

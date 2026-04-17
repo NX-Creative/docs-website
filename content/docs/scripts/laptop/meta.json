@@ -1,0 +1,12 @@
+{
+  "title": "Laptop",
+  "pages": [
+    "index",
+    "installation",
+    "configuration",
+    "exports",
+    "events",
+    "changelog"
+  ],
+  "defaultOpen": false
+}

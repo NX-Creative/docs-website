@@ -1,0 +1,148 @@
+---
+title: Events
+description: Events your resources can listen to or trigger.
+---
+
+Only events that form a stable integration surface are listed here.
+Internal sync events (request/response handshakes, pending replay,
+admin control relays) are intentionally undocumented and subject to
+change.
+
+Event names are centralized in `shared/constants.lua` on the
+`NxFS_Constants.Events` table. The literal strings below match that
+table and are safe to hard-code.
+
+## Client events (listen)
+
+These fire on the client. Use `AddEventHandler` in any client script.
+
+### `nx_fourseasons:weatherChanged`
+
+Fired when the active weather type or intensity changes meaningfully
+(type change, or intensity delta greater than 0.3).
+
+```lua
+AddEventHandler('nx_fourseasons:weatherChanged', function(data)
+    -- data.type        : new weather type (e.g. 'RAIN', 'THUNDER')
+    -- data.intensity   : new intensity (0.0 to 1.0)
+    -- data.oldType     : previous weather type
+    -- data.oldIntensity: previous intensity
+    print(data.oldType, '->', data.type)
+end)
+```
+
+### `nx_fourseasons:temperatureChanged`
+
+Fired whenever temperature updates on this client.
+
+```lua
+AddEventHandler('nx_fourseasons:temperatureChanged', function(newTemp, oldTemp)
+    print(('Temp: %d -> %d'):format(oldTemp or newTemp, newTemp))
+end)
+```
+
+### `nx_fourseasons:timeUpdated`
+
+Fired after a time sync from the server. Carries the same shape as
+`GetCurrentTime()`.
+
+```lua
+AddEventHandler('nx_fourseasons:timeUpdated', function(time)
+    -- time.hour, time.minute, time.second, time.day, time.month, time.year
+    -- time.useRealTime, time.freeze
+end)
+```
+
+## Net events (server to client)
+
+These are network events broadcast by the server. Use
+`RegisterNetEvent` plus `AddEventHandler` on the client.
+
+### `nx_fourseasons:weatherUpdated`
+
+Broadcast when the server rolls a new weather state or when a
+force-sync fires.
+
+```lua
+RegisterNetEvent('nx_fourseasons:weatherUpdated', function(weatherType, intensity)
+    -- weatherType: string, intensity: number 0.0-1.0
+end)
+```
+
+### `nx_fourseasons:seasonUpdated`
+
+Broadcast when the season transitions.
+
+```lua
+RegisterNetEvent('nx_fourseasons:seasonUpdated', function(season)
+    -- season: 'SPRING' | 'SUMMER' | 'FALL' | 'WINTER'
+end)
+```
+
+### `nx_fourseasons:temperatureUpdated`
+
+Broadcast when the server-authoritative temperature changes.
+
+```lua
+RegisterNetEvent('nx_fourseasons:temperatureUpdated', function(temperature)
+    -- temperature: number (Celsius)
+end)
+```
+
+### `nx_fourseasons:receiveForecast`
+
+Sent on join, and on every forecast refresh.
+
+```lua
+RegisterNetEvent('nx_fourseasons:receiveForecast', function(forecast)
+    -- forecast: array of { weather, temperature, intensity, day, date }
+end)
+```
+
+### `nx_fourseasons:stormStateUpdated`
+
+Broadcast on every `Config.StormSystems.SyncIntervalSeconds` tick while
+storm systems are active.
+
+```lua
+RegisterNetEvent('nx_fourseasons:stormStateUpdated', function(stormState)
+    -- stormState: table describing blackout, strike, and ocean state
+end)
+```
+
+### `nx_fourseasons:stormStrikeFx`
+
+Fired at the targeted client when a lightning strike FX should play
+nearby.
+
+```lua
+RegisterNetEvent('nx_fourseasons:stormStrikeFx', function(payload)
+    -- payload: { origin, distance, intensity, ... }
+end)
+```
+
+### `nx_fourseasons:seasonalEvent`
+
+Fired when a seasonal event starts (for example a spring thunderstorm
+or a falling-leaves event in fall).
+
+```lua
+RegisterNetEvent('nx_fourseasons:seasonalEvent', function(data)
+    -- data.name        : event name
+    -- data.season      : season the event belongs to
+    -- data.notification: pre-formatted localized message (may be nil)
+end)
+```
+
+## Net events (client triggers)
+
+### `nx_fourseasons:playerLoaded`
+
+Trigger this from your framework's player-loaded handler to force an
+initial sync for the joining player. The resource also listens for
+common framework events internally, so this is only needed if those
+hooks are not firing in your setup.
+
+```lua
+TriggerServerEvent('nx_fourseasons:playerLoaded')
+```

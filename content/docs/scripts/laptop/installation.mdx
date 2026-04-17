@@ -1,0 +1,145 @@
+---
+title: Installation
+description: Resource-specific setup for nx_laptop. Dependencies, database import, inventory item, and webhook configuration.
+---
+
+For server-wide prerequisites (artifacts, `oxmysql`, `ox_lib`), work
+through the [generic install guide](/docs/getting-started/installation)
+first. This page lists only what is specific to `nx_laptop`.
+
+## Dependencies
+
+<DependencyList
+  dependencies={[
+    {
+      name: 'oxmysql',
+      description: 'Database driver for stocks, crypto, marketplace, darknet, jobs, and forums.',
+      required: true,
+      href: 'https://github.com/overextended/oxmysql'
+    },
+    {
+      name: 'ox_lib',
+      description: 'Callbacks, notifications, and keybindings.',
+      required: true,
+      href: 'https://github.com/overextended/ox_lib'
+    },
+    {
+      name: 'nx-3d',
+      description: 'Renders the laptop screen and keyboard as a 3D in-world panel with finger-IK input.',
+      required: true
+    },
+    {
+      name: 'ox_inventory',
+      description: 'Default inventory provider. qb-inventory is also supported via Config.Inventory.',
+      required: false,
+      href: 'https://github.com/overextended/ox_inventory'
+    },
+    {
+      name: 'ox_target',
+      description: 'Default target provider for the laptop "Open" and "Pick Up" actions. qb-target is also supported via Config.Target.',
+      required: false,
+      href: 'https://github.com/overextended/ox_target'
+    }
+  ]}
+>
+  `nx-3d` must start <strong>before</strong> <code>nx_laptop</code>.
+</DependencyList>
+
+## Database import
+
+Import `nx_laptop.sql` into the same database `oxmysql` points at:
+
+```bash
+mysql -u <user> -p <database> < nx_laptop.sql
+```
+
+This creates the following tables:
+
+- `nx_laptop_assets`. Stock and crypto holdings per player.
+- `nx_laptop_job_apps`. Job application submissions.
+- `nx_laptop_vehicle_market`. Vehicle marketplace listings.
+- `nx_laptop_darknet_listings`. Player-created darknet listings.
+- `nx_laptop_darknet_deliveries`. Pending catalog deliveries.
+- `nx_laptop_payouts`. Casino and trading payout log.
+- `nx_laptop_forum_posts`, `nx_laptop_forum_comments`, `nx_laptop_forum_likes`. Forum content.
+
+The asset table name is configurable via
+[`Config.TableName`](./configuration).
+
+## Inventory item
+
+Register the laptop as an item in your inventory system. The item
+name must match [`Config.LaptopItem`](./configuration) (default
+`laptop`).
+
+### ox_inventory
+
+In `ox_inventory/data/items.lua`:
+
+```lua
+["laptop"] = {
+    label = "Laptop",
+    weight = 1000,
+    stack = true,
+    close = true,
+    description = "Invest on the market or gamble your money away online.",
+    client = { event = 'nx_laptop:client:useLaptop' }
+},
+```
+
+### qb-inventory
+
+In `qb-core/shared/items.lua`:
+
+```lua
+laptop = {
+    name = 'laptop',
+    label = 'Laptop',
+    weight = 1000,
+    type = 'item',
+    image = 'laptop.png',
+    unique = false,
+    useable = true,
+    shouldClose = true,
+    description = 'Invest on the market or gamble your money away online.'
+},
+```
+
+Then register the useable item server-side so the inventory fires
+`nx_laptop:client:useLaptop` when the player uses it:
+
+```lua
+QBCore.Functions.CreateUseableItem('laptop', function(source)
+    TriggerClientEvent('nx_laptop:client:useLaptop', source)
+end)
+```
+
+## Discord webhooks
+
+Job applications post to Discord via webhooks defined in the
+server-only file `server/webhooks.lua`. The keys must match the `id`
+field of each entry in [`Config.JobsHub.Jobs`](./configuration#jobs-hub).
+
+```lua
+-- server/webhooks.lua
+ServerConfig.JobWebhooks = {
+    police = 'https://discord.com/api/webhooks/...',
+    ems = 'https://discord.com/api/webhooks/...',
+    mechanic = 'https://discord.com/api/webhooks/...'
+}
+```
+
+Leave a value empty to disable posting for that job. The file is
+listed in `escrow_ignore`, so it stays editable after install.
+
+## server.cfg order
+
+```bash
+ensure oxmysql
+ensure ox_lib
+ensure ox_inventory   # or qb-inventory
+ensure ox_target      # or qb-target
+
+ensure nx-3d
+ensure nx_laptop
+```

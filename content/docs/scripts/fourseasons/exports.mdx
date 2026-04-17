@@ -1,0 +1,256 @@
+---
+title: Exports
+description: Public exports registered by nx_fourseasons. All exports are client-side.
+---
+
+`nx_fourseasons` registers only client-side exports. Call them from
+any client script via `exports.nx_fourseasons:<Name>()`.
+
+## State
+
+<ExportSignature
+  name="exports.nx_fourseasons:GetCurrentWeather"
+  side="client"
+  description="Return the current weather snapshot for this client."
+  returns="{ weather: string, type: string, intensity: number, temperature: number, season: string, storm: table | nil }"
+>
+```lua
+local w = exports.nx_fourseasons:GetCurrentWeather()
+print(w.weather, w.intensity, w.temperature)
+```
+</ExportSignature>
+
+<ExportSignature
+  name="exports.nx_fourseasons:GetCurrentTemperature"
+  side="client"
+  description="Return the current temperature in Celsius."
+  returns="number"
+>
+```lua
+local temp = exports.nx_fourseasons:GetCurrentTemperature()
+if temp < 0 then
+    -- Player is in sub-zero conditions
+end
+```
+</ExportSignature>
+
+<ExportSignature
+  name="exports.nx_fourseasons:GetCurrentSeason"
+  side="client"
+  description="Return the active season id."
+  returns="'SPRING' | 'SUMMER' | 'FALL' | 'WINTER'"
+>
+```lua
+local season = exports.nx_fourseasons:GetCurrentSeason()
+```
+</ExportSignature>
+
+<ExportSignature
+  name="exports.nx_fourseasons:GetCurrentTime"
+  side="client"
+  description="Return the synced clock for this client."
+  returns="{ hour: number, minute: number, second: number, day: number, month: number, year: number, useRealTime: boolean, freeze: boolean }"
+>
+```lua
+local t = exports.nx_fourseasons:GetCurrentTime()
+print(('%02d:%02d'):format(t.hour, t.minute))
+```
+</ExportSignature>
+
+<ExportSignature
+  name="exports.nx_fourseasons:GetCurrentStormState"
+  side="client"
+  description="Return the current storm state broadcast by the server. Nil if storms are disabled."
+  returns="table | nil"
+>
+```lua
+local storm = exports.nx_fourseasons:GetCurrentStormState()
+```
+</ExportSignature>
+
+<ExportSignature
+  name="exports.nx_fourseasons:IsPlayerIndoors"
+  side="client"
+  description="Return whether the player is currently detected as indoors. Uses a cached check so it is cheap to poll."
+  returns="boolean"
+>
+```lua
+if exports.nx_fourseasons:IsPlayerIndoors() then
+    -- Skip outdoor-only FX
+end
+```
+</ExportSignature>
+
+## Forecast
+
+<ExportSignature
+  name="exports.nx_fourseasons:GetForecast"
+  side="client"
+  description="Return the server-provided forecast. With no argument, returns the full forecast array. With a day offset, returns that single day."
+  params={[
+    { name: 'daysAhead', type: 'number', optional: true, description: '0 for today, 1 for tomorrow, up to Config.ForecastDays - 1.' }
+  ]}
+  returns="table[] | { weather: string, type: string, temperature: number, intensity: number, day?: number, date?: any }"
+>
+```lua
+-- Full forecast
+local days = exports.nx_fourseasons:GetForecast()
+
+-- Single day
+local tomorrow = exports.nx_fourseasons:GetForecast(1)
+print(tomorrow.weather, tomorrow.temperature)
+```
+</ExportSignature>
+
+## Sync control
+
+Pause or resume the weather and time sync for the local player. Useful
+for cutscenes, interiors, and minigames that run in an isolated
+environment.
+
+<ExportSignature
+  name="exports.nx_fourseasons:PauseSync"
+  side="client"
+  description="Pause or resume weather and time sync on this client. Pending updates are replayed on resume."
+  params={[
+    { name: 'paused', type: 'boolean', description: 'true to pause, false to resume.' }
+  ]}
+  returns="boolean"
+>
+```lua
+-- Freeze weather during a cutscene
+exports.nx_fourseasons:PauseSync(true)
+
+-- Resume after
+exports.nx_fourseasons:PauseSync(false)
+```
+</ExportSignature>
+
+<ExportSignature
+  name="exports.nx_fourseasons:RequestSync"
+  side="client"
+  description="Ask the server to resend the full weather, forecast, and storm state to this client."
+  returns="true"
+>
+```lua
+exports.nx_fourseasons:RequestSync()
+```
+</ExportSignature>
+
+<ExportSignature
+  name="exports.nx_fourseasons:IsSyncPaused"
+  side="client"
+  description="Return whether sync is currently paused on this client."
+  returns="boolean"
+>
+```lua
+if exports.nx_fourseasons:IsSyncPaused() then
+    exports.nx_fourseasons:PauseSync(false)
+end
+```
+</ExportSignature>
+
+## Road traction
+
+Override traction reductions on individual vehicles. Useful for scripted
+missions where a vehicle should ignore the active weather, or for
+adding a stronger penalty to a specific vehicle class.
+
+<ExportSignature
+  name="exports.nx_fourseasons:ToggleCurrentRoadEffects"
+  side="client"
+  description="Enable or disable the active weather-driven road effect on a vehicle."
+  params={[
+    { name: 'vehicle', type: 'number', description: 'Vehicle entity handle.' },
+    { name: 'enabled', type: 'boolean', description: 'true to apply, false to suspend.' }
+  ]}
+>
+```lua
+local veh = GetVehiclePedIsIn(PlayerPedId(), false)
+exports.nx_fourseasons:ToggleCurrentRoadEffects(veh, false)
+```
+</ExportSignature>
+
+<ExportSignature
+  name="exports.nx_fourseasons:SetVehicleRoadEffect"
+  side="client"
+  description="Override the traction reduction applied to a vehicle. Value replaces the active weather default."
+  params={[
+    { name: 'vehicle', type: 'number' },
+    { name: 'overrideReduction', type: 'number', description: 'Traction reduction in the range 0.0 (none) to 1.0 (max).' }
+  ]}
+>
+```lua
+exports.nx_fourseasons:SetVehicleRoadEffect(veh, 0.5)
+```
+</ExportSignature>
+
+<ExportSignature
+  name="exports.nx_fourseasons:GetVehicleRoadEffect"
+  side="client"
+  description="Return the road-effect state currently tracked for a vehicle."
+  params={[
+    { name: 'vehicle', type: 'number' }
+  ]}
+  returns="table | nil"
+/>
+
+<ExportSignature
+  name="exports.nx_fourseasons:ResetVehicleRoadEffect"
+  side="client"
+  description="Clear any override set by SetVehicleRoadEffect and reapply the active weather default."
+  params={[
+    { name: 'vehicle', type: 'number' }
+  ]}
+/>
+
+## Screen weather FX
+
+Toggle the screen-space rain drops and the global weather screen
+overlay per-player. Preferences are kept on the client.
+
+<ExportSignature
+  name="exports.nx_fourseasons:SetRainScreenDropsEnabled"
+  side="client"
+  description="Enable or disable screen-space rain drops."
+  params={[
+    { name: 'enabled', type: 'boolean' }
+  ]}
+  returns="boolean"
+/>
+
+<ExportSignature
+  name="exports.nx_fourseasons:IsRainScreenDropsEnabled"
+  side="client"
+  returns="boolean"
+/>
+
+<ExportSignature
+  name="exports.nx_fourseasons:ToggleRainScreenDrops"
+  side="client"
+  description="Toggle screen-space rain drops and return the new state."
+  returns="boolean"
+/>
+
+<ExportSignature
+  name="exports.nx_fourseasons:SetScreenWeatherEnabled"
+  side="client"
+  description="Enable or disable the full screen weather overlay (umbrella of screen-space FX driven by the active weather)."
+  params={[
+    { name: 'enabled', type: 'boolean' }
+  ]}
+  returns="boolean"
+/>
+
+<ExportSignature
+  name="exports.nx_fourseasons:IsScreenWeatherEnabled"
+  side="client"
+  returns="boolean"
+/>
+
+<ExportSignature
+  name="exports.nx_fourseasons:ToggleScreenWeather"
+  side="client"
+  description="Toggle the full screen weather overlay and return the new state."
+  returns="boolean"
+/>

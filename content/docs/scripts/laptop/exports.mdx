@@ -1,0 +1,25 @@
+---
+title: Exports
+description: Public exports registered by nx_laptop.
+---
+
+`nx_laptop` ships a small public surface. Most integration happens
+through the `nx_laptop:client:useLaptop` event (see [Events](./events))
+and through standard framework inventory and target wiring.
+
+## Server
+
+<ExportSignature
+  name="exports.nx_laptop:base64Encode"
+  side="server"
+  description="Base64 encode an arbitrary string. Used internally for inlining fetched vehicle and forum images as data URIs, and exposed so other resources can share the same encoder."
+  params={[
+    { name: 'data', type: 'string', description: 'Raw input to encode. Binary-safe.' }
+  ]}
+  returns="string"
+>
+```lua
+local encoded = exports.nx_laptop:base64Encode('hello world')
+print(encoded) -- aGVsbG8gd29ybGQ=
+```
+</ExportSignature>

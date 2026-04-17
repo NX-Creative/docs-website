@@ -1,0 +1,67 @@
+---
+title: Fourseasons
+description: Dynamic weather, seasons, time sync, storms, and gameplay flooding for FiveM. Server-authoritative, ESX and QBCore compatible.
+---
+
+`nx_fourseasons` is a server-authoritative weather and time system. It
+drives a seasonal cycle (spring, summer, fall, winter), syncs weather
+and temperature across every client, and layers on gameplay effects
+that react to what is happening in the sky.
+
+## Features
+
+- **Four seasons.** Each season has its own weather probability table,
+  temperature baseline, and optional seasonal events. Duration is
+  configurable, or follow the real-world month with `UseRealtimeSeason`.
+- **Server-authoritative sync.** Weather, temperature, forecast, and
+  clock are generated on the server and pushed to clients on a fixed
+  interval. `PauseSync` / `RequestSync` exports let other resources
+  suspend and resume a player's feed (useful for cutscenes and
+  interiors).
+- **Storm systems.** Blackout pulses during thunder, proximity-based
+  lightning strike FX, and a coastal or global ocean-wave scaler with
+  optional boat physics penalties.
+- **Gameplay flooding.** Subtle low-street flooding tied to the weather
+  cycle, separate from the admin-only extreme flooding used for
+  testing. Three profiles (subtle, moderate, strong) with season
+  rules.
+- **Temperature effects.** Shivering, cold breath, frozen-screen
+  overlay, heatwave screen shift, and configurable thresholds.
+- **Road traction.** Per-weather traction reductions applied to
+  vehicles, with exports to override or toggle on individual vehicles.
+- **Screen weather.** Optional screen-space rain drops and global
+  weather overlay, toggleable per-player.
+- **Forecast UI.** Multi-day forecast viewable via `/forecast` or
+  through a newspaper-stand target interaction.
+- **Admin menu.** `ox_lib` context menu for setting weather, time,
+  season, temperature, running seasonal events, and triggering
+  floods. Permission-gated.
+- **Persistence.** MySQL-backed state. Cycle state, forecast, and
+  optional analytics tables survive restarts.
+- **Localization.** English and Finnish ship by default.
+
+## Framework usage
+
+<FrameworkTabs>
+  <FrameworkTab framework="esx">
+```lua
+-- Read current weather from any client script
+local weather = exports.nx_fourseasons:GetCurrentWeather()
+print(weather.weather, weather.intensity, weather.temperature)
+```
+  </FrameworkTab>
+  <FrameworkTab framework="qbcore">
+```lua
+-- Read current weather from any client script
+local weather = exports.nx_fourseasons:GetCurrentWeather()
+print(weather.weather, weather.intensity, weather.temperature)
+```
+  </FrameworkTab>
+</FrameworkTabs>
+
+The framework is auto-detected through the `bridge/` layer. Set
+`Config.Framework` to `"ESX"` or `"QB"` to force it.
+
+## Get it
+
+Available at [nxcreative.tech/fourseasons](https://nxcreative.tech/fourseasons).

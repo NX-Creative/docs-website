@@ -1,0 +1,90 @@
+---
+title: Laptop
+description: A 3D in-world laptop. Stocks, crypto wallet, vehicle marketplace, darknet, jobs hub, forums, and a casino app. Runs on ESX, QBCore, and QBox.
+---
+
+`nx_laptop` is a single portable laptop item that opens a full desktop
+UI in-world. The laptop is rendered as a real 3D panel via `nx-3d`,
+so other players can see the screen over your shoulder and the
+keyboard responds to finger-IK input.
+
+The laptop ships with seven apps that share one backend: a stock
+trading terminal, a crypto wallet, a vehicle marketplace, a darknet
+black market, a jobs hub with Discord webhook delivery, a public
+forum, and a casino (blackjack, hi-lo, video poker, roulette).
+
+## Features
+
+- **Portable item.** `Config.LaptopItem` (default `laptop`) is a normal
+  inventory item. Use it to place the laptop in front of you, press
+  `E` to pick it back up.
+- **3D in-world rendering.** Screen, keyboard, and typing all route
+  through `nx-3d` so the laptop is visible to nearby players, not a
+  flat NUI overlay.
+- **Stocks.** A live market of tradable tickers with portfolio
+  persistence per player identifier.
+- **Crypto wallet.** Buy, sell, and send crypto between players.
+  Server-side settlement, client-side notifications on send and
+  receive.
+- **Vehicle marketplace.** List, browse, and buy player-owned vehicles
+  with optional listing fees and tax. Pulls owned vehicles from the
+  framework's garage table.
+- **Darknet.** Player-run black market with item listings plus a
+  pre-curated catalog of contraband with timed deliveries and a
+  physical pickup ped.
+- **Jobs hub.** In-laptop job applications with per-job questions.
+  Submissions post to per-job Discord webhooks.
+- **Forums.** Posts, comments, and likes, all persisted.
+- **Casino.** Blackjack, hi-lo, video poker, and roulette. Every bet
+  and payout is settled server-side against a configurable account
+  (`bank`, `money`, or `cash`).
+- **Framework agnostic.** ESX, QBCore, and QBox (qbx alias) detected
+  via `Config.Framework`. Inventory and target providers are
+  independently configurable.
+
+## Framework usage
+
+Bind the laptop item to the `nx_laptop:client:useLaptop` event and
+the laptop will enter placement mode for the local player. For
+`ox_inventory`, that wiring lives in the item definition itself.
+
+<FrameworkTabs>
+  <FrameworkTab framework="esx">
+```lua
+-- ox_inventory item definition (ox_inventory/data/items.lua)
+["laptop"] = {
+    label = "Laptop",
+    weight = 1000,
+    stack = true,
+    close = true,
+    description = "Invest on the market or gamble your money away online.",
+    client = { event = 'nx_laptop:client:useLaptop' }
+},
+```
+  </FrameworkTab>
+  <FrameworkTab framework="qbcore">
+```lua
+-- qb-core/shared/items.lua
+laptop = {
+    name = 'laptop',
+    label = 'Laptop',
+    weight = 1000,
+    type = 'item',
+    image = 'laptop.png',
+    unique = false,
+    useable = true,
+    shouldClose = true,
+    description = 'Invest on the market or gamble your money away online.'
+},
+
+-- Then register the usable item on the server (QBCore)
+QBCore.Functions.CreateUseableItem('laptop', function(source)
+    TriggerClientEvent('nx_laptop:client:useLaptop', source)
+end)
+```
+  </FrameworkTab>
+</FrameworkTabs>
+
+## Get it
+
+Available at [nxcreative.tech/laptop](https://nxcreative.tech/laptop).

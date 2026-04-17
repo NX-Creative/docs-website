@@ -1,0 +1,210 @@
+---
+title: Configuration
+description: Every entry in shared/config.lua. Defaults, types, and purpose.
+---
+
+All settings live in `shared/config.lua`. The file is in `escrow_ignore`
+so it remains editable after install. Event name constants and locale
+strings live in `shared/constants.lua` and the `Config.Locale` table
+respectively.
+
+## Core
+
+<ConfigOption name="Config.Framework" type="string" default="'ESX'" description="Framework identifier. One of 'ESX', 'QB'." />
+
+<ConfigOption name="Config.Target" type="string" default="'OX'" description="Target resource identifier. One of 'OX', 'QB'." />
+
+<ConfigOption name="Config.Language" type="string" default="'en'" description="Active language for UI and notifications. Shipped: 'en', 'fi'." />
+
+<ConfigOption name="Config.NotificationSystem" type="string" default="'ox_lib'" description="Notification backend. One of 'ox_lib', 'esx', 'qb', 'custom'." />
+
+<ConfigOption name="Config.CustomNotify" type="function | nil" default="nil" description="Optional function invoked when NotificationSystem = 'custom'. Signature: function(title, message, type, duration)." />
+
+<ConfigOption name="Config.AdminIdentifiers" type="string[]" default="{}" description="Optional list of raw identifiers (license, steam, discord) treated as admin outside the framework's group system." />
+
+<ConfigOption name="Config.AdminKeybind" type="table" default="{ enabled = false, key = 'F7' }" description="Keybind that opens the admin menu. When enabled, registered through lib.addKeybind." />
+
+<ConfigOption name="Config.Debug" type="boolean" default="false" description="Enables verbose debug logging and unlocks debug-only commands (see Commands page)." />
+
+<ConfigOption name="Config.EnableLogging" type="boolean" default="true" description="When true, the optional analytics tables are created and weather changes are logged." />
+
+## Weather system toggles
+
+<ConfigOption name="Config.EnableSeasons" type="boolean" default="true" description="Master toggle for the seasonal cycle. If false, season stays fixed on Config.DefaultSeason." />
+
+<ConfigOption name="Config.EnableWarnings" type="boolean" default="true" description="Broadcast in-world weather warnings during severe weather." />
+
+<ConfigOption name="Config.EnableWarningSounds" type="boolean" default="false" description="Play the warning sound FX alongside the text warning." />
+
+<ConfigOption name="Config.EnableWeatherEffects" type="boolean" default="true" description="Apply road traction, visual overlays, and weather-driven FX on clients." />
+
+<ConfigOption name="Config.EnableTemperatureSystem" type="boolean" default="true" description="Calculate and broadcast temperature. Required for shivering, cold breath, and heatwave effects." />
+
+<ConfigOption name="Config.DefaultSeason" type="string" default="'SUMMER'" description="Season used when EnableSeasons is false, or the initial season at first start." />
+
+<ConfigOption name="Config.WeatherChanceMultipliers" type="table" default="{ WetWeather = 0.6, SpringThunderEvent = 0.5 }" description="0.01 to 1.0 multipliers. WetWeather tunes random RAIN/THUNDER frequency. SpringThunderEvent tunes the spring thunderstorm seasonal event." />
+
+<ConfigOption name="Config.InitialSeasonalEventCheckDelayMinutes" type="number" default="30" description="Minutes after resource start before the first seasonal event roll." />
+
+## Gameplay flooding
+
+Subtle low-street flooding tied to the weather cycle. Separate from
+the admin-only extreme flooding used for testing. Requires
+`Config.StormSystems.Enabled = true`.
+
+<ConfigOption name="Config.GameplayFlooding.Enabled" type="boolean" default="false" description="Master toggle for gameplay flooding." />
+
+<ConfigOption name="Config.GameplayFlooding.AutoReset" type="boolean" default="true" description="Automatically reset water after the profile duration expires." />
+
+<ConfigOption name="Config.GameplayFlooding.CooldownMinutes" type="number" default="180" description="Minimum time between gameplay flood triggers." />
+
+<ConfigOption name="Config.GameplayFlooding.DurationCheckIntervalSeconds" type="number" default="30" description="How often the server checks whether the active flood should expire." />
+
+<ConfigOption name="Config.GameplayFlooding.Profiles" type="table" description="Flood profile definitions keyed by id. Shipped: subtle, moderate, strong. Each profile: { maxFloodHeight, increaseRate, threadWait, durationMinutes }." />
+
+<ConfigOption name="Config.GameplayFlooding.ProfileWeights" type="table" default="{ subtle = 0.78, moderate = 0.20, strong = 0.02 }" description="Weighted selection when a profile is picked automatically." />
+
+<ConfigOption name="Config.GameplayFlooding.SeasonRules" type="table" description="Per-season trigger rules. Shipped: SPRING (THUNDER, minIntensity 0.72, triggerChance 0.35) and FALL (RAIN or THUNDER, minIntensity 0.80, triggerChance 0.20)." />
+
+## Storm systems
+
+Blackout pulses, lightning strike FX, and ocean wave simulation.
+
+<ConfigOption name="Config.StormSystems.Enabled" type="boolean" default="true" description="Master toggle for all storm systems." />
+
+<ConfigOption name="Config.StormSystems.SyncIntervalSeconds" type="number" default="2" description="Server to client cadence for storm state broadcasts." />
+
+### Blackout
+
+<ConfigOption name="Config.StormSystems.Blackout.Enabled" type="boolean" default="true" />
+
+<ConfigOption name="Config.StormSystems.Blackout.MinIntensity" type="number" default="0.72" description="Fallback intensity threshold for weather types not listed in EligibleWeather." />
+
+<ConfigOption name="Config.StormSystems.Blackout.EligibleWeather" type="table" default="{ THUNDER = { minIntensity = 0.72 }, RAIN = { minIntensity = 0.88 }, BLIZZARD = { minIntensity = 0.72 } }" description="Per-weather minimum intensity required for blackout pulses to fire." />
+
+<ConfigOption name="Config.StormSystems.Blackout.PulseMinSeconds" type="number" default="6" />
+<ConfigOption name="Config.StormSystems.Blackout.PulseMaxSeconds" type="number" default="14" />
+<ConfigOption name="Config.StormSystems.Blackout.CooldownMinSeconds" type="number" default="20" />
+<ConfigOption name="Config.StormSystems.Blackout.CooldownMaxSeconds" type="number" default="45" />
+
+<ConfigOption name="Config.StormSystems.Blackout.VehicleLights" type="boolean" default="false" description="When false, vehicle lights are disabled during blackout pulses." />
+
+### Strike FX
+
+<ConfigOption name="Config.StormSystems.StrikeFx.Enabled" type="boolean" default="true" />
+<ConfigOption name="Config.StormSystems.StrikeFx.MinIntensity" type="number" default="0.65" />
+<ConfigOption name="Config.StormSystems.StrikeFx.ChancePerSync" type="number" default="0.18" description="Probability of a strike FX broadcast on each sync interval while storm logic is active." />
+<ConfigOption name="Config.StormSystems.StrikeFx.MinIntervalSeconds" type="number" default="6" description="Hard cooldown between strike FX broadcasts." />
+<ConfigOption name="Config.StormSystems.StrikeFx.MinDistanceFromTarget" type="number" default="25.0" />
+<ConfigOption name="Config.StormSystems.StrikeFx.MaxDistanceFromTarget" type="number" default="120.0" />
+
+### Ocean
+
+<ConfigOption name="Config.StormSystems.Ocean.Enabled" type="boolean" default="true" />
+
+<ConfigOption name="Config.StormSystems.Ocean.Mode" type="string" default="'coastal'" description="'coastal' applies only when the player is near water. 'global' always applies." />
+
+<ConfigOption name="Config.StormSystems.Ocean.UpdateIntervalMs" type="number" default="2500" />
+<ConfigOption name="Config.StormSystems.Ocean.DetectionRadius" type="number" default="90.0" />
+<ConfigOption name="Config.StormSystems.Ocean.ProbeDepth" type="number" default="24.0" />
+<ConfigOption name="Config.StormSystems.Ocean.DefaultScaler" type="number" default="1.0" />
+
+<ConfigOption name="Config.StormSystems.Ocean.Presets" type="table" default="{ calm = 1.0, normal = 1.3, rough = 1.6, storm = 2.0, experimental = 4.0 }" description="Named scaler presets usable from the admin menu and the STORM_SET_OCEAN_OVERRIDE event." />
+
+<ConfigOption name="Config.StormSystems.Ocean.WeatherScalers" type="table" description="Per-weather automatic scaler. Keys mirror GTA weather types (CLEAR, RAIN, THUNDER, SNOW, BLIZZARD, etc.). Values multiply the base wave height." />
+
+<ConfigOption name="Config.StormSystems.Ocean.BoatPhysics" type="table" default="{ Enabled = true, RoughThreshold = 1.35, StormThreshold = 1.8, RoughMaxSpeedMultiplier = 0.88, StormMaxSpeedMultiplier = 0.75, TurbulenceForce = 0.15, TurbulenceIntervalMs = 850 }" description="Optional boat penalties under rough seas. Thresholds are scaler values, multipliers clamp max speed, TurbulenceForce adds periodic impulse." />
+
+## UI
+
+<ConfigOption name="Config.UI.EnableForecast" type="boolean" default="true" description="Enable the /forecast command and the newspaper-stand forecast interaction." />
+
+<ConfigOption name="Config.UI.EnableWeatherHud" type="boolean" default="true" description="Render the small weather HUD panel." />
+
+<ConfigOption name="Config.UI.NotifyOnWeatherChange" type="boolean" default="true" />
+
+<ConfigOption name="Config.UI.NotifyOnTempChange" type="boolean" default="true" description="Notify when temperature changes by more than TempChangeThreshold." />
+
+<ConfigOption name="Config.UI.TempChangeThreshold" type="number" default="5" description="Minimum temperature delta (in degrees) that triggers a notification." />
+
+<ConfigOption name="Config.UI.WarningDuration" type="number" default="10" description="Seconds a warning banner stays on screen." />
+
+<ConfigOption name="Config.UI.UseMetric" type="boolean" default="true" description="Display temperature in Celsius. Set false for Fahrenheit." />
+
+<ConfigOption name="Config.UI.DisplayFormat" type="string" default="'both'" description="HUD display format. One of 'icon', 'text', 'both'." />
+
+## Weather intervals
+
+<ConfigOption name="Config.WeatherUpdateInterval" type="number" default="2.5" description="Minutes between weather tick evaluations on the server." />
+
+<ConfigOption name="Config.DefaultWeatherDuration" type="number" default="8" description="Fallback duration (minutes) when Min/Max are not set." />
+
+<ConfigOption name="Config.MinWeatherDuration" type="number" default="5" description="Minimum random weather duration (minutes)." />
+
+<ConfigOption name="Config.MaxWeatherDuration" type="number" default="15" description="Maximum random weather duration (minutes)." />
+
+<ConfigOption name="Config.ForecastDays" type="number" default="6" description="Number of days included in the forecast." />
+
+<ConfigOption name="Config.ForecastRefreshInterval" type="number" default="60" description="Minutes between forecast regenerations." />
+
+## Temperature
+
+<ConfigOption name="Config.BaseTemperature" type="number" default="10" description="Base temperature in Celsius. Modulated by season, time-of-day, and weather." />
+
+<ConfigOption name="Config.ColdTemperature" type="number" default="4" description="At or below this, the player is flagged as 'cold'. Triggers shivering and cold-breath effects." />
+
+<ConfigOption name="Config.HotTemperature" type="number" default="30" description="At or above this, heatwave effects apply." />
+
+<ConfigOption name="Config.MaxTemperature" type="number" default="45" />
+
+<ConfigOption name="Config.MinTemperature" type="number" default="-20" />
+
+## Seasons
+
+<ConfigOption name="Config.SeasonDuration" type="number" default="30" description="Real-world minutes per season when UseRealtimeSeason is false." />
+
+<ConfigOption name="Config.UseRealtimeSeason" type="boolean" default="false" description="When true, season follows the real-world month (see RealtimeSeasonMonthMap) instead of SeasonDuration." />
+
+<ConfigOption name="Config.RealtimeSeasonMonthMap" type="table" description="Month (1 to 12) to season ('SPRING', 'SUMMER', 'FALL', 'WINTER'). Shipped default maps Dec-Feb to winter, Mar-May to spring, Jun-Aug to summer, Sep-Nov to fall." />
+
+## Time sync
+
+<ConfigOption name="Config.TimeSync.Enabled" type="boolean" default="true" description="Server-authoritative time sync. Ensures all players share the same clock." />
+
+<ConfigOption name="Config.TimeSync.UseRealTime" type="boolean" default="false" description="Mirror real-world time when true." />
+
+<ConfigOption name="Config.TimeSync.Freeze" type="boolean" default="false" description="Freeze time progression when UseRealTime is false." />
+
+<ConfigOption name="Config.TimeSync.StartHour" type="number" default="12" />
+<ConfigOption name="Config.TimeSync.StartMinute" type="number" default="0" />
+<ConfigOption name="Config.TimeSync.StartSecond" type="number" default="0" />
+
+<ConfigOption name="Config.TimeSync.TimeScale" type="number" default="1.0" description="Minute progression multiplier when UseRealTime is false." />
+
+<ConfigOption name="Config.TimeSync.SyncIntervalSeconds" type="number" default="15" description="Server to client time broadcast cadence." />
+
+<ConfigOption name="Config.TimeSync.RealtimeUtcOffsetMinutes" type="number | nil" default="nil" description="Optional fixed UTC offset (minutes) for realtime mode." />
+
+## Road traction
+
+<ConfigOption name="Config.RoadEffects.RainTractionReduction" type="number" default="0.15" description="Traction reduction during RAIN. Range 0.0 to 1.0." />
+
+<ConfigOption name="Config.RoadEffects.ThunderTractionReduction" type="number" default="0.25" />
+
+<ConfigOption name="Config.RoadEffects.ClearingTractionReduction" type="number" default="0.1" />
+
+<ConfigOption name="Config.RoadEffects.SnowTractionReduction" type="number" default="0.35" />
+
+## Warnings
+
+<ConfigOption name="Config.WarningMessages" type="table" description="Per-weather warning message arrays. Keys: THUNDER (levels 1 to 4), RAIN (levels 1 to 3), SNOW (levels 1 to 3). Index selects by severity." />
+
+<ConfigOption name="Config.WarningMessagesFi" type="table" description="Finnish mirror of WarningMessages." />
+
+<ConfigOption name="Config.WeatherMessages" type="table" description="Notification string per weather type (CLEAR, EXTRASUNNY, CLOUDS, OVERCAST, RAIN, THUNDER, CLEARING, SMOG, FOGGY, XMAS, SNOWLIGHT, BLIZZARD, SNOW)." />
+
+<ConfigOption name="Config.WeatherMessagesFi" type="table" description="Finnish mirror of WeatherMessages." />
+
+## Localization strings
+
+<ConfigOption name="Config.Locale" type="table" description="Flat string table keyed by language code. Shipped keys: 'en', 'fi'. Each language maps UI labels, notification titles, warning copy, forecast labels, debug strings, and server-originated messages. Use Config.Language to select the active language." />

@@ -1,0 +1,53 @@
+---
+title: Commands
+description: Chat commands registered by nx_fourseasons.
+---
+
+## Player commands
+
+<CommandReference
+  name="forecast"
+  description="Open the forecast UI. Gated by Config.UI.EnableForecast."
+/>
+
+<CommandReference
+  name="togglescreenweather"
+  description="Toggle the screen weather overlay (screen-space raindrops and weather FX). Preference is stored on the client."
+/>
+
+## Admin commands
+
+<CommandReference
+  name="weatheradmin"
+  description="Open the ox_lib admin menu. Set weather, time, season, temperature, trigger seasonal events, and run test actions. Gated by the framework admin check. A keybind can also be registered through Config.AdminKeybind."
+/>
+
+## Debug commands
+
+The following commands are only registered when `Config.Debug = true`.
+They are for development and should stay off in production.
+
+<CommandReference
+  name="testwarning"
+  description="Show a weather warning banner at a given level. Usage: /testwarning [1-3]."
+/>
+
+<CommandReference
+  name="weatherwarning"
+  description="Lower-level test that sends a warning directly to the notification system. Usage: /weatherwarning [level]."
+/>
+
+<CommandReference
+  name="displayformat"
+  description="Switch the HUD display format. Usage: /displayformat [icon|text|both]."
+/>
+
+<CommandReference
+  name="format"
+  description="Alternate HUD format switch used by the NUI. Usage: /format [icon|text|full]."
+/>
+
+<CommandReference
+  name="updateforecast"
+  description="Request a forecast refresh from the server."
+/>
