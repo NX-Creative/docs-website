@@ -1,0 +1,121 @@
+---
+title: Installation
+description: Resource-specific setup for nx_realbanking. Dependencies, database import, and framework detection.
+---
+
+For server-wide prerequisites (artifacts, `oxmysql`, `ox_lib`), work
+through the [generic install guide](/docs/getting-started/installation)
+first. This page only lists what is specific to `nx_realbanking`.
+
+## Dependencies
+
+<DependencyList
+  dependencies={[
+    {
+      name: 'oxmysql',
+      description: 'Database driver for all persistent state.',
+      required: true,
+      href: 'https://github.com/overextended/oxmysql'
+    },
+    {
+      name: 'ox_lib',
+      description: 'Callbacks, notifications, and UI utilities.',
+      required: true,
+      href: 'https://github.com/overextended/ox_lib'
+    },
+    {
+      name: 'nx-3d',
+      description: 'Renders the ATM UI onto 3D in-world panels (screen and keypad).',
+      required: true
+    },
+    {
+      name: 'ox_inventory',
+      description: 'Physical bank cards, ATM receipts, and credit-card items.',
+      required: false,
+      href: 'https://github.com/overextended/ox_inventory'
+    },
+    {
+      name: 'ox_target',
+      description: 'Target-based ATM and bank-ped interaction. qb-target is also supported via Config.TargetSystem.',
+      required: false,
+      href: 'https://github.com/overextended/ox_target'
+    }
+  ]}
+>
+  Framework detection is automatic: ESX Legacy (1.9.0+) or QBCore.
+  Make sure the framework resource starts <strong>before</strong> <code>nx_realbanking</code>.
+</DependencyList>
+
+## Database import
+
+Import the two SQL files into the same database `oxmysql` points at:
+
+```bash
+mysql -u <user> -p <database> < sql/schema.sql
+mysql -u <user> -p <database> < sql/invoices_schema.sql
+```
+
+The schemas create:
+
+- `nx_realbanking_accounts`. Account records.
+- `nx_realbanking_transactions`. Transaction history.
+- `nx_realbanking_daily_limits`. Daily limit counters.
+- `nx_realbanking_interaction_logs`. Security and audit trail.
+- Invoice tables. Invoices, items, autopay, credit cards, billing.
+
+> [!tip]
+> `sql/schema.sql` also renames older legacy columns when upgrading
+> from a pre-release version. A fresh install can ignore
+> `name_change.sql`, it is only for existing installs.
+
+## server.cfg order
+
+```bash
+ensure oxmysql
+ensure ox_lib
+ensure nx-3d
+# ensure your framework here (es_extended or qb-core)
+ensure nx_realbanking
+```
+
+## Optional items
+
+If `ox_inventory` is present, register the card and receipt items in
+`ox_inventory/data/items.lua`:
+
+```lua
+['bank_card'] = {
+    label = 'Maze Bank Card',
+    weight = 10,
+    stack = false,
+    close = true,
+    description = 'Official Maze Bank debit card'
+},
+['atm_receipt'] = {
+    label = 'ATM Receipt',
+    weight = 0,
+    stack = true,
+    close = false,
+    decay = 1440
+},
+['credit_card'] = {
+    label = 'Credit Card',
+    weight = 10,
+    stack = false,
+    close = true
+}
+```
+
+The credit-card item name is configurable, see
+[`Config.Credit.items.creditCardItem`](./configuration).
+
+## Convars
+
+Set these in `server.cfg` to override runtime behavior without editing
+the config file:
+
+```bash
+set nx_realbanking:debug "true"
+set nx_realbanking:locale "en"
+set nx_realbanking:framework "auto"  # auto | esx | qbcore
+```

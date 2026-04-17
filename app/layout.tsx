@@ -4,9 +4,9 @@ import type { ReactNode } from 'react';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'NX Creative — Docs',
+  title: 'NX Creative Docs',
   description:
-    'Documentation for NX Creative — premium FiveM scripts for ESX, QBCore, and QBox roleplay servers.',
+    'Documentation for NX Creative. Premium FiveM scripts for ESX, QBCore, and QBox roleplay servers.',
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

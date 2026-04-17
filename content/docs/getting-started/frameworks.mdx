@@ -3,70 +3,46 @@ title: Frameworks
 description: How NX Creative scripts adapt to ESX, QBCore, and QBox.
 ---
 
-NX Creative scripts ship with a framework bridge. The same script binary
-works on ESX, QBCore, and QBox — detection happens at boot, and the
-appropriate bridge is loaded before any script code runs.
+Each NX Creative script ships with a framework bridge. The same script
+works on ESX, QBCore, and QBox. Detection happens at boot, and the
+appropriate adapter is loaded before the rest of the script runs.
 
 ## How detection works
 
-On resource start, the bridge looks for each supported framework's
-canonical resource name and picks the first one that's running:
+On resource start, the bridge checks which framework resource is
+currently running and uses the first one it finds:
 
 | Framework | Detected resource |
 | --- | --- |
 | ESX Legacy | `es_extended` |
 | QBCore | `qb-core` |
 | QBox | `qbx_core` |
-| Standalone | _(fallback)_ |
 
-You can force a specific framework in `config.lua` if detection ever picks
-the wrong one:
+If no supported framework is running, the resource logs an error and
+stops. There is no standalone mode.
 
-```lua
-Config.Framework = "auto" -- "auto" | "esx" | "qbcore" | "qbox" | "standalone"
-```
+Most scripts expose a `Config.Framework` override for the rare case
+where autodetection picks the wrong one. The accepted values are listed
+in each script's own configuration page.
 
-## Money, jobs, identifiers
+## What the bridge covers
 
-The bridge abstracts the three things that always differ between
-frameworks: wallet/bank balances, job & grade, and player identifiers. In
-script code they look the same everywhere.
+The bridge abstracts the three things that reliably differ between
+frameworks:
 
-<FrameworkTabs>
-  <FrameworkTab framework="esx">
+- **Money.** Wallet and bank balances, both reads and writes, through
+  one set of functions.
+- **Jobs.** Current job and grade, plus duty toggles where the
+  framework supports them.
+- **Identity.** Stable player identifiers and display names.
 
-```lua
--- Behind the scenes this calls xPlayer.getMoney() /
--- xPlayer.addAccountMoney('bank', amount).
-local balance = bridge.getMoney(source, 'bank')
-bridge.addMoney(source, 'bank', 500)
-```
+In script code the calls look the same on every framework. The per-script
+docs list the exact functions exposed.
 
-  </FrameworkTab>
-  <FrameworkTab framework="qbcore">
+## What the bridge does not cover
 
-```lua
--- Maps to Player.Functions.GetMoney('bank') and AddMoney('bank', amount, reason).
-local balance = bridge.getMoney(source, 'bank')
-bridge.addMoney(source, 'bank', 500)
-```
-
-  </FrameworkTab>
-  <FrameworkTab framework="qbox">
-
-```lua
--- Uses exports.qbx_core:GetPlayer() + wallet API.
-local balance = bridge.getMoney(source, 'bank')
-bridge.addMoney(source, 'bank', 500)
-```
-
-  </FrameworkTab>
-</FrameworkTabs>
-
-## What the bridge does _not_ do
-
-The bridge is deliberately thin. It doesn't wrap inventories
-(`ox_inventory` is a hard requirement), doesn't abstract `ox_target`, and
-doesn't try to paper over gameplay differences between frameworks. When a
-script needs something framework-specific that the bridge doesn't cover,
-that's called out explicitly in the per-script docs.
+The bridge is deliberately thin. It does not wrap inventories
+(`ox_inventory` is a hard requirement), it does not abstract
+`ox_target`, and it does not try to paper over gameplay differences
+between frameworks. When a script needs something framework-specific
+that the bridge cannot cover, the per-script docs say so.

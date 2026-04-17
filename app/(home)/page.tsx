@@ -21,8 +21,8 @@ export default function HomePage() {
           </h1>
           <p className="mt-8 max-w-2xl text-lg text-fd-muted-foreground md:text-xl">
             Installation guides, configuration references, exports, commands,
-            and events for every NX Creative script. ESX, QBCore, and QBox —
-            covered.
+            and events for every NX Creative script. Covering ESX, QBCore,
+            and QBox.
           </p>
           <div className="mt-10 flex flex-wrap items-center gap-3">
             <Link
@@ -71,7 +71,7 @@ export default function HomePage() {
           <QuickLink
             href="/docs/getting-started/dependencies"
             title="Dependencies"
-            body="The ox ecosystem — ox_lib, ox_target, ox_inventory, oxmysql."
+            body="The ox ecosystem: ox_lib, ox_target, ox_inventory, oxmysql."
           />
           <QuickLink
             href="/docs/getting-started/support"

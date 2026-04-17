@@ -1,0 +1,241 @@
+---
+title: Configuration
+description: Every entry in shared/config.lua. Defaults, types, and purpose.
+---
+
+All settings live in `shared/config.lua`. The file is in `escrow_ignore`
+so it remains editable after install. Locale strings live in
+`shared/locales/<lang>.lua`, and server-only secrets (Discord webhooks)
+live in `server-config.lua`, which is not covered here.
+
+## General
+
+<ConfigOption name="Config.Debug" type="boolean" default="false" description="Enables verbose debug logging across server, client, and NUI consoles." />
+
+<ConfigOption name="Config.Locale" type="string" default="'en'" description="Active locale. Shipped values: 'en', 'fi'." />
+
+<ConfigOption name="Config.UseTarget" type="boolean" default="true" description="Whether to use a targeting system (ox_target / qb-target) for ATM and bank-ped interactions. If false, falls back to proximity prompts." />
+
+<ConfigOption name="Config.TargetSystem" type="string" default="'ox_target'" description="Target resource name. One of 'ox_target', 'qb-target', 'qtarget'." />
+
+## Cache
+
+<ConfigOption name="Config.Cache.accountSeconds" type="number" default="300" description="Seconds a loaded account stays in the in-memory cache before re-fetch." />
+
+<ConfigOption name="Config.Cache.defaultPersonalSeconds" type="number" default="300" description="Cache TTL for a player's default personal account lookup." />
+
+<ConfigOption name="Config.Cache.cleanupIntervalMs" type="number" default="600000" description="How often expired cache entries are swept, in milliseconds." />
+
+## Accounts
+
+<ConfigOption name="Config.Accounts.autoCreateDefault" type="boolean" default="true" description="When a player without a default account logs in, create one automatically." />
+
+<ConfigOption name="Config.Accounts.autoCreateAccountType" type="string" default="'personal'" description="Type assigned to the auto-created default account." />
+
+<ConfigOption name="Config.Accounts.autoCreateAccountName" type="string" default="'Personal Account'" description="Display name assigned to the auto-created default account." />
+
+<ConfigOption name="Config.Accounts.autoCreateLinkBankBalance" type="boolean" default="true" description="If true, mirror the framework's bank balance onto the linked personal account on login." />
+
+<ConfigOption name="Config.Accounts.nameMinLength" type="number" default="3" />
+<ConfigOption name="Config.Accounts.nameMaxLength" type="number" default="32" />
+<ConfigOption name="Config.Accounts.nameAllowPattern" type="string" description="Lua pattern that account names must match. Shipped default allows alphanumerics, whitespace, dashes, underscores, and apostrophes." />
+<ConfigOption name="Config.Accounts.metadataMaxBytes" type="number" default="2048" description="Max serialized metadata size per account." />
+
+<ConfigOption name="Config.Accounts.allowOwnerClose" type="boolean" default="true" description="Owners can close their own accounts." />
+<ConfigOption name="Config.Accounts.allowOwnerFreeze" type="boolean" default="false" description="Owners can freeze their own accounts." />
+
+<ConfigOption name="Config.Accounts.adminGroups" type="string[]" default="{ 'admin', 'superadmin', 'mod' }" description="Framework group names treated as admin for banking actions." />
+<ConfigOption name="Config.Accounts.adminPermissions" type="string[]" default="{ 'admin', 'god' }" description="Additional permission names recognized as admin." />
+<ConfigOption name="Config.Accounts.adminAcePermission" type="string" default="'command.nx_realbanking_admin'" description="ACE permission checked for admin actions." />
+
+### Shared accounts
+
+<ConfigOption name="Config.Accounts.Shared.enabled" type="boolean" default="true" description="Master toggle for multi-owner (shared) accounts." />
+<ConfigOption name="Config.Accounts.Shared.allowPersonal" type="boolean" default="false" />
+<ConfigOption name="Config.Accounts.Shared.allowBusiness" type="boolean" default="true" />
+<ConfigOption name="Config.Accounts.Shared.allowSavings" type="boolean" default="true" />
+<ConfigOption name="Config.Accounts.Shared.allowLinkedPersonal" type="boolean" default="false" />
+<ConfigOption name="Config.Accounts.Shared.cacheSeconds" type="number" default="120" description="Cache TTL for shared account membership lookups." />
+<ConfigOption name="Config.Accounts.Shared.adminBypass" type="boolean" default="true" description="Admins bypass shared-account role checks." />
+<ConfigOption name="Config.Accounts.Shared.defaultRole" type="string" default="'viewer'" description="Role assigned when inviting a new member without explicit role." />
+
+<ConfigOption name="Config.Accounts.Shared.roles" type="table" description="Role → permission map. Shipped with owner, manager, teller, viewer. Each role sets boolean flags: view, withdraw, deposit, transfer, manage_members, edit_limits, freeze, close." />
+
+## Session
+
+<ConfigOption name="Config.Session.timeoutSeconds" type="number" default="120" description="Inactivity timeout before the ATM session is killed." />
+<ConfigOption name="Config.Session.maxDistance" type="number" default="3.5" description="Max distance (meters) from the ATM before the session is force-closed." />
+<ConfigOption name="Config.Session.heartbeatInterval" type="number" default="15000" description="Heartbeat interval in milliseconds from client to server." />
+<ConfigOption name="Config.Session.pinAttempts" type="number" default="3" description="Allowed wrong-PIN attempts before lockout." />
+<ConfigOption name="Config.Session.lockoutDuration" type="number" default="300" description="Lockout duration in seconds after exceeding pinAttempts." />
+
+## ATMs
+
+<ConfigOption name="Config.ATMProps" type="table" description="Array of ATM prop definitions. Each entry: { model = `hash`, type = 'standalone' | 'wall' | 'maze_bank', brand? = 'maze' }. These determine which camera offset and 3D panel calibration apply." />
+
+<ConfigOption name="Config.ATMLocations" type="table" description="Optional ATM marker / blip definitions at fixed coordinates. Each entry: { coords = vector3, name = string, blip = boolean }." />
+
+## 3D NUI panels
+
+Configures the per-ATM-model 3D rendering of the NUI via `nx-3d`. Only
+customize if you add new ATM models. The shipped models
+(`prop_fleeca_atm`, `prop_atm_01`, `prop_atm_02`) are already calibrated.
+
+<ConfigOption name="Config.NUI3D.enabled" type="boolean" default="true" description="Master toggle for 3D panels. If false, UI renders as a flat overlay." />
+<ConfigOption name="Config.NUI3D.debug" type="boolean" default="false" description="Render debug spheres / wireframes for panel positioning." />
+<ConfigOption name="Config.NUI3D.resource" type="string" default="'nx-3d'" description="Resource name that provides the 3D rendering." />
+<ConfigOption name="Config.NUI3D.resW" type="number" default="1024" description="DUI texture width." />
+<ConfigOption name="Config.NUI3D.resH" type="number" default="1024" description="DUI texture height." />
+<ConfigOption name="Config.NUI3D.interactDistance" type="number" default="2.5" description="Distance within which finger-IK interaction activates." />
+<ConfigOption name="Config.NUI3D.updateInterval" type="number" default="50" description="Panel update interval in milliseconds." />
+<ConfigOption name="Config.NUI3D.updateMaxDistance" type="number" default="5.0" description="Distance beyond which the panel stops updating entirely." />
+
+<ConfigOption name="Config.NUI3D.fingerInteraction" type="table" description="IK finger-press configuration: enable flag, cursor hide, PED IK part / blend timings, per-axis screen-press response, per-ped height normalization (so taller peds / high heels don't misalign the hand). Values are tuned for mp_m_freemode_01." />
+
+<ConfigOption name="Config.NUI3D.panels" type="table" description="Per-model panel calibration keyed by prop hash. Each entry defines screen / keypad dimensions, tilt, IK offsets, and the card-prop attachment pose. Shipped entries: prop_fleeca_atm, prop_atm_01, prop_atm_02. Recalibrate in-world using Config.NUI3D.debug = true." />
+
+## PIN code
+
+<ConfigOption name="Config.Pincode.changeCost" type="number" default="100" description="Fee charged when the user changes their PIN. First creation is free." />
+<ConfigOption name="Config.Pincode.resetCost" type="number" default="200" description="Fee charged for a PIN reset (no old PIN required)." />
+<ConfigOption name="Config.Pincode.minLength" type="number" default="4" />
+<ConfigOption name="Config.Pincode.maxLength" type="number" default="4" />
+<ConfigOption name="Config.Pincode.allowSequential" type="boolean" default="false" description="Reject sequential PINs like 1234." />
+<ConfigOption name="Config.Pincode.allowRepeated" type="boolean" default="false" description="Reject PINs with all identical digits like 1111." />
+<ConfigOption name="Config.Pincode.maxAttempts" type="number" default="3" />
+<ConfigOption name="Config.Pincode.lockoutDuration" type="number" default="300" description="Seconds to lock out after exceeding maxAttempts." />
+
+## Fees
+
+Each fee block shares a shape: `{ enabled, type = 'percentage' | 'flat', value, minFee?, maxFee? }`.
+
+<ConfigOption name="Config.Fees.withdrawal" type="table" default="{ enabled=true, type='percentage', value=1.5, minFee=1, maxFee=50 }" description="Charged on ATM withdrawals." />
+<ConfigOption name="Config.Fees.transfer" type="table" default="{ enabled=true, type='flat', value=2.50, sameBankFree=true }" description="Charged on transfers. sameBankFree waives the fee for intra-bank movement." />
+<ConfigOption name="Config.Fees.deposit" type="table" default="{ enabled=false, type='flat', value=0 }" />
+
+## Transaction limits
+
+<ConfigOption name="Config.Limits" type="table" description="Per-account-tier limits: default, premium, business, savings. Each entry: { dailyWithdrawal, dailyDeposit, dailyTransfer, transactionMax, transactionMin }. Shipped defaults use 10,000,000 as a permissive ceiling. Tighten these for your economy." />
+
+## Camera
+
+<ConfigOption name="Config.Camera.offsets" type="table" description="Per-ATM-type player offset used to anchor the cinematic camera. Keys: wall, standalone, maze_bank." />
+
+<ConfigOption name="Config.Camera.scripted" type="table" description="Scripted camera parameters: camera name, rotation order, ease timings, clipping, motion blur, sensitivity, pitch clamp. Tuned for the stock ATM camera feel; edit only if you're replacing the camera behavior." />
+
+## Animations
+
+<ConfigOption name="Config.Animations.cardInsert" type="table" description="Enter / idle animation dicts, card prop (bone, pos, rot, duration), and frozen offset used when the card is stuck in the slot." />
+<ConfigOption name="Config.Animations.cardRemove" type="table" default="{ enabled=true, startTime=1.0, cardGrabTime=0.45, endTime=0.0, duration=1500, blendInSpeed=8.0 }" />
+<ConfigOption name="Config.Animations.atmIdle" type="table" description="Dict/anim used for the ATM idle loop." />
+<ConfigOption name="Config.Animations.takeCash" type="table" description="Animation played when dispensing cash." />
+<ConfigOption name="Config.Animations.putCash" type="table" description="Animation played when depositing cash." />
+
+## Sounds
+
+<ConfigOption name="Config.Sounds.volume" type="number" default="0.2" description="Master volume multiplier for all ATM sounds." />
+
+<ConfigOption name="Config.Sounds.effects" type="table" description="Per-effect { file, volume, loop? } map. Shipped effects: atmAmbient, cardInsert, buttonPress, transactionSuccess, transactionFail, cashDispense, screenTransition, error, sessionTimeout." />
+
+## Security
+
+<ConfigOption name="Config.Security.logLevel" type="string" default="'none'" description="One of 'none', 'basic', 'verbose', 'paranoid'. Controls how much detail is written to the security audit log." />
+
+<ConfigOption name="Config.Security.anticheat" type="table" default="{ distanceChecks=true, teleportDetection=false, speedHackDetection=false, injectionDetection=false }" description="Anti-exploit toggles. Distance checks are cheap and recommended; the others add overhead." />
+
+<ConfigOption name="Config.Security.thresholds" type="table" default="{ rapidTransactions=10, largeTransfer=50000, dailyLimitPercent=90 }" description="Flag thresholds for security events (not hard blocks)." />
+
+## Blips
+
+<ConfigOption name="Config.Blips" type="table" default="{ enabled=false, sprite=207, color=2, scale=0.8, label='ATM', shortRange=true }" description="Global toggle for ATM blips. Per-location visibility is still controlled by Config.ATMLocations[i].blip." />
+
+## Bank locations
+
+<ConfigOption name="Config.BankLocations" type="table" description="Array of in-world bank-access points. Each entry: { coords = vector3, heading, type = 'fleeca' | 'pacific' | 'blaine' | 'maze', label, blip, ped }. Peds spawn with the given model and scenario. Opening the bank triggers nx_realbanking:server:openBank." />
+
+## Societies (job invoicing)
+
+<ConfigOption name="Config.Societies" type="table" description="Map of job name → { label, account, canFine, canBill, canInspect, finePresets, requireReason }. Shipped jobs: police, sheriff, ambulance, mechanic, taxi, realestate, cardealer. Each finePresets is an array of { label, amount } quick-fill options surfaced in the invoice UI." />
+
+## Freelance billing
+
+<ConfigOption name="Config.FreelanceBilling.enabled" type="boolean" default="true" />
+<ConfigOption name="Config.FreelanceBilling.commissionPercent" type="number" default="5.0" description="Commission taken from freelance invoices. See Config.Commission for separate society-invoice commission." />
+<ConfigOption name="Config.FreelanceBilling.maxAmount" type="number" default="10000" />
+<ConfigOption name="Config.FreelanceBilling.minAmount" type="number" default="10" />
+<ConfigOption name="Config.FreelanceBilling.requireDescription" type="boolean" default="true" />
+<ConfigOption name="Config.FreelanceBilling.cooldownSeconds" type="number" default="60" description="Anti-spam cooldown between invoices issued by the same player." />
+<ConfigOption name="Config.FreelanceBilling.allowOfflinePlayers" type="boolean" default="false" description="Whether freelance invoices can be addressed to offline players." />
+
+## Invoices
+
+<ConfigOption name="Config.Invoices.enablePersonal" type="boolean" default="true" />
+<ConfigOption name="Config.Invoices.enableSociety" type="boolean" default="true" />
+<ConfigOption name="Config.Invoices.allowSelfInvoice" type="boolean" default="true" />
+<ConfigOption name="Config.Invoices.personalRequireAcceptance" type="boolean" default="true" description="Personal invoices require the receiver to accept before they can be paid." />
+<ConfigOption name="Config.Invoices.acceptanceTimeoutCheckInterval" type="number" default="5" description="Minutes between sweeps that expire un-accepted personal invoices." />
+<ConfigOption name="Config.Invoices.onlyOnlineTargets" type="boolean" default="true" />
+<ConfigOption name="Config.Invoices.targetMenuEnabled" type="boolean" default="true" description="Adds an 'Invoice this player' option to the ox_target player menu." />
+
+## VAT
+
+<ConfigOption name="Config.VAT.enabled" type="boolean" default="false" />
+<ConfigOption name="Config.VAT.rate" type="number" default="10.0" description="VAT percentage." />
+<ConfigOption name="Config.VAT.govAccount" type="string" default="'society_government'" description="Society account that receives collected VAT." />
+<ConfigOption name="Config.VAT.applyToSociety" type="boolean" default="true" />
+<ConfigOption name="Config.VAT.applyToFreelance" type="boolean" default="true" />
+<ConfigOption name="Config.VAT.showBreakdown" type="boolean" default="true" description="Display VAT as a separate line in invoice UI." />
+
+## Commission
+
+<ConfigOption name="Config.Commission.societyInvoices" type="table" default="{ enabled=true, percent=5.0, minAmount=10, maxAmount=500 }" description="Commission clamped between minAmount and maxAmount." />
+<ConfigOption name="Config.Commission.freelanceInvoices" type="table" default="{ enabled=false, percent=0, minAmount=0, maxAmount=0 }" />
+
+## Autopay
+
+<ConfigOption name="Config.Autopay.enabled" type="boolean" default="false" />
+<ConfigOption name="Config.Autopay.days" type="number" default="7" description="Days before due date at which autopay attempts settlement." />
+<ConfigOption name="Config.Autopay.checkInterval" type="number" default="60" description="Minutes between autopay sweeps." />
+<ConfigOption name="Config.Autopay.debtAccount" type="string" default="'society_debt'" description="Society account that accumulates unpaid debt." />
+<ConfigOption name="Config.Autopay.notifyBefore" type="table" default="{ enabled=true, daysBefore=1 }" />
+<ConfigOption name="Config.Autopay.onFailure" type="table" default="{ applyInterest=true, interestRate=5.0, sendToDebtCollection=false, notifyPlayer=true }" />
+
+## Credit cards
+
+<ConfigOption name="Config.Credit.enabled" type="boolean" default="true" description="Master toggle. If false, all credit-card exports return CREDIT_DISABLED." />
+
+<ConfigOption name="Config.Credit.items" type="table" default="{ givePhysicalCard=true, creditCardItem='credit_card' }" description="ox_inventory item name that represents a credit card, and whether to give the physical item on approval." />
+
+<ConfigOption name="Config.Credit.billing" type="table" description="Billing cycle knobs: inGameDayMinutes, cycleDays, dueDays, checkIntervalSeconds, interestIntervalDays, minimumPaymentPercent, minimumPaymentFlat. In-game days let you compress real-world billing windows into a gameplay-friendly pace." />
+
+<ConfigOption name="Config.Credit.score" type="table" description="Credit score model: min/max bounds, base score, stable-job bonus, bank-balance thresholds, account-age bonus, payment bonuses and penalties, usage bonus. Edit carefully. Tier eligibility is driven by these numbers." />
+
+<ConfigOption name="Config.Credit.penalties" type="table" default="{ lateFeeFlat=250, lateFeePercent=2.5, collectionsThreshold=50000, autoSeizeEnabled=true }" description="Late fees and collections behavior. autoSeizeEnabled will seize funds from linked accounts when debt exceeds collectionsThreshold." />
+
+<ConfigOption name="Config.Credit.limits" type="table" default="{ maxActiveCards=2, maxSingleCharge=25000 }" />
+
+<ConfigOption name="Config.Credit.atmCashAdvance" type="table" description="ATM cash-advance flow: enabled, autoFallbackOnInsufficient, requirePhysicalCard, merchant label, transactionType identifier." />
+
+<ConfigOption name="Config.Credit.tiers" type="table" description="Tier definitions keyed by tier id. Shipped: standard, gold, black. Each: label, creditLimit, interestRate, graceInterestRate, graceDays, minimumScore, requiresStableJob, whitelistedJobs. The black tier whitelists specific jobs." />
+
+<ConfigOption name="Config.Credit.tierPriority" type="string[]" default="{ 'black', 'gold', 'standard' }" description="Order used when auto-assigning a tier from score. Highest eligible tier wins." />
+
+## Invoice limits
+
+<ConfigOption name="Config.InvoiceLimits.maxPending" type="table" default="{ received=20, sent=10 }" description="Hard cap on simultaneously pending invoices per player, split by direction." />
+<ConfigOption name="Config.InvoiceLimits.maxAmount" type="number" default="100000" />
+<ConfigOption name="Config.InvoiceLimits.minAmount" type="number" default="1" />
+<ConfigOption name="Config.InvoiceLimits.dailyLimit" type="table" default="{ enabled=true, maxCreated=50, maxAmount=500000 }" description="Per-player daily cap on invoice count and total amount issued." />
+<ConfigOption name="Config.InvoiceLimits.expiration" type="table" default="{ enabled=true, days=30 }" description="When enabled, invoices become overdue after `days`." />
+
+## Bank interactions
+
+<ConfigOption name="Config.BankInteractions.targetOptions" type="table" default="{ label='Access Bank', icon='fa-solid fa-building-columns', distance=2.5 }" description="Options surfaced when a player targets a bank ped or counter." />
+
+<ConfigOption name="Config.BankInteractions.marker" type="table" description="Marker placed at bank locations. Fields: enabled, type, color {r,g,b,a}, size, bobUpAndDown, faceCamera, rotate. Disabled by default in favor of target-based interaction." />
+
+<ConfigOption name="Config.BankInteractions.drawDistance" type="number" default="15.0" />
+
+<ConfigOption name="Config.BankInteractions.text3d" type="table" default="{ enabled=false, scale=0.35, color={r=255,g=255,b=255,a=255} }" description="Optional 3D text prompt above bank peds." />
+
+<ConfigOption name="Config.BankInteractions.keybind" type="table" default="{ enabled=false, key=38, label='E' }" description="Fallback keybind prompt if the targeting system is not in use." />

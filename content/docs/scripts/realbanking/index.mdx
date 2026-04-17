@@ -1,0 +1,58 @@
+---
+title: Realbanking
+description: Full-stack ATM and banking system. 3D in-world ATM panels, a premium bank app, invoicing, and a credit-card layer. Runs on ESX and QBCore.
+---
+
+`nx_realbanking` is a production banking resource for FiveM. It covers
+two surfaces that share one backend:
+
+- An immersive **ATM** rendered onto 3D in-world panels (via `nx-3d`)
+  with cinematic camera, IK finger input, card-insert animations, and
+  per-ATM-model calibration.
+- A premium **bank app** for deeper management: accounts, shared
+  accounts (business and savings with roles), invoices (society and
+  freelance), autopay, VAT, commissions, and an optional credit-card
+  system with billing cycles and tier-based limits.
+
+## Features
+
+- **Dual framework.** Detects ESX or QBCore at runtime through the
+  `bridge/` layer. Optionally mirrors the framework bank balance onto
+  a linked personal account.
+- **Multiple account types.** Personal, business, and savings. Shared
+  accounts support role-based permissions (`owner`, `manager`,
+  `teller`, `viewer`).
+- **ATM flow.** Distance-gated session, PIN auth with lockout,
+  withdraw, deposit, and transfer with configurable fees, daily
+  limits, receipts, and full transaction history.
+- **Invoices.** Society invoicing with fine presets per job, freelance
+  billing with commission, acceptance flow for personal invoices,
+  autopay, VAT breakdown, and overdue handling with late fees.
+- **Credit cards.** Tiered cards (Standard, Gold, Platinum) with a
+  credit-score model, billing cycles, grace periods, minimum payments,
+  ATM cash advance, and a collections threshold.
+- **Security.** Server-side validation, rate limits, optional
+  teleport, distance, and speed-hack checks, plus Discord webhook
+  logging.
+- **Localization.** English and Finnish included.
+
+## Framework usage
+
+<FrameworkTabs>
+  <FrameworkTab framework="esx">
+```lua
+-- Trigger the bank UI from any ped or target interaction
+TriggerServerEvent('nx_realbanking:server:openBank')
+```
+  </FrameworkTab>
+  <FrameworkTab framework="qbcore">
+```lua
+-- Trigger the bank UI from any ped or target interaction
+TriggerServerEvent('nx_realbanking:server:openBank')
+```
+  </FrameworkTab>
+</FrameworkTabs>
+
+## Get it
+
+Available at [nxcreative.tech/realbanking](https://nxcreative.tech/realbanking).

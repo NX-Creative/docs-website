@@ -1,75 +1,57 @@
 ---
 title: Dependencies
-description: The ox ecosystem — ox_lib, ox_target, ox_inventory, oxmysql — and why every NX script expects it.
+description: The ox ecosystem. ox_lib, ox_target, ox_inventory, oxmysql, and why NX Creative scripts expect them.
 ---
 
-NX Creative scripts are built on top of the
-[Overextended](https://overextended.dev) ecosystem. This is an opinionated
-choice: we don't ship fallback paths for `qb-inventory`, `qb-target`, or
-`mysql-async`. If a script uses an inventory, it expects `ox_inventory`.
+NX Creative scripts are built on the
+[Overextended](https://overextended.dev) ecosystem. We do not ship
+fallbacks for `qb-inventory`, `qb-target`, or `mysql-async`. If a script
+uses an inventory, it expects `ox_inventory`.
 
-## Minimum versions
+## Required resources
 
 <DependencyList
   dependencies={[
     {
       name: 'ox_lib',
-      description: 'Shared utilities, callbacks, notifications, contexts.',
-      version: '3.30.6',
+      description: 'Shared utilities, callbacks, notifications, context menus.',
       required: true,
       href: 'https://overextended.dev/ox_lib',
     },
     {
       name: 'ox_target',
-      description: 'All world/entity interactions.',
-      version: '1.16.0',
+      description: 'World and entity interactions.',
       required: true,
       href: 'https://overextended.dev/ox_target',
     },
     {
       name: 'ox_inventory',
-      description: 'Inventory, items, stash, shops.',
-      version: '2.43.0',
+      description: 'Inventory, items, stashes, and shops.',
       required: true,
       href: 'https://overextended.dev/ox_inventory',
     },
     {
       name: 'oxmysql',
-      description: 'MySQL driver — required for any script with persisted state.',
-      version: '2.8.0',
+      description: 'MySQL driver. Required for any script with persisted state.',
       required: true,
       href: 'https://overextended.dev/oxmysql',
     },
   ]}
 />
 
-## Optional but recommended
+We recommend staying on a recent release of each resource. Individual
+scripts note any tested minimums on their own installation page when it
+matters.
 
-<DependencyList
-  dependencies={[
-    {
-      name: 'pma-voice',
-      description: 'Proximity voice — some scripts trigger radio toggles through its exports.',
-      required: false,
-      href: 'https://github.com/AvarianKnight/pma-voice',
-    },
-    {
-      name: 'screenshot-basic',
-      description: 'Used by scripts that capture in-world evidence (e.g. dashcam, CCTV).',
-      required: false,
-      href: 'https://github.com/citizenfx/screenshot-basic',
-    },
-  ]}
-/>
-
-## Why ox?
+## Why ox
 
 Three reasons, in order:
 
-1. **Actively maintained.** The ox resources see regular releases and
-   respond to FiveM runtime changes quickly.
-2. **Consistent API shape.** `ox_lib` gives us notifications, contexts,
-   menus, and callbacks with a single import. Same with target zones.
-3. **Item & data integrity.** `ox_inventory` treats items as first-class
-   and stores state in MySQL. Building on top of it means an NX script
-   can trust what's in a player's inventory without defensive re-queries.
+1. **Actively maintained.** The ox resources ship regular releases and
+   keep pace with FiveM runtime changes.
+2. **Consistent API surface.** `ox_lib` gives us notifications,
+   contexts, menus, and callbacks from a single import. The same is
+   true for target zones.
+3. **Item and data integrity.** `ox_inventory` treats items as
+   first-class and persists state in MySQL, so an NX script can trust
+   what is in a player's inventory without defensive re-queries.

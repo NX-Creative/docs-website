@@ -1,0 +1,181 @@
+---
+title: Exports
+description: Public exports registered by nx_realbanking, split into server and client.
+---
+
+All server exports live under `exports.nx_realbanking:<Name>()`. Client
+exports use the same pattern inside a client-side script.
+
+## Server
+
+<ExportSignature
+  name="exports.nx_realbanking:CreateInvoice"
+  side="server"
+  description="Insert a new invoice into the database and return its reference id."
+  params={[
+    { name: 'data', type: 'table', description: 'Invoice payload. Required: senderIdentifier, senderName, receiverIdentifier, receiverName, amount. Optional: type (\"society\" | \"freelance\" | \"personal\"), senderJob, senderJobLabel, label, vatPercent, vatAmount, commissionPercent, commissionAmount, govAccount, societyAccount.' }
+  ]}
+  returns="boolean success, string|nil refIdOrError"
+>
+```lua
+local ok, refId = exports.nx_realbanking:CreateInvoice({
+    senderIdentifier = 'char1:abc',
+    senderName = 'John Smith',
+    receiverIdentifier = 'char1:xyz',
+    receiverName = 'Jane Doe',
+    type = 'personal',
+    amount = 250.00,
+    label = 'Ride share'
+})
+```
+</ExportSignature>
+
+<ExportSignature
+  name="exports.nx_realbanking:GetInvoiceByRef"
+  side="server"
+  description="Fetch a single invoice row by its reference id."
+  params={[
+    { name: 'refId', type: 'string', description: 'Reference id returned from CreateInvoice.' }
+  ]}
+  returns="table|nil"
+>
+```lua
+local invoice = exports.nx_realbanking:GetInvoiceByRef('INV-ABC123')
+if invoice then
+    print(invoice.amount, invoice.status)
+end
+```
+</ExportSignature>
+
+<ExportSignature
+  name="exports.nx_realbanking:GetPlayerInvoices"
+  side="server"
+  description="List invoices received by a given player, newest first."
+  params={[
+    { name: 'identifier', type: 'string', description: 'Player identifier (framework-specific: ESX identifier or QB citizenid).' },
+    { name: 'status', type: 'string', optional: true, description: "Filter: 'pending' | 'paid' | 'cancelled' | 'overdue'. Omit for all." }
+  ]}
+  returns="table[]"
+>
+```lua
+local pending = exports.nx_realbanking:GetPlayerInvoices('char1:abc', 'pending')
+print(('%d pending invoice(s)'):format(#pending))
+```
+</ExportSignature>
+
+<ExportSignature
+  name="exports.nx_realbanking:PayInvoice"
+  side="server"
+  description="Pay an invoice on behalf of the given source. Funds are pulled from the player's default account and distributed to society / commission / VAT destinations."
+  params={[
+    { name: 'refId', type: 'string', description: 'Reference id of the invoice to pay.' },
+    { name: 'source', type: 'number', description: 'Server id of the paying player.' }
+  ]}
+  returns="boolean success, string|nil error"
+>
+```lua
+local ok, err = exports.nx_realbanking:PayInvoice('INV-ABC123', source)
+if not ok then
+    print('Payment failed:', err)
+end
+```
+</ExportSignature>
+
+<ExportSignature
+  name="exports.nx_realbanking:ChargeCreditCard"
+  side="server"
+  description="Charge an amount against a credit card. Supply one of cardId, cardNumber, or citizenId to resolve the card."
+  params={[
+    { name: 'payload', type: 'table', description: 'Fields: amount (number, required), cardId | cardNumber | citizenId (one required), merchant (string, optional), transactionType (string, optional).' }
+  ]}
+  returns="table { success: boolean, error?: string, ... }"
+>
+```lua
+local result = exports.nx_realbanking:ChargeCreditCard({
+    citizenId = 'char1:abc',
+    amount = 1200,
+    merchant = 'Ammu-Nation',
+    transactionType = 'purchase'
+})
+
+if not result.success then
+    print('Charge failed:', result.error)
+end
+```
+</ExportSignature>
+
+<ExportSignature
+  name="exports.nx_realbanking:ApplyCreditCard"
+  side="server"
+  description="Run the credit-application flow for a player. Assesses score, checks tier eligibility, and either issues a card or returns a rejection reason."
+  params={[
+    { name: 'source', type: 'number', description: 'Server id of the applying player.' },
+    { name: 'requestedTier', type: 'string', optional: true, description: "One of 'standard', 'gold', 'black'. Omit to auto-assign the highest eligible tier from Config.Credit.tierPriority." }
+  ]}
+  returns="table { success: boolean, error?: string, card?: table, tier?: string, score?: number, ... }"
+>
+```lua
+local result = exports.nx_realbanking:ApplyCreditCard(source, 'gold')
+if result.success then
+    print('Issued', result.tier, 'card #', result.card.number)
+else
+    print('Rejected:', result.error)
+end
+```
+</ExportSignature>
+
+## Client
+
+<ExportSignature
+  name="exports.nx_realbanking:IsAtATM"
+  side="client"
+  description="Returns true while the player is within detection range of a known ATM prop."
+  returns="boolean"
+>
+```lua
+if exports.nx_realbanking:IsAtATM() then
+    -- Custom interaction prompt
+end
+```
+</ExportSignature>
+
+<ExportSignature
+  name="exports.nx_realbanking:GetNearestATM"
+  side="client"
+  description="Returns the current ATM context, or nil if none is in range."
+  returns="{ entity: number, coords: vector3, distance: number, hash: number } | nil"
+>
+```lua
+local atm = exports.nx_realbanking:GetNearestATM()
+if atm and atm.distance < 1.5 then
+    print('Standing at ATM', atm.entity)
+end
+```
+</ExportSignature>
+
+<ExportSignature
+  name="exports.nx_realbanking:IsInteracting"
+  side="client"
+  description="Returns true while the ATM session is active (camera engaged, NUI open)."
+  returns="boolean"
+>
+```lua
+if exports.nx_realbanking:IsInteracting() then
+    -- Suppress your own UI while banking
+end
+```
+</ExportSignature>
+
+<ExportSignature
+  name="exports.nx_realbanking:GetSession"
+  side="client"
+  description="Returns the current client-side session descriptor, or nil when idle."
+  returns="table | nil"
+>
+```lua
+local session = exports.nx_realbanking:GetSession()
+if session then
+    print('Session id:', session.id)
+end
+```
+</ExportSignature>

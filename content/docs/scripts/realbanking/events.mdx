@@ -1,0 +1,73 @@
+---
+title: Events
+description: Net events you can trigger or listen to from your own resources.
+---
+
+Only events that form a stable integration surface are listed here.
+Internal protocol events (ATM session handshake, PIN flow, heartbeat)
+are intentionally undocumented, since their shape is subject to change.
+
+## Server events
+
+### `nx_realbanking:server:openBank`
+
+Opens the bank app for the calling player. Use this to wire your own
+bank peds, `ox_target` zones, or custom entry points.
+
+```lua
+-- From a client script
+TriggerServerEvent('nx_realbanking:server:openBank')
+```
+
+The server validates the player, fetches their pending invoice summary,
+and sends the bank NUI state down to the client. No payload is needed.
+
+## Client events
+
+These are broadcast to the player and are safe to listen to from your
+own client-side resources.
+
+### `nx_realbanking:client:invoiceReceived`
+
+Fired when a new invoice is delivered to the player.
+
+```lua
+RegisterNetEvent('nx_realbanking:client:invoiceReceived', function(data)
+    -- data.sender : string
+    -- data.amount : number
+    -- data.refId  : string (may be present)
+    print(('New invoice from %s for $%.2f'):format(data.sender, data.amount))
+end)
+```
+
+### `nx_realbanking:client:invoicePaid`
+
+Fired on the payer when their invoice has been settled.
+
+```lua
+RegisterNetEvent('nx_realbanking:client:invoicePaid', function(data)
+    -- data may carry refId / amount depending on origin
+end)
+```
+
+### `nx_realbanking:client:invoiceOverdue`
+
+Fired when one of the player's invoices transitions to overdue.
+
+```lua
+RegisterNetEvent('nx_realbanking:client:invoiceOverdue', function(data)
+    -- data.refId : string
+end)
+```
+
+### `nx_realbanking:client:creditUpdated`
+
+Fired when the player's credit-card state changes (new card, limit
+change, tier change, card frozen). Carries no payload, so call the
+appropriate export to re-read state.
+
+```lua
+RegisterNetEvent('nx_realbanking:client:creditUpdated', function()
+    -- Re-query credit state
+end)
+```

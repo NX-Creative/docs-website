@@ -27,7 +27,9 @@ export function DependencyList({ dependencies, children }: DependencyListProps) 
   return (
     <div className="my-6">
       {children ? (
-        <p className="mb-4 text-sm text-fd-muted-foreground">{children}</p>
+        <div className="mb-4 text-sm text-fd-muted-foreground [&>p]:m-0">
+          {children}
+        </div>
       ) : null}
       <div className="grid gap-3 sm:grid-cols-2">
         {dependencies.map((dep) => {

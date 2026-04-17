@@ -2,12 +2,10 @@ import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
 import { ArrowUpRight } from 'lucide-react';
 import { NxLogo } from '@/components/brand/nx-logo';
 
-/**
- * Shared nav/header config used by both the marketing home layout and
- * the docs layout. The site is a subdomain of the NX Creative marketing
- * site, so the nav mirrors the parent: logo + a compact link cluster
- * leading back to the main site, the Tebex store, and Discord.
- */
+// Shared nav/header config used by both the marketing home layout and
+// the docs layout. Mirrors the parent marketing site: logo plus a
+// compact link cluster back to the main site, the Tebex store, and
+// Discord.
 export const baseOptions: BaseLayoutProps = {
   nav: {
     title: (

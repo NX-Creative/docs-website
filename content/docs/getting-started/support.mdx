@@ -1,29 +1,24 @@
 ---
 title: Support
-description: License verification, how to reach us, and what kind of help we provide.
+description: License verification, how to reach us, and what kind of help we offer.
 ---
 
-## Verifying your license
+## Licensing
 
-Licenses are bound to your FiveM server key through Tebex Keymaster. You
-don't need to enter anything manually — when the script starts, it reports
-to Keymaster and either validates or refuses to run.
+Every NX Creative script is sold through Tebex and bound to your FiveM
+server key through Tebex Keymaster. There is no separate activation
+step, the binding happens as soon as the resource starts.
 
-If a script fails to validate, the console will say exactly why:
+If a script fails to validate at boot, the common causes are:
 
-```
-[nx_<script>] license not bound to this server key
-```
-
-The fix is one of:
-
-1. **Buyer mismatch** — your Tebex account doesn't own this license. Use
-   the account that purchased the script.
-2. **Key mismatch** — the license was bound to a different server key.
-   Re-bind via your [Keymaster
-   dashboard](https://keymaster.fivem.net/).
-3. **Expired / charged back** — if the purchase was refunded, the
-   license is revoked. Buy again or open a ticket if this is a mistake.
+1. **Buyer mismatch.** The Tebex account running the server does not
+   own this license. Use the account that purchased the script.
+2. **Key mismatch.** The license is bound to a different server key.
+   Rebind through your
+   [Keymaster dashboard](https://keymaster.fivem.net/).
+3. **Refund or chargeback.** Refunded purchases have their licenses
+   revoked. Repurchase, or open a ticket if you believe the revocation
+   is a mistake.
 
 ## Where to ask for help
 
@@ -31,7 +26,7 @@ The fix is one of:
   dependencies={[
     {
       name: 'Discord #support',
-      description: 'Fastest response — most issues are resolved here. Verify your purchase first.',
+      description: 'Fastest response. Most issues are resolved here. Verify your purchase first.',
       required: true,
       href: 'https://discord.gg/UYrWRyrUqY',
     },
@@ -46,25 +41,26 @@ The fix is one of:
 
 ## Before you open a ticket
 
-Include these six things and you'll cut the turnaround in half:
+Include these six details and you will roughly halve the turnaround:
 
 1. Script name and version.
-2. Framework (ESX / QBCore / QBox) and version.
-3. `ox_lib`, `ox_target`, `ox_inventory` versions.
+2. Framework (ESX, QBCore, or QBox) and version.
+3. `ox_lib`, `ox_target`, and `ox_inventory` versions.
 4. Full client and server console output around the error.
-5. Your server's FiveM artifact number.
+5. Your FiveM artifact number.
 6. Exact reproduction steps.
 
 ## What we support
 
 - Install and configuration issues.
 - Bugs in the script itself.
-- Compatibility with the supported framework versions and dependency
-  versions listed in this doc.
+- Compatibility with the supported frameworks and the ox resources
+  listed under [Dependencies](/docs/getting-started/dependencies).
 
-## What we don't support
+## What we do not support
 
-- Modifications you've made to the script source.
+- Modifications to the script source.
 - Compatibility with unsupported frameworks or forks of dependencies.
-- General server-building help (server.cfg debugging, artifact selection,
-  hosting) — the FiveM community has larger resources for that.
+- General server-building help, such as `server.cfg` debugging,
+  artifact selection, or hosting. The wider FiveM community has better
+  resources for that.
