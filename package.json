@@ -1,0 +1,35 @@
+{
+  "name": "nxcreative-docs",
+  "version": "0.1.0",
+  "private": true,
+  "description": "NX Creative documentation site (docs.nxcreative.tech).",
+  "scripts": {
+    "build": "next build",
+    "dev": "next dev",
+    "start": "next start",
+    "postinstall": "fumadocs-mdx"
+  },
+  "dependencies": {
+    "fumadocs-core": "^15.6.1",
+    "fumadocs-mdx": "^11.8.0",
+    "fumadocs-ui": "^15.6.1",
+    "lucide-react": "^0.469.0",
+    "next": "^15.3.3",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@types/mdx": "^2.0.13",
+    "@types/node": "^22.10.1",
+    "@types/react": "^19.0.1",
+    "@types/react-dom": "^19.0.1",
+    "postcss": "^8.5.1",
+    "tailwindcss": "^4.0.0",
+    "@tailwindcss/postcss": "^4.0.0",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "packageManager": "pnpm@9.15.9"
+}

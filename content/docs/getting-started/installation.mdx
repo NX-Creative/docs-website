@@ -1,0 +1,135 @@
+---
+title: Installation
+description: Server prerequisites and the first-boot checklist shared across every NX Creative script.
+---
+
+Every NX Creative script assumes a baseline FiveM server with a supported
+framework and a small set of ox-ecosystem resources in place. Get those
+right once and individual scripts drop in without surprises.
+
+## Prerequisites
+
+<DependencyList
+  dependencies={[
+    {
+      name: 'FiveM server',
+      description: 'Latest recommended artifact — Linux or Windows.',
+      version: '10000',
+      required: true,
+      href: 'https://runtime.fivem.net/artifacts/fivem/',
+    },
+    {
+      name: 'MySQL / MariaDB',
+      description: 'Any recent MySQL 8 or MariaDB 10.6+ build.',
+      required: true,
+    },
+    {
+      name: 'txAdmin',
+      description: 'Recommended for server management and recipe-based setup.',
+      required: false,
+      href: 'https://github.com/tabarra/txAdmin',
+    },
+  ]}
+/>
+
+## Framework
+
+Pick one of the supported roleplay frameworks. See the
+[Frameworks](/docs/getting-started/frameworks) page for per-framework notes.
+
+<DependencyList
+  dependencies={[
+    {
+      name: 'es_extended',
+      description: 'ESX Legacy — the classic framework.',
+      version: '1.10.5',
+      required: false,
+      href: 'https://github.com/esx-framework/esx_core',
+    },
+    {
+      name: 'qb-core',
+      description: 'QBCore — modular alternative to ESX.',
+      required: false,
+      href: 'https://github.com/qbcore-framework/qb-core',
+    },
+    {
+      name: 'qbx_core',
+      description: 'QBox — modern QBCore fork by Overextended.',
+      required: false,
+      href: 'https://github.com/Qbox-project/qbx_core',
+    },
+  ]}
+/>
+
+## Base resources
+
+These four are used by virtually every NX Creative script. Install them
+once, keep them updated, and most scripts will install without touching
+their configs.
+
+<DependencyList
+  dependencies={[
+    {
+      name: 'ox_lib',
+      description: 'Shared utilities, UI primitives, callbacks.',
+      required: true,
+      href: 'https://overextended.dev/ox_lib',
+    },
+    {
+      name: 'ox_target',
+      description: 'Interaction/targeting layer.',
+      required: true,
+      href: 'https://overextended.dev/ox_target',
+    },
+    {
+      name: 'ox_inventory',
+      description: 'Inventory system (used by most item-based scripts).',
+      required: true,
+      href: 'https://overextended.dev/ox_inventory',
+    },
+    {
+      name: 'oxmysql',
+      description: 'MySQL driver. Most scripts require it.',
+      required: true,
+      href: 'https://overextended.dev/oxmysql',
+    },
+  ]}
+/>
+
+## Install checklist
+
+1. **Download** — grab the latest release `.zip` from your Tebex purchase.
+2. **Unpack** — drop the folder into `resources/[nx]/` (or wherever you
+   keep third-party resources).
+3. **Import the SQL** — each script with persisted state ships a
+   `sql/install.sql` file. Run it once.
+4. **Edit `config.lua`** — per-script settings live here. Don't touch
+   `shared.lua` or `server.lua` unless the script's docs say so.
+5. **Add to `server.cfg`** — ensure the script starts _after_ its
+   dependencies:
+
+   ```ini
+   ensure ox_lib
+   ensure ox_target
+   ensure ox_inventory
+   ensure oxmysql
+   ensure nx_<script>
+   ```
+
+6. **Boot and verify** — on first start, console prints:
+
+   ```
+   [nx] nx_<script> — running on <framework>
+   ```
+
+   If you see that line, you're good.
+
+## Troubleshooting
+
+If the script refuses to start, the answer is almost always one of:
+
+- A dependency isn't running or is the wrong version.
+- SQL wasn't imported or imported into the wrong database.
+- The license key isn't bound to this server (check Tebex Keymaster).
+
+See [Support](/docs/getting-started/support) if none of those apply.

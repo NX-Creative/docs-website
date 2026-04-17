@@ -1,0 +1,70 @@
+---
+title: Support
+description: License verification, how to reach us, and what kind of help we provide.
+---
+
+## Verifying your license
+
+Licenses are bound to your FiveM server key through Tebex Keymaster. You
+don't need to enter anything manually — when the script starts, it reports
+to Keymaster and either validates or refuses to run.
+
+If a script fails to validate, the console will say exactly why:
+
+```
+[nx_<script>] license not bound to this server key
+```
+
+The fix is one of:
+
+1. **Buyer mismatch** — your Tebex account doesn't own this license. Use
+   the account that purchased the script.
+2. **Key mismatch** — the license was bound to a different server key.
+   Re-bind via your [Keymaster
+   dashboard](https://keymaster.fivem.net/).
+3. **Expired / charged back** — if the purchase was refunded, the
+   license is revoked. Buy again or open a ticket if this is a mistake.
+
+## Where to ask for help
+
+<DependencyList
+  dependencies={[
+    {
+      name: 'Discord #support',
+      description: 'Fastest response — most issues are resolved here. Verify your purchase first.',
+      required: true,
+      href: 'https://discord.gg/UYrWRyrUqY',
+    },
+    {
+      name: 'Tebex tickets',
+      description: 'Billing, refunds, and purchase-access issues.',
+      required: false,
+      href: 'https://nxcreative.tech/products',
+    },
+  ]}
+/>
+
+## Before you open a ticket
+
+Include these six things and you'll cut the turnaround in half:
+
+1. Script name and version.
+2. Framework (ESX / QBCore / QBox) and version.
+3. `ox_lib`, `ox_target`, `ox_inventory` versions.
+4. Full client and server console output around the error.
+5. Your server's FiveM artifact number.
+6. Exact reproduction steps.
+
+## What we support
+
+- Install and configuration issues.
+- Bugs in the script itself.
+- Compatibility with the supported framework versions and dependency
+  versions listed in this doc.
+
+## What we don't support
+
+- Modifications you've made to the script source.
+- Compatibility with unsupported frameworks or forks of dependencies.
+- General server-building help (server.cfg debugging, artifact selection,
+  hosting) — the FiveM community has larger resources for that.

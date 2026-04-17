@@ -1,0 +1,72 @@
+---
+title: Frameworks
+description: How NX Creative scripts adapt to ESX, QBCore, and QBox.
+---
+
+NX Creative scripts ship with a framework bridge. The same script binary
+works on ESX, QBCore, and QBox — detection happens at boot, and the
+appropriate bridge is loaded before any script code runs.
+
+## How detection works
+
+On resource start, the bridge looks for each supported framework's
+canonical resource name and picks the first one that's running:
+
+| Framework | Detected resource |
+| --- | --- |
+| ESX Legacy | `es_extended` |
+| QBCore | `qb-core` |
+| QBox | `qbx_core` |
+| Standalone | _(fallback)_ |
+
+You can force a specific framework in `config.lua` if detection ever picks
+the wrong one:
+
+```lua
+Config.Framework = "auto" -- "auto" | "esx" | "qbcore" | "qbox" | "standalone"
+```
+
+## Money, jobs, identifiers
+
+The bridge abstracts the three things that always differ between
+frameworks: wallet/bank balances, job & grade, and player identifiers. In
+script code they look the same everywhere.
+
+<FrameworkTabs>
+  <FrameworkTab framework="esx">
+
+```lua
+-- Behind the scenes this calls xPlayer.getMoney() /
+-- xPlayer.addAccountMoney('bank', amount).
+local balance = bridge.getMoney(source, 'bank')
+bridge.addMoney(source, 'bank', 500)
+```
+
+  </FrameworkTab>
+  <FrameworkTab framework="qbcore">
+
+```lua
+-- Maps to Player.Functions.GetMoney('bank') and AddMoney('bank', amount, reason).
+local balance = bridge.getMoney(source, 'bank')
+bridge.addMoney(source, 'bank', 500)
+```
+
+  </FrameworkTab>
+  <FrameworkTab framework="qbox">
+
+```lua
+-- Uses exports.qbx_core:GetPlayer() + wallet API.
+local balance = bridge.getMoney(source, 'bank')
+bridge.addMoney(source, 'bank', 500)
+```
+
+  </FrameworkTab>
+</FrameworkTabs>
+
+## What the bridge does _not_ do
+
+The bridge is deliberately thin. It doesn't wrap inventories
+(`ox_inventory` is a hard requirement), doesn't abstract `ox_target`, and
+doesn't try to paper over gameplay differences between frameworks. When a
+script needs something framework-specific that the bridge doesn't cover,
+that's called out explicitly in the per-script docs.
