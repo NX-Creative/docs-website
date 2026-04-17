@@ -27,7 +27,7 @@ export function ConfigOption({
   children,
 }: ConfigOptionProps) {
   return (
-    <section className="my-5 overflow-hidden rounded-lg border border-fd-border bg-fd-card">
+    <section className="my-5 overflow-hidden rounded-2xl border border-fd-border bg-fd-card">
       <header className="flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b border-fd-border bg-fd-accent/40 px-4 py-3">
         <code className="font-mono text-sm font-semibold text-fd-foreground">
           {name}
@@ -36,7 +36,7 @@ export function ConfigOption({
           {type}
         </code>
         {badge ? (
-          <span className="rounded-sm bg-fd-primary/15 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-fd-primary">
+          <span className="rounded-sm bg-fd-primary/15 px-1.5 py-0.5 font-mono text-[10px] font-medium tracking-[0.02em] text-fd-primary">
             {badge}
           </span>
         ) : null}

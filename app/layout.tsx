@@ -1,7 +1,15 @@
 import './global.css';
 import { RootProvider } from 'fumadocs-ui/provider';
+import { Bricolage_Grotesque } from 'next/font/google';
 import type { ReactNode } from 'react';
 import type { Metadata } from 'next';
+
+const bricolage = Bricolage_Grotesque({
+  subsets: ['latin'],
+  axes: ['opsz'],
+  display: 'swap',
+  variable: '--font-display',
+});
 
 export const metadata: Metadata = {
   title: 'NX Creative Docs',
@@ -11,7 +19,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning className="dark">
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`dark ${bricolage.variable}`}
+    >
       <body className="flex min-h-screen flex-col font-sans antialiased">
         <RootProvider
           theme={{

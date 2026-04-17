@@ -66,7 +66,7 @@ export function FrameworkTabs({
   if (tabs.length === 0) return null;
 
   return (
-    <div className="my-6 overflow-hidden rounded-lg border border-fd-border bg-fd-card">
+    <div className="my-6 overflow-hidden rounded-2xl border border-fd-border bg-fd-card">
       <div
         role="tablist"
         aria-label="Framework variants"
@@ -82,7 +82,7 @@ export function FrameworkTabs({
               aria-selected={selected}
               onClick={() => setActive(tab.framework)}
               className={[
-                'rounded-sm px-3 py-1.5 font-mono text-xs font-semibold uppercase tracking-wider transition-colors',
+                'rounded-sm px-3 py-1.5 font-mono text-xs font-semibold tracking-[0.02em] transition-colors',
                 selected
                   ? 'bg-fd-background text-fd-foreground'
                   : 'text-fd-muted-foreground hover:text-fd-foreground',

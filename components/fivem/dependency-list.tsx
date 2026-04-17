@@ -38,7 +38,7 @@ export function DependencyList({ dependencies, children }: DependencyListProps) 
             <div
               key={dep.name}
               className={[
-                'relative flex flex-col gap-1.5 rounded-lg border p-4 transition-colors',
+                'relative flex flex-col gap-1.5 rounded-2xl border p-4 transition-colors',
                 required
                   ? 'border-fd-border bg-fd-card'
                   : 'border-dashed border-fd-border bg-fd-card/50',
@@ -63,7 +63,7 @@ export function DependencyList({ dependencies, children }: DependencyListProps) 
                 </div>
                 <span
                   className={[
-                    'shrink-0 rounded-sm px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider',
+                    'shrink-0 rounded-sm px-1.5 py-0.5 font-mono text-[10px] font-medium tracking-[0.02em]',
                     required
                       ? 'bg-fd-primary/15 text-fd-primary'
                       : 'bg-fd-muted text-fd-muted-foreground',

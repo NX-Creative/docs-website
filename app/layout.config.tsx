@@ -13,7 +13,7 @@ export const baseOptions: BaseLayoutProps = {
         <NxLogo className="h-7 w-7" />
         <span>
           NX Creative
-          <span className="ml-1.5 text-[11px] font-medium uppercase tracking-[0.14em] text-fd-muted-foreground">
+          <span className="ml-1.5 font-mono text-[11px] font-medium tracking-[0.02em] text-fd-muted-foreground">
             Docs
           </span>
         </span>
@@ -44,7 +44,7 @@ export const baseOptions: BaseLayoutProps = {
           href="https://nxcreative.tech"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 rounded-md border border-fd-border px-3 py-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-fd-muted-foreground transition-colors hover:border-fd-primary/50 hover:text-fd-primary"
+          className="inline-flex items-center gap-1.5 rounded-md border border-fd-border px-3 py-1.5 font-mono text-[11px] font-medium tracking-[0.02em] text-fd-muted-foreground transition-colors hover:border-fd-primary/50 hover:text-fd-primary"
         >
           nxcreative.tech
           <ArrowUpRight size={12} strokeWidth={2.25} />

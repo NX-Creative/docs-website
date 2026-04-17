@@ -96,7 +96,7 @@ function QuickLink({
   return (
     <Link
       href={href}
-      className="group flex flex-col rounded-lg border border-fd-border bg-fd-card p-5 transition-all hover:border-fd-primary/60 hover:bg-fd-accent/40"
+      className="group flex flex-col rounded-2xl border border-fd-border bg-fd-card p-5 transition-all hover:border-fd-primary/60 hover:bg-fd-accent/40"
     >
       <span className="flex items-center justify-between text-base font-semibold text-fd-foreground">
         {title}
