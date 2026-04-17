@@ -68,7 +68,7 @@ MDX file without importing them explicitly.
 Use the `/f-docs` skill from Claude Code:
 
 ```
-/f-docs nx_fishing
+/f-docs nx_fourseasons
 ```
 
 It parses the resource's `fxmanifest.lua`, `config.lua`, and Lua source,
@@ -79,7 +79,7 @@ then scaffolds the full page set (`index`, `installation`,
 When a script gets a new release, use `/f-docs-update`:
 
 ```
-/f-docs-update nx_fishing 1.4.0
+/f-docs-update nx_fourseasons 1.4.0
 ```
 
 It re-derives `configuration`, `exports`, `commands`, `events` from the
