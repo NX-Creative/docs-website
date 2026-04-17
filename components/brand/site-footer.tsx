@@ -23,8 +23,7 @@ export function SiteFooter() {
             QBCore, and QBox roleplay servers.
           </p>
           <p className="mt-2 text-xs text-fd-muted-foreground">
-            © {new Date().getFullYear()} C&amp;D Solutions Oy. All rights
-            reserved.
+            © {new Date().getFullYear()} NX Creative. All rights reserved.
           </p>
         </div>
 
