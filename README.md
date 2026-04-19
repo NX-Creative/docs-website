@@ -1,114 +1,15 @@
-# NX Creative — Documentation Site
+# NX Creative Docs
 
-Source for [docs.nxcreative.tech](https://docs.nxcreative.tech) — the
-documentation hub for NX Creative FiveM scripts.
+Source for [docs.nxcreative.tech](https://docs.nxcreative.tech), the documentation site for NX Creative FiveM scripts.
 
-Built with [Fumadocs](https://fumadocs.dev) on Next.js, exported as
-static HTML, and deployed on Cloudflare Pages.
+Built with [Fumadocs](https://fumadocs.dev) on Next.js and deployed as static HTML on Cloudflare Pages.
 
-## Prerequisites
+## What's here
 
-- **Node 20** (see `.nvmrc`)
-- **pnpm 9** (enable with `corepack enable && corepack prepare pnpm@9 --activate`)
+All documentation pages live under [`content/docs/`](./content/docs) as MDX files, organised by script.
 
-## Local development
-
-```bash
-pnpm install
-pnpm dev        # http://localhost:3000
-```
-
-## Production build
-
-```bash
-pnpm build
-```
-
-Output goes to `out/` — that's the directory Cloudflare Pages serves.
-
-The build command on Cloudflare Pages is:
-
-```bash
-pnpm install && pnpm build
-```
-
-with **build output directory** set to `out` and **Node version** set to
-`20`.
-
-## Content
-
-All docs live under [`content/docs/`](./content/docs) as MDX files:
-
-| Path | Purpose |
-| --- | --- |
-| `index.mdx` | Landing page for the docs site |
-| `getting-started/` | Generic prerequisites, framework notes, dependencies, support policy |
-| `scripts/` | Per-script docs. Populated via the `/f-docs` skill |
-| `*/meta.json` | Sidebar order + section titles |
-
-Sidebar order is controlled by each folder's `meta.json#pages` array.
-
-### Custom MDX components
-
-The docs use a small FiveM-specific component library in
-[`components/fivem/`](./components/fivem):
-
-- `<DependencyList>` — card grid of required / optional resources
-- `<ConfigOption>` — a single `config.lua` entry with type, default, description
-- `<ExportSignature>` — an export's name, side (server/client), params, return
-- `<FrameworkTabs>` / `<FrameworkTab>` — tabbed code blocks for ESX / QBCore / QBox
-- `<CommandReference>` — a chat command with args and permission
-
-Components are registered in
-[`mdx-components.tsx`](./mdx-components.tsx), so they're usable in any
-MDX file without importing them explicitly.
-
-### Adding a new script's docs
-
-New page sets are authored as MDX under `content/docs/scripts/<name>/`
-with the usual page split (`index`, `installation`, `configuration`,
-`exports`, `commands`, `events`, `changelog`) and a `meta.json` for
-sidebar order. Register the folder in
-[`content/docs/scripts/meta.json`](./content/docs/scripts/meta.json).
-
-## Theming
-
-One theme, always dark. The design system is ported from the main
-marketing site ([nxcreative.tech](https://nxcreative.tech)) — brand red
-on chroma-tinted neutrals (hue 27), Sora body + Bricolage Grotesque
-display, and tight architectural radii.
-
-Tokens live in [`app/global.css`](./app/global.css), mapped onto
-Fumadocs' `--color-fd-*` variables. Nav and footer branding live in
-[`components/brand/`](./components/brand).
-
-## Deployment
-
-- **Host:** Cloudflare Pages (Git integration against
-  `NX-Creative/docs-website`)
-- **Build:** `pnpm install && pnpm build`
-- **Output dir:** `out`
-- **Node version:** `20`
-
-Static export is enforced in
-[`next.config.mjs`](./next.config.mjs):
-
-- `output: 'export'`
-- `images.unoptimized: true`
-- `trailingSlash: true`
-- No server components that read request data, no API routes.
+If you spot a typo, an outdated config option, or a missing detail in the docs, pull requests are welcome.
 
 ## License
 
-Source-available, all rights reserved. This repository is published for
-reference and transparency only — no license to use, copy, modify, or
-redistribute any part of it is granted. See [`LICENSE`](./LICENSE) for
-the full terms.
-
-## Known caveats
-
-- **Fumadocs version skew.** `fumadocs-mdx@11` returns `source.files` as
-  a lazy function; `fumadocs-core@15`'s loader expects it as an array.
-  [`lib/source.ts`](./lib/source.ts) bridges the two by invoking the
-  function once at module load. If you upgrade either package, re-check
-  whether the bridge is still needed.
+Source-available, all rights reserved. This repository is published for reference and transparency only. No license to use, copy, modify, or redistribute any part of it is granted. See [`LICENSE`](./LICENSE) for full terms.
