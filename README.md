@@ -65,30 +65,11 @@ MDX file without importing them explicitly.
 
 ### Adding a new script's docs
 
-Use the `/f-docs` skill from Claude Code:
-
-```
-/f-docs nx_fourseasons
-```
-
-It parses the resource's `fxmanifest.lua`, `config.lua`, and Lua source,
-then scaffolds the full page set (`index`, `installation`,
-`configuration`, `exports`, `commands`, `events`, `changelog`) under
-`content/docs/scripts/fishing/` and registers it in the scripts sidebar.
-
-When a script gets a new release, use `/f-docs-update`:
-
-```
-/f-docs-update nx_fourseasons 1.4.0
-```
-
-It re-derives `configuration`, `exports`, `commands`, `events` from the
-current source (leaving hand-edited `index.mdx` / `installation.mdx`
-alone) and prepends a new changelog entry.
-
-Both skills live under `~/.claude/skills/f-docs/` and
-`~/.claude/skills/f-docs-update/`, and read `~/.nx-creative.json` for
-`resources_dir` and `docs_site_dir`.
+New page sets are authored as MDX under `content/docs/scripts/<name>/`
+with the usual page split (`index`, `installation`, `configuration`,
+`exports`, `commands`, `events`, `changelog`) and a `meta.json` for
+sidebar order. Register the folder in
+[`content/docs/scripts/meta.json`](./content/docs/scripts/meta.json).
 
 ## Theming
 
@@ -116,6 +97,13 @@ Static export is enforced in
 - `images.unoptimized: true`
 - `trailingSlash: true`
 - No server components that read request data, no API routes.
+
+## License
+
+Source-available, all rights reserved. This repository is published for
+reference and transparency only — no license to use, copy, modify, or
+redistribute any part of it is granted. See [`LICENSE`](./LICENSE) for
+the full terms.
 
 ## Known caveats
 

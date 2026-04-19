@@ -1,0 +1,49 @@
+NX Creative Documentation — Source-Available, All Rights Reserved
+Copyright (c) 2026 NX Creative. All rights reserved.
+
+This repository (the "Work") contains the source for the NX Creative
+documentation site (docs.nxcreative.tech), including its source code,
+content, MDX files, components, styles, assets, and documentation text.
+
+The Work is made publicly visible for reference, transparency, and
+customer convenience only. No license, express or implied, is granted
+to use, copy, modify, distribute, sublicense, fork, republish, mirror,
+re-host, translate, adapt, or create derivative works from any part of
+the Work, in whole or in part, for any purpose.
+
+In particular, and without limiting the foregoing, the following are
+expressly prohibited without prior written permission from NX Creative:
+
+  1. Copying or reproducing any portion of the Work, whether code,
+     content, MDX, components, styles, configuration, or assets.
+  2. Using the Work, or any portion of it, as the basis for another
+     website, documentation site, product, template, or publication,
+     whether commercial or non-commercial.
+  3. Redistributing, mirroring, or re-hosting the Work or its built
+     output on any other domain, CDN, or platform.
+  4. Training, fine-tuning, or otherwise using the Work as input to
+     machine-learning models or generative AI systems.
+  5. Removing, obscuring, or altering this notice or any NX Creative
+     branding contained in the Work.
+
+Contributions: pull requests that propose corrections or clarifications
+to the documentation content are welcome. By opening a pull request
+against this repository, you grant NX Creative an unrestricted,
+perpetual, irrevocable, royalty-free license to use, modify, and
+relicense your contribution as part of the Work. Merging a pull request
+does not grant the contributor any license to the Work beyond what is
+stated here.
+
+Trademarks: "NX Creative", the NX Creative logomark, and all associated
+brand assets are trademarks of NX Creative. No trademark license is
+granted by publication of this repository.
+
+THE WORK IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT
+SHALL NX CREATIVE BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT
+OF, OR IN CONNECTION WITH THE WORK OR THE USE OR OTHER DEALINGS IN THE
+WORK.
+
+For licensing inquiries, open an issue on this repository's tracker.
