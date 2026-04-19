@@ -1,0 +1,30 @@
+---
+title: Exports
+description: Public exports registered by nx_employeemanagement.
+---
+
+`nx_employeemanagement` registers a single public client export.
+Everything else (hiring, firing, invoicing, payroll) is driven through
+the tablet UI, internal `lib.callback` channels, and database tables.
+
+## Client
+
+<ExportSignature
+  name="exports.nx_employeemanagement:useJobTablet"
+  side="client"
+  description="Open the employee management tablet UI for the local player. Respects Config.AllowedRanks for bosses and Config.SelfService for employees. Bound to the jobtablet inventory item through the ox_inventory client export hook."
+>
+```lua
+-- Open the tablet from any client script
+exports.nx_employeemanagement:useJobTablet()
+```
+</ExportSignature>
+
+The same entry point is used by:
+
+- The `jobtablet` inventory item (via `client.export` in
+  `ox_inventory`, or via `CreateUseableItem` on QBCore).
+- The `/employeelist` command and its `Config.UIKey` keybind.
+- The server-side `nx_employeemanagement:openTablet` event that the
+  inventory bridge fires when the item is used on QB-style
+  inventories.

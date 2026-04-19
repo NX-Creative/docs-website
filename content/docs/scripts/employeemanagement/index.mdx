@@ -1,0 +1,72 @@
+---
+title: Employee Management
+description: Employee tracking, payroll, invoicing, and society-fund management for FiveM. ESX, QBCore, and QBox compatible with a tablet-style UI.
+---
+
+`nx_employeemanagement` is a workforce and payroll system for jobs.
+Bosses hire, fire, and set grades from a tablet-style panel. The
+server tracks on-duty work hours, rolls them into configurable payroll
+cycles, and pays employees from a society account. Employees can file
+invoices, review their payment history, and open a self-service
+dashboard.
+
+## Features
+
+- **Hours tracking.** Server-authoritative work-time accumulator per
+  job. Optional on-duty gating via `Config.TrackOnlyOnDuty`. Daily
+  records are written to `employee_work_history` so reports can range
+  over arbitrary date windows.
+- **Boss console.** Tablet UI for hiring, firing, grade changes, hour
+  resets, and payroll actions. Gated by `Config.AllowedRanks` (boss,
+  chief, manager by default).
+- **Self-service dashboard.** Non-boss employees can open their own
+  tablet view to see hours, invoice history, and payment history.
+  Toggleable via `Config.SelfService.Enabled`.
+- **Payroll engine.** Per-grade payment rules (hourly, commission,
+  fixed) with overtime multipliers and thresholds. Auto-pay schedules:
+  daily, weekly, biweekly, or monthly. Rules live in
+  `employee_payroll_rules`.
+- **Invoicing.** Employees submit invoices, bosses approve or reject.
+  Invoices under `AutoApproveUnder` auto-approve. Invoices over
+  `RequireApprovalOver` require boss review. Stored in
+  `employee_invoices`.
+- **Society account.** Deposit and withdraw shared funds via the UI.
+  Compatible with `esx_addonaccount`, `qb-management`, `qb-banking`,
+  `fd-banking`, `renewed-banking`, or direct database mode. Configured
+  through `Config.Payroll.Society.Backend`.
+- **Discord reports.** Payroll summary webhook with optional top-employee
+  rankings. Gated by `Config.Payroll.Reporting`.
+- **Tablet item.** Physical in-world tablet with upper-body animation,
+  third-person camera, DUI screen attached to the prop, and NUI overlay
+  for input. Rendered via `nx-3d`.
+- **Multi-framework.** ESX Legacy, QBCore, and QBox. Framework is set
+  through `Config.Framework`.
+- **Optional core_multijob integration.** Reads the `user_jobs` table so
+  employees can have multiple jobs without conflict. Toggleable via
+  `Config.Integrations.MultiJob`.
+- **Localization.** English, Finnish, Spanish, French, Italian, German,
+  and Swedish ship by default. Missing keys fall back to English.
+
+## Framework usage
+
+<FrameworkTabs>
+  <FrameworkTab framework="esx">
+```lua
+-- Open the tablet UI from any client script
+exports.nx_employeemanagement:useJobTablet()
+```
+  </FrameworkTab>
+  <FrameworkTab framework="qbcore">
+```lua
+-- Open the tablet UI from any client script
+exports.nx_employeemanagement:useJobTablet()
+```
+  </FrameworkTab>
+</FrameworkTabs>
+
+The resource reads `Config.Framework` directly. Set it to `"ESX"`,
+`"QB"`, or `"QBX"` to match your core.
+
+## Get it
+
+Available at [nxcreative.tech/employeemanagement](https://nxcreative.tech/employeemanagement).

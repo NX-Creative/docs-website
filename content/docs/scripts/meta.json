@@ -1,5 +1,5 @@
 {
   "title": "Scripts",
-  "pages": ["index", "fourseasons", "laptop", "realbanking"],
+  "pages": ["index", "employeemanagement", "fourseasons", "laptop", "realbanking"],
   "defaultOpen": false
 }

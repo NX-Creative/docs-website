@@ -1,0 +1,173 @@
+---
+title: Configuration
+description: Every entry in shared/config.lua. Defaults, types, and purpose.
+---
+
+All settings live in `shared/config.lua`. The file is in
+`escrow_ignore` so it remains editable after install. Locale strings
+live on the `Config.Locale` table and are merged per language at load
+time (missing keys fall back to English).
+
+## Core
+
+<ConfigOption name="Config.Framework" type="string" default="'ESX'" description="Framework identifier. One of 'ESX', 'QB', 'QBX'." />
+
+<ConfigOption name="Config.Inventory" type="string" default="'OX'" description="Inventory backend for the tablet item. One of 'OX', 'QB'." />
+
+<ConfigOption name="Config.Target" type="string" default="'OX'" description="Target resource identifier. Currently only 'OX' is supported." />
+
+<ConfigOption name="Config.Language" type="string" default="'en'" description="Active UI language. Shipped: 'en', 'fi', 'es', 'fr', 'it', 'de', 'sv'." />
+
+<ConfigOption name="Config.Debug" type="boolean" default="false" description="Enables verbose debug logging." />
+
+## Integrations
+
+<ConfigOption name="Config.Integrations.MultiJob" type="string" default="'none'" description="Optional multi-job backend. One of 'none', 'core_multijob'." />
+
+<ConfigOption name="Config.Integrations.MultiJobTable" type="string" default="'user_jobs'" description="Database table name for the core_multijob integration." />
+
+<ConfigOption name="Config.Integrations.MultiJobFallbackJob" type="string" default="'unemployed'" description="Job assigned when an employee has no other jobs remaining." />
+
+## Tracking
+
+<ConfigOption name="Config.UpdateInterval" type="number" default="5" description="Minutes between working-time accumulator updates." />
+
+<ConfigOption name="Config.TrackOnlyOnDuty" type="boolean" default="true" description="When true, only accumulate hours for players flagged as on duty by the framework." />
+
+<ConfigOption name="Config.ResetHoursOnTrackingStart" type="boolean" default="false" description="When true, reset an employee's tracked hours to zero the moment they start tracking a job." />
+
+<ConfigOption name="Config.ResetHistoryOnHoursReset" type="boolean" default="true" description="When a boss resets an employee's hours, also clear their daily work history for that job." />
+
+<ConfigOption name="Config.SelfService" type="table" default="{ Enabled = true }" description="Controls the non-boss self-service panel. Set Enabled = false to restrict the tablet to management." />
+
+## Permissions
+
+<ConfigOption name="Config.UIKey" type="string" default="'F7'" description="Default keybind for /employeelist. Registered via RegisterKeyMapping so players can rebind it." />
+
+<ConfigOption name="Config.AllowedRanks" type="table" default="{ boss = true, chief = true, manager = true }" description="Job grade names treated as management. Employees with a matching grade see the boss console." />
+
+## Debug menu
+
+<ConfigOption name="Config.DebugMenu.Enabled" type="boolean" default="true" description="Master toggle for the /trackdebug in-game debug menu." />
+
+<ConfigOption name="Config.DebugMenu.RequireAce" type="boolean" default="true" description="When true, the debug menu requires the ACE permission below." />
+
+<ConfigOption name="Config.DebugMenu.AcePermission" type="string" default="'nx_employeemanagement.debug'" description="ACE permission checked when RequireAce is true." />
+
+<ConfigOption name="Config.DebugMenu.UseFrameworkGroups" type="boolean" default="true" description="Also allow debug access to players in the framework groups listed below." />
+
+<ConfigOption name="Config.DebugMenu.AllowedGroups" type="string[]" default="{ 'admin', 'superadmin', 'god' }" description="Framework groups granted debug access when UseFrameworkGroups is true." />
+
+## Tablet prop and camera
+
+Controls the in-world tablet item. This is the physical prop plus the
+third-person camera, not the NUI overlay. NUI placement is covered by
+`Config.TabletUI` below.
+
+<ConfigOption name="Config.Tablet.Enabled" type="boolean" default="true" description="Master toggle for the tablet item flow. When false, the UI only opens through the /employeelist command." />
+
+<ConfigOption name="Config.Tablet.debug" type="boolean" default="false" description="Enables verbose tablet-side debug logging." />
+
+<ConfigOption name="Config.Tablet.debugCommand" type="boolean" default="false" description="When true, registers /ta to toggle the tablet. Leave false in production." />
+
+<ConfigOption name="Config.Tablet.access.mode" type="string" default="'item'" description="How the tablet opens. One of 'key', 'item', 'key+item'." />
+
+<ConfigOption name="Config.Tablet.access.item" type="string" default="'jobtablet'" description="Inventory item id for the tablet." />
+
+<ConfigOption name="Config.Tablet.anim.flags" type="number" default="49" description="Animation flags used for the upper-body tablet hold. 49 keeps legs in idle." />
+
+<ConfigOption name="Config.Tablet.lowerBody" type="table" description="Lower-body idle animation played alongside the tablet hold. Fields: enabled, dict, name, blendIn, blendOut, duration, flags, freezeAt." />
+
+<ConfigOption name="Config.Tablet.autoClose" type="table" default="{ onWeapon = true, onCombat = true, onRagdoll = true, onDeath = true }" description="Auto-close the tablet when the player draws a weapon, enters combat, ragdolls, or dies." />
+
+<ConfigOption name="Config.Tablet.hints.enabled" type="boolean" default="true" description="Show hint prompts while the tablet is open." />
+
+<ConfigOption name="Config.Tablet.nui" type="table" default="{ setFocus = false, keepInput = false }" description="NUI focus behavior while the tablet is open." />
+
+<ConfigOption name="Config.Tablet.controls.disable" type="boolean" default="true" description="Disable gameplay controls while the tablet is open." />
+
+<ConfigOption name="Config.Tablet.camera" type="table" description="Third-person tablet camera. Fields include fov, nearClip, distance, height, side, followBone, followBoneOffset, toggleCommand, toggleKey, lookAround. The toggle command defaults to 'tabletcam' on key F6." />
+
+<ConfigOption name="Config.Tablet.stabilization" type="table" description="Optional camera and matrix stabilization. Disabled by default. Useful if the prop jitters on low tick rates." />
+
+<ConfigOption name="Config.Tablet.panel" type="table" description="DUI panel placement on the tablet prop. Fields include resW, resH, updateInterval, updateMaxDistance, faceCamera, frontOnly, depthCompensation, localNormal, localUp, width, height." />
+
+<ConfigOption name="Config.Tablet.input" type="table" description="Input mapping while the tablet is open. Fields: enabled, maxDistance, cursorMode (control, hold, speed), scrollStep, disableControls." />
+
+## Tablet UI (NUI overlay)
+
+<ConfigOption name="Config.TabletUI.Enabled" type="boolean" default="true" description="Master toggle for the NUI overlay." />
+
+<ConfigOption name="Config.TabletUI.BootDelayMs" type="number" default="900" description="Delay before the NUI boot animation starts. Gives the tablet prop time to render." />
+
+<ConfigOption name="Config.TabletUI.Screen" type="table" default="{ x = 0.5, y = 0.5, width = 0.46, height = 0.68, radius = 0.02, padding = 0.02 }" description="Normalized screen placement for the NUI panel. All values are 0..1." />
+
+<ConfigOption name="Config.TabletUI.Debug" type="boolean" default="false" description="Draw a border around the NUI panel to help align the screen." />
+
+## Time display
+
+<ConfigOption name="Config.DisplayFormat" type="string" default="'hours'" description="Time display format. One of 'hours', 'minutes', 'both'." />
+
+<ConfigOption name="Config.TimeFormat" type="table" default="{ hours = '%d hours', minutes = '%d minutes', both = '%dh %dm' }" description="printf-style format strings for each DisplayFormat mode." />
+
+## Payroll
+
+<ConfigOption name="Config.Payroll.Enabled" type="boolean" default="true" description="Master toggle for all payroll features. When false, invoicing, society, and auto-pay are disabled." />
+
+<ConfigOption name="Config.Payroll.HoursPerPayCycle" type="number" default="40" description="Hours per pay cycle. Used when converting a job's base salary into an hourly rate." />
+
+<ConfigOption name="Config.Payroll.ResetHistoryOnPay" type="boolean" default="true" description="Reset an employee's daily work-history rows after their salary is paid." />
+
+### Society funds
+
+<ConfigOption name="Config.Payroll.Society.UseSocietyFunds" type="boolean" default="true" description="When true, payroll and invoice payouts are debited from the society account. Set false to disable the debit (useful during testing)." />
+
+<ConfigOption name="Config.Payroll.Society.Backend" type="string" default="'auto'" description="Society-account backend. One of 'auto', 'esx_addonaccount', 'fd-banking', 'qb-management', 'qb-banking', 'renewed-banking', 'database'. 'auto' probes the running resources and picks the first match." />
+
+<ConfigOption name="Config.Payroll.Society.QBTableName" type="string" default="'management_funds'" description="Table name used by the qb-management backend." />
+
+### Auto-pay
+
+<ConfigOption name="Config.Payroll.AutoPay.Enabled" type="boolean" default="true" description="Run the auto-pay scheduler on the server." />
+
+<ConfigOption name="Config.Payroll.AutoPay.Schedule" type="string" default="'weekly'" description="Pay cycle. One of 'daily', 'weekly', 'biweekly', 'monthly'." />
+
+<ConfigOption name="Config.Payroll.AutoPay.PayDay" type="number" default="1" description="Day of week or day of month depending on Schedule. Weekly uses 1 = Monday. Monthly accepts 1..31." />
+
+<ConfigOption name="Config.Payroll.AutoPay.PayHour" type="number" default="10" description="Hour of day (24h) when auto-pay runs." />
+
+### Invoices
+
+<ConfigOption name="Config.Payroll.Invoices.MaxPendingPerEmployee" type="number" default="5" description="Maximum simultaneous pending invoices per employee." />
+
+<ConfigOption name="Config.Payroll.Invoices.AutoApproveUnder" type="number" default="1000" description="Invoices with amount under this value skip review and auto-approve." />
+
+<ConfigOption name="Config.Payroll.Invoices.RequireApprovalOver" type="number" default="5000" description="Invoices over this amount always require boss review, even if other rules would auto-approve." />
+
+### Default rates
+
+<ConfigOption name="Config.Payroll.DefaultRates.hourly" type="number" default="25.00" description="Default hourly rate when no per-grade rule exists." />
+
+<ConfigOption name="Config.Payroll.DefaultRates.commission" type="number" default="0.05" description="Default commission rate. 0.05 = 5 percent." />
+
+<ConfigOption name="Config.Payroll.DefaultRates.overtime_multiplier" type="number" default="1.5" description="Overtime pay multiplier applied above the threshold." />
+
+<ConfigOption name="Config.Payroll.DefaultRates.overtime_threshold" type="number" default="1500" description="Minutes worked before overtime kicks in. 1500 = 25 hours." />
+
+### Reporting
+
+<ConfigOption name="Config.Payroll.Reporting.Enabled" type="boolean" default="true" description="Enables the Discord summary endpoint and boss-menu report buttons." />
+
+<ConfigOption name="Config.Payroll.Reporting.MaxRangeDays" type="number" default="93" description="Maximum number of days that can be selected for a single report." />
+
+<ConfigOption name="Config.Payroll.Reporting.DiscordWebhookUrl" type="string" default="''" description="Discord webhook URL for payroll summaries. Leave empty to disable." />
+
+<ConfigOption name="Config.Payroll.Reporting.WebhookUsername" type="string" default="'Company Payroll Reports'" description="Username used in the Discord embed." />
+
+<ConfigOption name="Config.Payroll.Reporting.IncludeTopEmployees" type="boolean" default="true" description="Append a ranked top-employee list to the Discord summary." />
+
+## Localization
+
+<ConfigOption name="Config.Locale" type="table" description="String table keyed by language code. Shipped keys: 'en', 'fi', 'es', 'fr', 'it', 'de', 'sv'. Non-English locales are merged with 'en' at load time so missing keys fall back to English." />
+
+<ConfigOption name="Config.Translate" type="function" description="Translate helper. Signature: Config.Translate(key, ...). Returns the formatted string for the active language, falling back to English, then to the key itself." />

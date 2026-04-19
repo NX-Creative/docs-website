@@ -1,0 +1,13 @@
+{
+  "title": "Employee Management",
+  "pages": [
+    "index",
+    "installation",
+    "configuration",
+    "exports",
+    "commands",
+    "events",
+    "changelog"
+  ],
+  "defaultOpen": false
+}

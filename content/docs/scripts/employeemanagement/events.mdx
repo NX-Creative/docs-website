@@ -1,0 +1,61 @@
+---
+title: Events
+description: Net events your resources can listen to or trigger.
+---
+
+Only events that form a stable integration surface are listed here.
+NUI callback channels and `lib.callback` registrations are internal to
+the tablet UI and are subject to change without notice.
+
+## Client events (listen)
+
+These fire on the client. Use `RegisterNetEvent` plus `AddEventHandler`.
+
+### `nx_employeemanagement:openTablet`
+
+Triggered by the server when the `jobtablet` item is used through
+inventories that do not call the client export directly (for example
+`qb-inventory`). The handler opens the tablet UI.
+
+```lua
+RegisterNetEvent('nx_employeemanagement:openTablet', function()
+    -- Tablet UI opens automatically.
+    -- Listen here if you need to synchronize other UI on open.
+end)
+```
+
+## Server events (trigger)
+
+These net events are handled on the server. Trigger them from the
+client with `TriggerServerEvent`.
+
+### `nx_employeemanagement:startTracking`
+
+Start tracking work hours for a given job. The server validates that
+the caller is currently employed in that job before writing. Honors
+`Config.ResetHoursOnTrackingStart`.
+
+```lua
+TriggerServerEvent('nx_employeemanagement:startTracking', 'police')
+```
+
+The resource already fires this on `esx:playerLoaded`,
+`esx:setJob`, `QBCore:Client:OnPlayerLoaded`, and
+`QBCore:Client:OnJobUpdate`. Trigger it manually only if your setup
+does not emit those framework events.
+
+### `nx_employeemanagement:resetHours`
+
+Reset an employee's tracked hours. Permission is checked server-side:
+only players whose grade matches `Config.AllowedRanks` for that job
+can reset. When `Config.ResetHistoryOnHoursReset` is true, the daily
+work-history rows for that employee and job are also deleted.
+
+```lua
+TriggerServerEvent('nx_employeemanagement:resetHours', targetIdentifier)
+```
+
+The tablet UI uses the `lib.callback` variant of this event
+(`nx_employeemanagement:resetHours`) to receive a structured result.
+Prefer the callback when calling from another resource that needs
+success or error feedback.

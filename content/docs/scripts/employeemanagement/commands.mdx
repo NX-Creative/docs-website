@@ -1,0 +1,36 @@
+---
+title: Commands
+description: Chat commands registered by nx_employeemanagement.
+---
+
+## Player commands
+
+<CommandReference
+  name="employeelist"
+  description="Open the employee tracking UI. Bosses see the full management console, employees see the self-service dashboard when Config.SelfService.Enabled is true. Registered through RegisterKeyMapping, so players can rebind the trigger (defaults to Config.UIKey, F7)."
+/>
+
+## Debug commands
+
+These commands are gated. They only appear when the related debug
+toggle is enabled and the caller has the configured permission.
+
+<CommandReference
+  name="trackdebug"
+  description="Open the debug menu. Gated by Config.DebugMenu.Enabled plus either the ACE permission Config.DebugMenu.AcePermission or membership in Config.DebugMenu.AllowedGroups."
+/>
+
+<CommandReference
+  name="ta"
+  description="Toggle the tablet prop for development. Only registered when Config.Tablet.debugCommand is true. Leave that flag false in production."
+/>
+
+<CommandReference
+  name="tabletcam"
+  description="Toggle the third-person tablet camera. Name and bound key come from Config.Tablet.camera.toggleCommand and toggleKey (F6 by default)."
+/>
+
+<CommandReference
+  name="policemock"
+  description="Server console helper that seeds mock police data for development. Requires the debug access check defined in server/debug.lua. Not intended for production use."
+/>
