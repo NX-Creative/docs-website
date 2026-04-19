@@ -25,3 +25,9 @@ export type {
   CommandArg,
   CommandReferenceProps,
 } from './command-reference';
+
+export { SupportChannels } from './support-channels';
+export type {
+  SupportChannel,
+  SupportChannelsProps,
+} from './support-channels';

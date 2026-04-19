@@ -7,6 +7,7 @@ import {
   FrameworkTabs,
   FrameworkTab,
   CommandReference,
+  SupportChannels,
 } from '@/components/fivem';
 
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
@@ -18,6 +19,7 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     FrameworkTabs,
     FrameworkTab,
     CommandReference,
+    SupportChannels,
     ...components,
   };
 }

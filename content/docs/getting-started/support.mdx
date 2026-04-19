@@ -22,18 +22,21 @@ If a script fails to validate at boot, the common causes are:
 
 ## Where to ask for help
 
-<DependencyList
-  dependencies={[
+<SupportChannels
+  channels={[
     {
       name: 'Discord #support',
-      description: 'Fastest response. Most issues are resolved here. Verify your purchase first.',
-      required: true,
+      description:
+        'Fastest response. Most issues are resolved here. Verify your purchase first.',
+      bestFor: 'Bugs · Setup · Config',
+      icon: 'discord',
       href: 'https://discord.gg/UYrWRyrUqY',
     },
     {
       name: 'Tebex tickets',
       description: 'Billing, refunds, and purchase-access issues.',
-      required: false,
+      bestFor: 'Billing · Access',
+      icon: 'ticket',
       href: 'https://nxcreative.tech/products',
     },
   ]}
