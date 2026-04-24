@@ -1,0 +1,47 @@
+name: Publish changelog to Discord
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'content/docs/scripts/*/changelog.mdx'
+      - 'scripts/publish-discord-changelog.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: discord-changelog
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run publisher
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DOCS_SITE_URL: https://docs.nxcreative.tech
+        run: node scripts/publish-discord-changelog.mjs
+
+      - name: Commit message-id state
+        run: |
+          if [[ -n "$(git status --porcelain scripts/discord-messages.json)" ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add scripts/discord-messages.json
+            git commit -m "chore: update Discord changelog message ids [skip ci]"
+            git push
+          else
+            echo "No state changes to commit."
+          fi
