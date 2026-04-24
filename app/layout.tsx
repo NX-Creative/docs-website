@@ -30,6 +30,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             enabled: true,
             defaultTheme: 'dark',
           }}
+          search={{
+            options: {
+              type: 'static',
+            },
+          }}
         >
           {children}
         </RootProvider>
