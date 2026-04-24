@@ -22,7 +22,7 @@ const STATE_FILE = join(__dirname, 'discord-messages.json');
 
 const WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
 const DOCS_SITE = process.env.DOCS_SITE_URL || 'https://docs.nxcreative.tech';
-const EMBED_COLOR = 0x6366f1;
+const EMBED_COLOR = 0xdc2626;
 const DESC_LIMIT = 4096;
 const READ_MORE_SUFFIX = '\n\n[Read full changelog →]({url})';
 
@@ -84,17 +84,13 @@ function buildEmbed({ resource, version, date, body, changelogUrl }) {
         description = truncated.slice(0, lastNewline > 0 ? lastNewline : budget) + suffix;
     }
 
-    const embed = {
+    return {
         title,
         url: changelogUrl,
         description,
         color: EMBED_COLOR,
         footer: { text: 'NX Creative' },
     };
-    if (date && /^\d{4}-\d{2}-\d{2}/.test(date)) {
-        embed.timestamp = new Date(date).toISOString();
-    }
-    return embed;
 }
 
 async function postWebhook(embed) {
