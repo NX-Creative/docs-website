@@ -1,0 +1,28 @@
+---
+title: ox_target
+description: Visual redesign of ox_target. Drop-in replacement with the same API and a new liquid glass UI.
+---
+
+`ox_target` is NX Creative's visual redesign of [Overextended's ox_target](https://github.com/overextended/ox_target). It is a drop-in replacement: every export, event, and option still works the same way. Only the web UI was rewritten.
+
+## What is different
+
+- **Liquid glass panels.** Real WebGL blur of the game view, with per-option dome refraction and edge contour distortion.
+- **Adaptive text.** Each panel samples its own background luminance and switches between light and dark text.
+- **Spatial motion.** The menu flies out from a center eye on target acquire, then follows the entity in screen space with a distance-based scale and a staggered entry animation.
+- **Sora typography.** Sora replaces the default system font. FontAwesome icons are unchanged.
+
+## What is unchanged
+
+- All Lua under `client/`, `server/`, and `locales/` matches upstream `ox_target` v1.17.2.
+- Same framework bridges: ox_core, ESX, QBX, ND.
+- Same `qtarget` compatibility layer.
+- Same convars and the same export surface.
+
+## API reference
+
+Because the Lua API is identical to upstream, the [official ox_target documentation](https://overextended.dev/ox_target) is the canonical reference for `addBoxZone`, `addGlobalPed`, `addModel`, and the rest of the export surface.
+
+## Get it
+
+Available at [nxcreative.tech/ox_target](https://nxcreative.tech/ox_target).

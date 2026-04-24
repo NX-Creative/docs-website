@@ -1,0 +1,29 @@
+---
+title: Configuration
+description: Convars for NX Creative's ox_target build.
+---
+
+`ox_target` has no `config.lua`. Behavior is controlled by FiveM convars set in `server.cfg`.
+
+## Convars
+
+These are inherited from upstream and unchanged in this build.
+
+<ConfigOption name="ox_target:toggleHotkey" type="number" default="0" description="When 1, the activation key toggles targeting on and off. When 0 (default), the key must be held." />
+
+<ConfigOption name="ox_target:defaultHotkey" type="string" default="'LMENU'" description="Default activation key. Players can rebind it through the FiveM keybind menu." />
+
+<ConfigOption name="ox_target:leftClick" type="number" default="1" description="When 1 (default), left mouse button selects an option. When 0, right mouse button is used." />
+
+<ConfigOption name="ox_target:defaults" type="number" default="1" description="When 1 (default), the bundled default interactions for vehicles, peds, and seats are registered. Set to 0 to disable them." />
+
+<ConfigOption name="ox_target:debug" type="number" default="0" description="When 1, registers the debug zones in client/debug.lua and prints debug data on selection. Use only in development." />
+
+<ConfigOption name="ox_target:drawSprite" type="number" default="24" description="Sprite radius for zones with drawSprite enabled. Set to 0 to disable the sprite." />
+
+Set them in `server.cfg`:
+
+```bash
+setr ox_target:toggleHotkey 1
+setr ox_target:defaultHotkey "LMENU"
+```

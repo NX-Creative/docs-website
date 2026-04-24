@@ -1,0 +1,5 @@
+{
+  "title": "ox_target",
+  "pages": ["index", "installation", "configuration", "changelog"],
+  "defaultOpen": false
+}

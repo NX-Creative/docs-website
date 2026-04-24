@@ -1,0 +1,43 @@
+---
+title: Installation
+description: Install NX Creative's ox_target as a drop-in replacement for the upstream resource.
+---
+
+For server-wide prerequisites work through the [generic install guide](/docs/getting-started/installation) first. This page only lists what is specific to this build of `ox_target`.
+
+## Dependencies
+
+<DependencyList
+  dependencies={[
+    {
+      name: 'ox_lib',
+      description: 'Required. Used for zones, callbacks, and shared utilities. Same version requirement as upstream ox_target.',
+      required: true,
+      href: 'https://github.com/overextended/ox_lib'
+    }
+  ]}
+>
+  This is a drop-in replacement for upstream <code>ox_target</code>. Replace
+  the existing folder, or rename this resource and disable the original.
+</DependencyList>
+
+## Replacing upstream ox_target
+
+1. Stop your server.
+2. Move or delete your existing `ox_target` folder.
+3. Drop this folder in its place. The folder name must remain `ox_target` because the resource sets `provide 'qtarget'` and is referenced by name across other scripts.
+4. Start the server.
+
+No SQL, no script changes, no migration. Existing calls to `exports.ox_target:addBoxZone(...)` keep working.
+
+## server.cfg order
+
+```bash
+ensure ox_lib
+ensure ox_target
+# ensure your framework and any resources that depend on ox_target after this
+```
+
+## Configuration
+
+Behavior is controlled by FiveM convars set in `server.cfg`. See [Configuration](./configuration) for the full list.
