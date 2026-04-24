@@ -5,4 +5,17 @@ description: Version history for the NX Creative ox_target visual redesign.
 
 ## 1.17.2 (2026-04-25)
 
-Initial documentation. Visual redesign based on upstream `ox_target` v1.17.2.
+Initial release of the NX Creative visual redesign for `ox_target`, based on upstream `ox_target` v1.17.2. The Lua API surface is unchanged.
+
+### Added
+
+- Liquid glass UI. Full-resolution 3-pass separable Gaussian blur of the game view with SDF compose, per-option dome refraction, and edge contour distortion.
+- Edge glow and subtle chromatic dispersion on each panel.
+- Adaptive text. Panels sample their local background luminance and switch between light and dark text per option.
+- Spatial motion. The menu flies out from a center eye on target acquire, follows the entity in screen space with a distance-based scale, and uses a staggered entry animation.
+- Sora typography, squircle corners, and clean white hover and active states.
+- Escrow-protected shader pipeline. GLSL lives in `client/shaders.lua` and is delivered to the NUI over a registered callback rather than shipping in the JS bundle.
+
+### Changed
+
+- Module loading switched from `require()` to a `client_scripts` plus `rawget(_G, ...)` pattern so the resource loads correctly under Tebex escrow.
