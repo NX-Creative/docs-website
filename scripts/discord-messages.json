@@ -1,1 +1,22 @@
-{}
+{
+  "employeemanagement@1.0.2": {
+    "messageId": "1497379276071112734",
+    "hash": "dac04873e596ab6c"
+  },
+  "fourseasons@2.0.0": {
+    "messageId": "1497379285667811551",
+    "hash": "ca2dbf56640d4805"
+  },
+  "laptop@1.0.1": {
+    "messageId": "1497379287219568711",
+    "hash": "dac04873e596ab6c"
+  },
+  "ox_target@1.17.2": {
+    "messageId": "1497379289111330978",
+    "hash": "f0bbcc34838e42b7"
+  },
+  "realbanking@1.0.0": {
+    "messageId": "1497379291271397470",
+    "hash": "dac04873e596ab6c"
+  }
+}
