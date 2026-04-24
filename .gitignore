@@ -12,3 +12,4 @@ out
 
 # Claude Code local settings
 .claude/
+/videos
