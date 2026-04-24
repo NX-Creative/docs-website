@@ -3,6 +3,49 @@ title: Changelog
 description: Version history for nx_fourseasons.
 ---
 
+## 2.0.0 (2026-04-25)
+
+### Added
+
+- Liquid Glass HUD pipeline and redesigned forecast UI with hover-expand day cards.
+- Intra-day prediction timeline rendered on the Today forecast card (vertical sidebar layout).
+- Sliding-window forecast refresh that preserves future entries instead of regenerating.
+- Wind debris system with weight-class physics, particle layers, and intensity tiers.
+- Storm systems: blackout weather rules (per-weather eligibility for `RAIN` and `BLIZZARD`), gradual ocean wave transitions (~5s lerp), strike FX distance culling, production ocean/boat tuning.
+- Admin experimental "high" ocean option.
+- Framework bridge with centralized event constants (ESX/QBCore/QBox-ready).
+
+### Changed
+
+- Flattened visual effects into a single toggle list.
+- Simplified weather intensity to 4 steps; simplified slipperiness and visibility test steps.
+- Merged storm and flood admin tools into a single menu; moved effects testing under system tools.
+- Unified day cards with hover-expand intraday forecast.
+- Forecast now uses intraday prediction slots on expiry instead of random weather.
+- Fahrenheit toggle removed from forecast UI (kept as config-only option).
+- Localized flood strings and added missing locale keys.
+
+### Fixed
+
+- Particle cloud first-frame indoor flash, variety, drifting offsets, and indoor check.
+- Wind effect registration timing and angular spin range; wind data tables incorrectly scoped inside `falling_leaves` branch.
+- Wind sound volume clamping and burst thread cancellation latency.
+- Season briefly showing "Unknown" when opening the forecast.
+- Seasonal temp overrides leaking on load.
+- Config defaults: `TimeSync` on, duration range 5–15, intraday locale keys.
+- `LoadPtfxAsset` infinite loop (added timeout).
+- `Database:SetSetting` and other DB calls wrapped in `pcall`.
+- Removed lightning strike "nearby" notification.
+- Warning system removed from admin menu; ghost `ApplyIntervalMs` config reference removed.
+
+### Internal
+
+- Deobfuscated `gamerender` and added design doc.
+- Consolidated duplicated client `GetLocale` and server helpers into `utils`.
+- Made internal `sync.lua` globals local; removed dead code (`LastWeather`, unreachable `HALLOWEEN` weather type, dead branches in `sync.lua`).
+- Cleaned up config dead code and compat aliases.
+- Polish + optimize pass: thread lifecycle, dedup, SQL schema, debug logs.
+
 ## 1.3.0 (2026-04-17)
 
 Initial documentation.
