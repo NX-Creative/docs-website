@@ -3,6 +3,13 @@ title: Changelog
 description: Version history for nx_employeemanagement.
 ---
 
+## 1.2.1 (2026-04-25)
+
+### Changed
+
+- `Config.AllowedRanks` entries now accept grade levels (numbers) in addition to grade names (strings). A single job entry can mix both, for example `['ambulance'] = { ['chief'] = true, [4] = true }`.
+- `Config.IsBossRank` signature is now `Config.IsBossRank(jobName, gradeName, gradeLevel)`. The third argument is optional. Either a matching grade name or a matching grade level grants access. Existing two-argument callers keep working.
+
 ## 1.2.0 (2026-04-25)
 
 ### Added

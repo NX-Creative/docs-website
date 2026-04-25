@@ -47,18 +47,20 @@ loaded only on the server. See [Webhooks](#webhooks-server-only) below.
 
 <ConfigOption name="Config.UIKey" type="string" default="'F7'" description="Default keybind for /employeelist. Registered via RegisterKeyMapping so players can rebind it." />
 
-<ConfigOption name="Config.AllowedRanks" type="table" default="{ default = { boss = true, chief = true, manager = true } }" description="Per-job grade names treated as management. Keys are job names, values are tables of grade names allowed boss access. The 'default' entry is the fallback used for any job without an explicit entry. Add a job-specific entry to override the default for that job." />
+<ConfigOption name="Config.AllowedRanks" type="table" default="{ default = { boss = true, chief = true, manager = true } }" description="Per-job grades treated as management. Keys are job names, values are tables of allowed grades. Each entry can be keyed by grade name (string) or grade level (number), or mix both. Values must be true to grant access. The 'default' entry is the fallback used for any job without an explicit entry." />
 
-<ConfigOption name="Config.IsBossRank" type="function" description="Resolves whether a (jobName, gradeName) pair has boss access. Signature: Config.IsBossRank(jobName, gradeName). Falls back to Config.AllowedRanks['default'] when the job has no explicit entry. Used by both client and server permission checks." />
+<ConfigOption name="Config.IsBossRank" type="function" description="Resolves whether a (jobName, gradeName, gradeLevel) tuple has boss access. Signature: Config.IsBossRank(jobName, gradeName, gradeLevel). Either gradeName or gradeLevel may match an entry in Config.AllowedRanks. Falls back to Config.AllowedRanks['default'] when the job has no explicit entry. Used by both client and server permission checks." />
 
-Example: limit police to grade `boss` only, allow mechanic `boss` and
-`chief`, and let every other job fall back to the default ranks.
+Example: limit police to grade name `boss`, allow mechanic grade levels
+`3` and `4`, mix names and levels for ambulance, and let every other
+job fall back to the default ranks.
 
 ```lua
 Config.AllowedRanks = {
-    ['default']  = { ['boss'] = true, ['chief'] = true, ['manager'] = true },
-    ['police']   = { ['boss'] = true },
-    ['mechanic'] = { ['boss'] = true, ['chief'] = true }
+    ['default']   = { ['boss'] = true, ['chief'] = true, ['manager'] = true },
+    ['police']    = { ['boss'] = true },                -- by grade name
+    ['mechanic']  = { [3] = true, [4] = true },         -- by grade level
+    ['ambulance'] = { ['chief'] = true, [4] = true }    -- mixed
 }
 ```
 
