@@ -26,5 +26,9 @@
   "employeemanagement@1.2.0": {
     "messageId": "1497597925830688908",
     "hash": "84af4725c0ee07cd"
+  },
+  "employeemanagement@1.2.1": {
+    "messageId": "1497610944820547685",
+    "hash": "646a366beaa4fea2"
   }
 }
