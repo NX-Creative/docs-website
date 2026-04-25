@@ -18,5 +18,9 @@
   "realbanking@1.0.0": {
     "messageId": "1497379291271397470",
     "hash": "dac04873e596ab6c"
+  },
+  "employeemanagement@1.1.0": {
+    "messageId": "1497551331932635198",
+    "hash": "9133d90f35d0f248"
   }
 }
