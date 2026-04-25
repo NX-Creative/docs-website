@@ -8,6 +8,9 @@ All settings live in `shared/config.lua`. The file is in
 live on the `Config.Locale` table and are merged per language at load
 time (missing keys fall back to English).
 
+Webhook URLs live in a separate `shared/server-config.lua` file that is
+loaded only on the server. See [Webhooks](#webhooks-server-only) below.
+
 ## Core
 
 <ConfigOption name="Config.Framework" type="string" default="'ESX'" description="Framework identifier. One of 'ESX', 'QB', 'QBX'." />
@@ -44,7 +47,20 @@ time (missing keys fall back to English).
 
 <ConfigOption name="Config.UIKey" type="string" default="'F7'" description="Default keybind for /employeelist. Registered via RegisterKeyMapping so players can rebind it." />
 
-<ConfigOption name="Config.AllowedRanks" type="table" default="{ boss = true, chief = true, manager = true }" description="Job grade names treated as management. Employees with a matching grade see the boss console." />
+<ConfigOption name="Config.AllowedRanks" type="table" default="{ default = { boss = true, chief = true, manager = true } }" description="Per-job grade names treated as management. Keys are job names, values are tables of grade names allowed boss access. The 'default' entry is the fallback used for any job without an explicit entry. Add a job-specific entry to override the default for that job." />
+
+<ConfigOption name="Config.IsBossRank" type="function" description="Resolves whether a (jobName, gradeName) pair has boss access. Signature: Config.IsBossRank(jobName, gradeName). Falls back to Config.AllowedRanks['default'] when the job has no explicit entry. Used by both client and server permission checks." />
+
+Example: limit police to grade `boss` only, allow mechanic `boss` and
+`chief`, and let every other job fall back to the default ranks.
+
+```lua
+Config.AllowedRanks = {
+    ['default']  = { ['boss'] = true, ['chief'] = true, ['manager'] = true },
+    ['police']   = { ['boss'] = true },
+    ['mechanic'] = { ['boss'] = true, ['chief'] = true }
+}
+```
 
 ## Debug menu
 
@@ -156,15 +172,27 @@ third-person camera, not the NUI overlay. NUI placement is covered by
 
 ### Reporting
 
-<ConfigOption name="Config.Payroll.Reporting.Enabled" type="boolean" default="true" description="Enables the Discord summary endpoint and boss-menu report buttons." />
+<ConfigOption name="Config.Payroll.Reporting.Enabled" type="boolean" default="true" description="Enables the Discord summary endpoint and boss-menu report buttons. The webhook URL itself is configured in shared/server-config.lua." />
 
 <ConfigOption name="Config.Payroll.Reporting.MaxRangeDays" type="number" default="93" description="Maximum number of days that can be selected for a single report." />
 
-<ConfigOption name="Config.Payroll.Reporting.DiscordWebhookUrl" type="string" default="''" description="Discord webhook URL for payroll summaries. Leave empty to disable." />
-
-<ConfigOption name="Config.Payroll.Reporting.WebhookUsername" type="string" default="'Company Payroll Reports'" description="Username used in the Discord embed." />
-
 <ConfigOption name="Config.Payroll.Reporting.IncludeTopEmployees" type="boolean" default="true" description="Append a ranked top-employee list to the Discord summary." />
+
+## Webhooks (server-only)
+
+These values live in `shared/server-config.lua`, which is loaded only
+on the server (declared in `server_scripts`) and listed in
+`escrow_ignore` so it stays editable.
+
+<ConfigOption name="Config.Webhooks.LogsWebhookUrl" type="string" default="''" description="Discord webhook URL for activity logs (hires, fires, grade changes, society deposits and withdrawals, payroll rule edits, salary payments, invoice approvals and rejections). Leave empty to disable activity logging." />
+
+<ConfigOption name="Config.Webhooks.LogsUsername" type="string" default="'NX Employee Management'" description="Username used in the activity-log Discord embeds." />
+
+<ConfigOption name="Config.Webhooks.LogsAvatarUrl" type="string" default="''" description="Optional avatar image URL for the activity-log embeds. Leave empty for none." />
+
+<ConfigOption name="Config.Webhooks.PayrollSummaryWebhookUrl" type="string" default="''" description="Discord webhook URL used by the manual 'Send Discord Summary' report generator in the payroll panel. Leave empty to disable summary reports." />
+
+<ConfigOption name="Config.Webhooks.PayrollSummaryUsername" type="string" default="'Company Payroll Reports'" description="Username used in the payroll summary embed." />
 
 ## Localization
 

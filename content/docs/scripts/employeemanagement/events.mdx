@@ -46,10 +46,11 @@ does not emit those framework events.
 
 ### `nx_employeemanagement:resetHours`
 
-Reset an employee's tracked hours. Permission is checked server-side:
-only players whose grade matches `Config.AllowedRanks` for that job
-can reset. When `Config.ResetHistoryOnHoursReset` is true, the daily
-work-history rows for that employee and job are also deleted.
+Reset an employee's tracked hours. Permission is checked server-side
+through `Config.IsBossRank(jobName, gradeName)`, which reads from the
+per-job `Config.AllowedRanks` table. When
+`Config.ResetHistoryOnHoursReset` is true, the daily work-history rows
+for that employee and job are also deleted.
 
 ```lua
 TriggerServerEvent('nx_employeemanagement:resetHours', targetIdentifier)

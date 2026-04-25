@@ -3,6 +3,23 @@ title: Changelog
 description: Version history for nx_employeemanagement.
 ---
 
+## 1.2.0 (2026-04-25)
+
+### Added
+
+- Discord webhook logging for HR actions, society money movement, payroll rules, salary payments, and invoices. Configurable in ./shared/server-config.lua
+- Per-job rank access. `Config.AllowedRanks` now supports different management grades for different jobs.
+- Drag anywhere to scroll in the tablet UI.
+- Finnish and English translations for the Management Charts panel.
+
+### Changed
+
+- ESX job grades now display the job grade label instead of name.
+
+### Removed
+
+- The webhook URL fields under `Config.Payroll.Reporting` moved to `shared/server-config.lua`. Move any existing values across on upgrade.
+
 ## 1.1.0 (2026-04-25)
 
 ### Changed
