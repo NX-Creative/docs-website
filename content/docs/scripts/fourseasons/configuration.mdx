@@ -84,6 +84,9 @@ Blackout pulses, lightning strike FX, and ocean wave simulation.
 
 <ConfigOption name="Config.StormSystems.Blackout.PulseMinSeconds" type="number" default="6" />
 <ConfigOption name="Config.StormSystems.Blackout.PulseMaxSeconds" type="number" default="14" />
+
+<ConfigOption name="Config.StormSystems.Blackout.DurationTiers" type="table" default="{}" description="Optional weighted duration tiers per weather type. When a weather type has tiers, each blackout pulse picks one at random (weighted) instead of using PulseMin/MaxSeconds. Each tier is { duration = seconds, weight = N } for a fixed value, or { min = seconds, max = seconds, weight = N } for a random range. Durations are clamped to [2, 300] seconds. Leave a weather key absent to keep the default short-pulse behavior. Example for dramatic thunderstorm outages: DurationTiers = { THUNDER = { { duration = 30, weight = 60 }, { duration = 60, weight = 30 }, { duration = 300, weight = 10 } } }." />
+
 <ConfigOption name="Config.StormSystems.Blackout.CooldownMinSeconds" type="number" default="20" />
 <ConfigOption name="Config.StormSystems.Blackout.CooldownMaxSeconds" type="number" default="45" />
 

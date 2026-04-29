@@ -3,6 +3,23 @@ title: Changelog
 description: Version history for nx_fourseasons.
 ---
 
+## 2.1.0 (2026-04-29)
+
+### Added
+
+- `Config.StormSystems.Blackout.DurationTiers` for opt-in weighted blackout duration tiers per weather type. Pulses can roll fixed values or random ranges, useful for dramatic multi-minute thunderstorm outages alongside the default short pulses.
+
+### Changed
+
+- Temperature calculation is now weather-aware on every weather type. Snow and blizzard enforce hard physics caps below freezing, rain and thunder require above-freezing, and seasonal bounds apply only when they don't contradict the active weather. Forecast generation mirrors the same rules.
+- `EnsureSeasonalTemperature` no longer applies temperature overrides. The base calculation drives temperature end to end. Only the admin menu can set a manual override.
+- THUNDER and BLIZZARD odds reduced across all seasons. Storm weather is now noticeably rarer.
+
+### Fixed
+
+- Stale `seasonal` and `forecast` temperature overrides are dropped on resource load instead of leaking through restarts. Only `manual` admin overrides persist.
+- Winter blizzards no longer display positive temperatures from the old `+5°C` cap.
+
 ## 2.0.0 (2026-04-25)
 
 ### Added
