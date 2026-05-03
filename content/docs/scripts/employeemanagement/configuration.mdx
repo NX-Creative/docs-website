@@ -66,9 +66,11 @@ Config.AllowedRanks = {
 
 ## Hire scope
 
-<ConfigOption name="Config.HireScope.defaultMode" type="string" default="'nearby'" description="Initial scope of the hiring console. One of 'nearby', 'server'. 'nearby' lists only players within nearbyRadius metres, 'server' lists every online player." />
+<ConfigOption name="Config.HireScope.defaultMode" type="string" default="'nearby'" description="Initial scope of the hiring console. One of 'nearby', 'server'. 'nearby' lists only players within nearbyRadius metres. 'server' lists every online player and falls back to 'nearby' when allowServerWide is false." />
 
 <ConfigOption name="Config.HireScope.nearbyRadius" type="number" default="10.0" description="Radius in GTA world units (approximately metres) used by the 'nearby' hire mode." />
+
+<ConfigOption name="Config.HireScope.allowServerWide" type="boolean" default="false" description="When true, exposes the 'Server-wide' tab in the hiring console so bosses can list every online player. When false, the tab is hidden and the server rewrites unscoped requests to the nearby radius." />
 
 ## Debug menu
 
