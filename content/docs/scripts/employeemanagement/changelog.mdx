@@ -3,7 +3,23 @@ title: Changelog
 description: Version history for nx_employeemanagement.
 ---
 
-## 1.2.1 (2026-04-25)
+## 1.3.0 (2026-05-03)
+
+### Added
+
+- `Config.Payroll.Mode` and `Config.Payroll.PerJobModes`. Choose between tablet-managed payroll and the framework's built-in paycheck thread, per job.
+- `Config.Payroll.MaxWagePerJob`. Server-side wage cap per job, with a `default` fallback.
+- Interval auto-pay: `Config.Payroll.AutoPay.Schedule = 'interval'` plus `Config.Payroll.AutoPay.Interval` (Unit, Value).
+- `Config.HireScope`. Hiring console can list nearby players or every online player. Default is nearby with a 10m radius.
+- `Config.TimeFormats` per-language time format strings. The legacy `Config.TimeFormat` remains as an alias.
+- New `Config.Tablet.camera` fields: `followBoneTarget`, `toggleEnabled`, `toggleInMs`, `toggleOutMs`.
+- Spectator DUI sync: nearby players see other players' tablet screens through `nx-3d`. Tunable via `Config.Tablet.panel.syncRadius`.
+
+### Removed
+
+- `/ta` debug command and `Config.Tablet.debugCommand`. Toggle the tablet through the inventory item or `/employeelist` instead.
+
+
 
 ### Changed
 

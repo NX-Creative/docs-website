@@ -64,6 +64,12 @@ Config.AllowedRanks = {
 }
 ```
 
+## Hire scope
+
+<ConfigOption name="Config.HireScope.defaultMode" type="string" default="'nearby'" description="Initial scope of the hiring console. One of 'nearby', 'server'. 'nearby' lists only players within nearbyRadius metres, 'server' lists every online player." />
+
+<ConfigOption name="Config.HireScope.nearbyRadius" type="number" default="10.0" description="Radius in GTA world units (approximately metres) used by the 'nearby' hire mode." />
+
 ## Debug menu
 
 <ConfigOption name="Config.DebugMenu.Enabled" type="boolean" default="true" description="Master toggle for the /trackdebug in-game debug menu." />
@@ -86,8 +92,6 @@ third-person camera, not the NUI overlay. NUI placement is covered by
 
 <ConfigOption name="Config.Tablet.debug" type="boolean" default="false" description="Enables verbose tablet-side debug logging." />
 
-<ConfigOption name="Config.Tablet.debugCommand" type="boolean" default="false" description="When true, registers /ta to toggle the tablet. Leave false in production." />
-
 <ConfigOption name="Config.Tablet.access.mode" type="string" default="'item'" description="How the tablet opens. One of 'key', 'item', 'key+item'." />
 
 <ConfigOption name="Config.Tablet.access.item" type="string" default="'jobtablet'" description="Inventory item id for the tablet." />
@@ -104,11 +108,11 @@ third-person camera, not the NUI overlay. NUI placement is covered by
 
 <ConfigOption name="Config.Tablet.controls.disable" type="boolean" default="true" description="Disable gameplay controls while the tablet is open." />
 
-<ConfigOption name="Config.Tablet.camera" type="table" description="Third-person tablet camera. Fields include fov, nearClip, distance, height, side, followBone, followBoneOffset, toggleCommand, toggleKey, lookAround. The toggle command defaults to 'tabletcam' on key F6." />
+<ConfigOption name="Config.Tablet.camera" type="table" description="Third-person tablet camera. Fields: fov, nearClip, distance, height, side, followBone, followBoneTarget ('head' or 'tablet'), followBoneOffset, toggleEnabled, toggleCommand, toggleKey, toggleInMs, toggleOutMs, lookAround. The toggle command defaults to 'tabletcam' on key F6 and is only registered when toggleEnabled is true." />
 
 <ConfigOption name="Config.Tablet.stabilization" type="table" description="Optional camera and matrix stabilization. Disabled by default. Useful if the prop jitters on low tick rates." />
 
-<ConfigOption name="Config.Tablet.panel" type="table" description="DUI panel placement on the tablet prop. Fields include resW, resH, updateInterval, updateMaxDistance, faceCamera, frontOnly, depthCompensation, localNormal, localUp, width, height." />
+<ConfigOption name="Config.Tablet.panel" type="table" description="DUI panel placement on the tablet prop. Fields include resW, resH, updateInterval, updateMaxDistance, syncRadius, faceCamera, frontOnly, frontDotMin, depthCompensation, localNormal, localUp, localOffset, zOffset, width, height. syncRadius controls how close other players must be to receive spectator DUI sync." />
 
 <ConfigOption name="Config.Tablet.input" type="table" description="Input mapping while the tablet is open. Fields: enabled, maxDistance, cursorMode (control, hold, speed), scrollStep, disableControls." />
 
@@ -126,11 +130,19 @@ third-person camera, not the NUI overlay. NUI placement is covered by
 
 <ConfigOption name="Config.DisplayFormat" type="string" default="'hours'" description="Time display format. One of 'hours', 'minutes', 'both'." />
 
-<ConfigOption name="Config.TimeFormat" type="table" default="{ hours = '%d hours', minutes = '%d minutes', both = '%dh %dm' }" description="printf-style format strings for each DisplayFormat mode." />
+<ConfigOption name="Config.TimeFormats" type="table" description="Per-language printf-style format strings. Keys are language codes ('en', 'fi'). Each entry has hours, minutes, and both fields. Falls back to the 'en' entry when the active language is missing keys." />
+
+<ConfigOption name="Config.TimeFormat" type="table" description="Legacy alias for the active language's TimeFormats entry. Kept for external callers. Prefer Config.TimeFormats for new code." />
 
 ## Payroll
 
 <ConfigOption name="Config.Payroll.Enabled" type="boolean" default="true" description="Master toggle for all payroll features. When false, invoicing, society, and auto-pay are disabled." />
+
+<ConfigOption name="Config.Payroll.Mode" type="string" default="'tablet'" description="Default payroll mode for every job. One of 'tablet' (hour-tracked payroll managed by this resource) or 'framework' (delegate to the framework's built-in paycheck thread, e.g. ESX paycheck.lua paying job_grades.salary)." />
+
+<ConfigOption name="Config.Payroll.PerJobModes" type="table" default="{}" description="Per-job override of Config.Payroll.Mode. Keys are job names, values are 'tablet' or 'framework'. Example: { police = 'framework', ambulance = 'framework' }." />
+
+<ConfigOption name="Config.Payroll.MaxWagePerJob" type="table" default="{ default = 5000 }" description="Maximum wage allowed when editing from the tablet. The server clamps writes to this value. The 'default' entry covers any job not listed; per-job entries override it. In tablet mode the cap applies to hourly_rate, overtime_rate, and base_salary. In framework mode it caps the per-tick salary written to job_grades.salary. Use math.huge to disable the cap." />
 
 <ConfigOption name="Config.Payroll.HoursPerPayCycle" type="number" default="40" description="Hours per pay cycle. Used when converting a job's base salary into an hourly rate." />
 
@@ -146,13 +158,18 @@ third-person camera, not the NUI overlay. NUI placement is covered by
 
 ### Auto-pay
 
+Only applies to tablet-mode jobs. Framework-mode jobs are paid by the
+framework's own paycheck thread.
+
 <ConfigOption name="Config.Payroll.AutoPay.Enabled" type="boolean" default="true" description="Run the auto-pay scheduler on the server." />
 
-<ConfigOption name="Config.Payroll.AutoPay.Schedule" type="string" default="'weekly'" description="Pay cycle. One of 'daily', 'weekly', 'biweekly', 'monthly'." />
+<ConfigOption name="Config.Payroll.AutoPay.Schedule" type="string" default="'weekly'" description="Pay cycle. One of 'daily', 'weekly', 'biweekly', 'monthly', 'interval'. Use 'interval' to fire on a fixed period instead of a calendar day." />
 
-<ConfigOption name="Config.Payroll.AutoPay.PayDay" type="number" default="1" description="Day of week or day of month depending on Schedule. Weekly uses 1 = Monday. Monthly accepts 1..31." />
+<ConfigOption name="Config.Payroll.AutoPay.PayDay" type="number" default="1" description="Day of week or day of month depending on Schedule. Weekly uses 1 = Monday. Monthly accepts 1..31. Ignored when Schedule is 'interval'." />
 
-<ConfigOption name="Config.Payroll.AutoPay.PayHour" type="number" default="10" description="Hour of day (24h) when auto-pay runs." />
+<ConfigOption name="Config.Payroll.AutoPay.PayHour" type="number" default="10" description="Hour of day (24h) when auto-pay runs. Ignored when Schedule is 'interval'." />
+
+<ConfigOption name="Config.Payroll.AutoPay.Interval" type="table" default="{ Unit = 'minutes', Value = 30 }" description="Only used when Schedule is 'interval'. Fires every Value units regardless of PayHour or PayDay. Unit is one of 'minutes', 'hours', 'days'." />
 
 ### Invoices
 
