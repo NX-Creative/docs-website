@@ -4,8 +4,8 @@ description: How NX Creative scripts adapt to ESX, QBCore, and QBox.
 ---
 
 Each NX Creative script ships with a framework bridge. The same script
-works on ESX, QBCore, and QBox. Detection happens at boot, and the
-appropriate adapter is loaded before the rest of the script runs.
+works on ESX, QBCore, and QBox. The bridge detects the framework at
+boot and loads the matching adapter before the rest of the script runs.
 
 ## How detection works
 
@@ -27,8 +27,7 @@ in each script's own configuration page.
 
 ## What the bridge covers
 
-The bridge abstracts the three things that reliably differ between
-frameworks:
+The bridge abstracts the things that differ between frameworks:
 
 - **Money.** Wallet and bank balances, both reads and writes, through
   one set of functions.
@@ -36,7 +35,7 @@ frameworks:
   framework supports them.
 - **Identity.** Stable player identifiers and display names.
 
-In script code the calls look the same on every framework. The per-script
+In script code the calls look the same on every framework. Each script's
 docs list the exact functions exposed.
 
 ## What the bridge does not cover
