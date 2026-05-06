@@ -89,7 +89,7 @@ Each fee block shares a shape: `{ enabled, type = 'percentage' | 'flat', value, 
 
 ## Security
 
-<ConfigOption name="Config.Security.logLevel" type="string" default="'none'" description="One of 'none', 'basic', 'verbose', 'paranoid'. Controls how much detail is written to the security audit log." />
+<ConfigOption name="Config.Security.logLevel" type="string" default="'basic'" description="One of 'none', 'basic', 'verbose', 'paranoid'. Controls how much detail is written to the security audit log. The bank app's Security Center reads from these logs, so 'basic' is the minimum if you want session and PIN events to appear there. Set to 'none' to silence all security logs." />
 
 <ConfigOption name="Config.Security.anticheat" type="table" default="{ distanceChecks=true, teleportDetection=false, speedHackDetection=false, injectionDetection=false }" description="Anti-exploit toggles. Distance checks are cheap and recommended. The others add overhead." />
 
