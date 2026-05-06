@@ -13,7 +13,7 @@ exports use the same pattern inside a client-side script.
   side="server"
   description="Insert a new invoice into the database and return its reference id."
   params={[
-    { name: 'data', type: 'table', description: 'Invoice payload. Required: senderIdentifier, senderName, receiverIdentifier, receiverName, amount. Optional: type (\"society\" | \"freelance\" | \"personal\"), senderJob, senderJobLabel, label, vatPercent, vatAmount, commissionPercent, commissionAmount, govAccount, societyAccount.' }
+    { name: 'data', type: 'table', description: 'Invoice payload. Required: senderIdentifier, receiverIdentifier, amount, label. Optional: senderName, receiverName, type (\"society\" | \"freelance\" | \"personal\", default \"personal\"), senderJob, senderJobLabel, govAccount, societyAccount.' }
   ]}
   returns="boolean success, string|nil refIdOrError"
 >
@@ -27,6 +27,20 @@ local ok, refId = exports.nx_realbanking:CreateInvoice({
     amount = 250.00,
     label = 'Ride share'
 })
+```
+</ExportSignature>
+
+<ExportSignature
+  name="exports.nx_realbanking:GetInvoice"
+  side="server"
+  description="Look up an invoice by numeric id or reference id."
+  params={[
+    { name: 'invoiceRef', type: 'string|number', description: 'Numeric invoice id or reference id (e.g. \"INV-ABC123\").' }
+  ]}
+  returns="table|nil"
+>
+```lua
+local invoice = exports.nx_realbanking:GetInvoice('INV-ABC123')
 ```
 </ExportSignature>
 
@@ -64,6 +78,36 @@ print(('%d pending invoice(s)'):format(#pending))
 </ExportSignature>
 
 <ExportSignature
+  name="exports.nx_realbanking:GetSentInvoices"
+  side="server"
+  description="List invoices a player has sent."
+  params={[
+    { name: 'identifier', type: 'string', description: 'Player identifier of the sender.' },
+    { name: 'status', type: 'string', optional: true, description: "Filter: 'pending' | 'paid' | 'cancelled' | 'overdue'. Omit for all." }
+  ]}
+  returns="table[]"
+>
+```lua
+local sent = exports.nx_realbanking:GetSentInvoices('char1:abc', 'pending')
+```
+</ExportSignature>
+
+<ExportSignature
+  name="exports.nx_realbanking:GetSocietyInvoices"
+  side="server"
+  description="List invoices issued under a given society or job."
+  params={[
+    { name: 'job', type: 'string', description: 'Job name (matches Config.Societies key).' },
+    { name: 'status', type: 'string', optional: true, description: "Filter: 'pending' | 'paid' | 'cancelled' | 'overdue'. Omit for all." }
+  ]}
+  returns="table[]"
+>
+```lua
+local policeInvoices = exports.nx_realbanking:GetSocietyInvoices('police', 'pending')
+```
+</ExportSignature>
+
+<ExportSignature
   name="exports.nx_realbanking:PayInvoice"
   side="server"
   description="Pay an invoice on behalf of the given source. Funds are pulled from the player's default account and distributed to society / commission / VAT destinations."
@@ -78,6 +122,36 @@ local ok, err = exports.nx_realbanking:PayInvoice('INV-ABC123', source)
 if not ok then
     print('Payment failed:', err)
 end
+```
+</ExportSignature>
+
+<ExportSignature
+  name="exports.nx_realbanking:CancelInvoice"
+  side="server"
+  description="Cancel a pending invoice. Bypasses the player-level cancel checks. Intended for admin or system flows."
+  params={[
+    { name: 'refId', type: 'string', description: 'Reference id of the invoice to cancel.' },
+    { name: 'reason', type: 'string', optional: true, description: 'Optional reason recorded in the audit log.' }
+  ]}
+  returns="boolean success, string|nil error"
+>
+```lua
+local ok, err = exports.nx_realbanking:CancelInvoice('INV-ABC123', 'duplicate')
+```
+</ExportSignature>
+
+<ExportSignature
+  name="exports.nx_realbanking:GetPendingInvoiceCount"
+  side="server"
+  description="Count a player's pending invoices in either direction."
+  params={[
+    { name: 'identifier', type: 'string', description: 'Player identifier.' },
+    { name: 'direction', type: "'received' | 'sent'", optional: true, description: "Direction to count. Defaults to 'received'." }
+  ]}
+  returns="number"
+>
+```lua
+local count = exports.nx_realbanking:GetPendingInvoiceCount('char1:abc', 'received')
 ```
 </ExportSignature>
 

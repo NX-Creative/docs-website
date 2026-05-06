@@ -3,22 +3,11 @@ title: Commands
 description: Chat commands registered by nx_realbanking.
 ---
 
-All commands below are client-side and available to any player. Access
-is gated in-handler by the active job's `canBill` and `canInspect` flags
-defined in [`Config.Societies`](./configuration#societies-job-invoicing)
-and [`Config.FreelanceBilling`](./configuration#freelance-billing).
-
-<CommandReference
-  name="createinvoice"
-  description="Open the invoice-creation menu. Form fields depend on the active job's permissions (society or freelance)."
-/>
-
-<CommandReference
-  name="invoice"
-  description="Alias for /createinvoice."
-/>
+The bank UI is opened by interacting with a bank ped, an `ox_target`
+zone, or by triggering [`nx_realbanking:server:openBank`](./events#nx_realbankingserveropenbank)
+from your own resource. There is no `/bank` chat command.
 
 <CommandReference
   name="inspectplayer"
-  description="Inspect the nearest player and surface their outstanding invoices. Intended for law-enforcement jobs with canInspect = true."
+  description="Inspect the nearest player and surface their outstanding invoices. Intended for law-enforcement jobs with canInspect = true in Config.Societies."
 />

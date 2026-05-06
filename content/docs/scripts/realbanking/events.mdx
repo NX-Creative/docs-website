@@ -4,8 +4,9 @@ description: Net events you can trigger or listen to from your own resources.
 ---
 
 Only events that form a stable integration surface are listed here.
-Internal protocol events (ATM session handshake, PIN flow, heartbeat)
-are intentionally undocumented, since their shape is subject to change.
+Internal protocol events (ATM session handshake, PIN flow, heartbeat,
+invoice list refresh, IK sync) are intentionally undocumented, since
+their shape is subject to change.
 
 ## Server events
 
@@ -33,9 +34,11 @@ Fired when a new invoice is delivered to the player.
 
 ```lua
 RegisterNetEvent('nx_realbanking:client:invoiceReceived', function(data)
+    -- data.refId  : string
+    -- data.amount : number (total including VAT)
     -- data.sender : string
-    -- data.amount : number
-    -- data.refId  : string (may be present)
+    -- data.label  : string
+    -- data.requiresAcceptance : boolean
     print(('New invoice from %s for $%.2f'):format(data.sender, data.amount))
 end)
 ```
