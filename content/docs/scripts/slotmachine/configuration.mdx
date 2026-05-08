@@ -1,0 +1,56 @@
+---
+title: Configuration
+description: Every entry in config.lua. Defaults, types, and purpose.
+---
+
+All player-facing settings live in `config.lua`. The file is in
+`escrow_ignore` so it remains editable after install.
+
+Locked values that drive the calibrated RTP (symbol weights, payout
+tables, bonus weights, max-win cap, DUI panel geometry, sync radius)
+live in `constants.lua` and are not part of this page. Editing them
+will skew payout shape and is not supported.
+
+## Framework
+
+<ConfigOption name="Config.Framework" type="string" default="'ESX'" description="Active framework. One of 'ESX', 'QB', or 'QBOX'. Must match the framework resource you start before nx_slotmachine." />
+
+## Debug
+
+<ConfigOption name="Config.Debug" type="boolean" default="false" description="When true, prints verbose lifecycle, spin, and UI traces to the server console and F8 client console. Leave false in production." />
+
+<ConfigOption name="Config.DevTools.Enabled" type="boolean" default="false" description="Master switch for developer-only client commands (/slotdebug, /slotoffset). Keep disabled in production releases." />
+
+## Economy
+
+<ConfigOption name="Config.Currency" type="string" default="'$'" description="Currency symbol displayed in every game UI." />
+
+<ConfigOption name="Config.BetAmounts" type="number[]" default="{ 10, 50, 100, 500 }" description="Available bet steps. The player cycles through these in the bet selector." />
+
+<ConfigOption name="Config.DefaultBetIndex" type="number" default="1" description="1-based index into Config.BetAmounts that is selected on first sit." />
+
+## Presentation
+
+<ConfigOption name="Config.Splash.Enabled" type="boolean" default="true" description="Plays the NX Creative branded splash the first time a player sits at a machine in a session." />
+
+<ConfigOption name="Config.Sounds.Enabled" type="boolean" default="true" description="UI sound effects for button clicks and reel events." />
+
+## Slot placement
+
+The placement system powers the `/manageslots` admin command. It
+controls who is allowed to open the manager, and optionally lets
+specific jobs purchase and place slot cabinets.
+
+<ConfigOption name="Config.SlotPlacement.TableName" type="string" default="'nx_slotmachine_world_slots'" description="Database table that stores placed slot cabinets. If you change this, update sql/install.sql to match." />
+
+<ConfigOption name="Config.SlotPlacement.Command" type="string" default="'manageslots'" description="Chat command that opens the placement manager. Renaming this updates the registered command name." />
+
+### Access
+
+<ConfigOption name="Config.SlotPlacement.Access.Admins" type="table" default="{ Enabled=true, ESXGroups={'admin','superadmin'}, QBPermissions={'admin'}, QBoxPermissions={'admin'}, QBoxGroups={'admin'}, AcePermissions={'command.manageslots','nx_slotmachine.manageslots'} }" description="Who counts as an admin for slot placement. Any one matching group, permission, or ACE check grants access." />
+
+<ConfigOption name="Config.SlotPlacement.Access.Jobs" type="table" default="{ Enabled=false, DefaultPrice=0, Allowed={} }" description="Optional job-based access. When Enabled, listed jobs may place machines for a price. Each entry in Allowed is keyed by job name and takes the shape { minGrade = number, price = number }." />
+
+## Database
+
+<ConfigOption name="Config.TrinityMemory.TableName" type="string" default="'nx_slotmachine_trinity_memory'" description="Database table that persists each player's Trinity Heist crew-role state across reconnects. If you change this, update sql/install.sql to match." />

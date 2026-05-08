@@ -1,0 +1,63 @@
+---
+title: Slotmachine
+description: Four custom slot machine games rendered onto the vanilla Diamond Casino cabinets via nx-3d. Multiplayer-synced and multi-framework.
+---
+
+`nx_slotmachine` replaces the empty vanilla casino cabinets with four
+playable slot games. Each game is a Vue.js NUI app drawn directly onto
+the cabinet screen using `nx-3d`, so passers-by can watch a spin in the
+world without opening their own UI.
+
+## The four games
+
+- **Chroma Rush.** A 5-reel, 10-payline neon slot. Cabinet model
+  `vw_prop_casino_slot_01a`.
+- **Davy's Doubloons.** A duel/blast slot built around a pirate fight
+  sequence. Cabinet model `vw_prop_casino_slot_02a`.
+- **Los Santos Trinity.** A 5x5 match-3 grid with crew-role memory that
+  persists across reconnects. Cabinet model `vw_prop_casino_slot_03a`.
+- **Vault Breakers.** A 7x7 cluster-pays heist slot. Cabinet model
+  `vw_prop_casino_slot_04a`.
+
+## Features
+
+- **In-world DUI rendering.** All four games run on the cabinet
+  screen via `nx-3d`. No fullscreen takeover by default.
+- **Multiplayer-synced.** Other players within `Config.NUI3D.syncRadius`
+  see the same screen and cursor as the player at the cabinet, including
+  live spin animations.
+- **Multi-framework.** ESX, QBCore, and QBox are detected through the
+  `bridge/` layer. Cash is pulled and paid via the active framework.
+- **Tuned RTP.** Each game's symbol weights and payout tables are
+  validated by Monte Carlo scripts (`simulate_*.py`) shipped with the
+  resource.
+- **Admin slot placement.** A `/manageslots` command lets admins (or
+  whitelisted jobs) place new slot cabinets at runtime and persist them
+  to the database.
+- **Splash and audio.** Optional first-sit splash screen and UI sound
+  effects, both toggleable.
+
+## Framework usage
+
+The bridge layer handles framework detection automatically. No code
+change is required to switch frameworks. `Config.Framework` selects
+which bridge implementation to load.
+
+<FrameworkTabs>
+  <FrameworkTab framework="esx">
+```lua
+-- Open the admin slot placement UI
+ExecuteCommand('manageslots')
+```
+  </FrameworkTab>
+  <FrameworkTab framework="qbcore">
+```lua
+-- Open the admin slot placement UI
+ExecuteCommand('manageslots')
+```
+  </FrameworkTab>
+</FrameworkTabs>
+
+## Get it
+
+Available at [nxcreative.tech/slotmachine](https://nxcreative.tech/slotmachine).

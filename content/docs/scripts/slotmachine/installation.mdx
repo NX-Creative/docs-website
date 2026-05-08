@@ -1,0 +1,91 @@
+---
+title: Installation
+description: Resource-specific setup for nx_slotmachine. Dependencies, database import, and framework selection.
+---
+
+For server-wide prerequisites (artifacts, `oxmysql`, `ox_lib`), follow
+the [generic install guide](/docs/getting-started/installation) first.
+This page only lists what is specific to `nx_slotmachine`.
+
+## Dependencies
+
+<DependencyList
+  dependencies={[
+    {
+      name: 'ox_lib',
+      description: 'Callbacks, notifications, and the slot manager UI.',
+      required: true,
+      href: 'https://github.com/overextended/ox_lib'
+    },
+    {
+      name: 'ox_target',
+      description: 'Target zones on each slot cabinet for the sit interaction.',
+      required: true,
+      href: 'https://github.com/overextended/ox_target'
+    },
+    {
+      name: 'oxmysql',
+      description: 'Persistence for placed slot cabinets and Trinity crew-role memory.',
+      required: true,
+      href: 'https://github.com/overextended/oxmysql'
+    },
+    {
+      name: 'nx-3d',
+      description: 'Renders the slot UI onto the cabinet screen as a 3D DUI panel.',
+      required: true
+    }
+  ]}
+>
+  Framework selection is manual. Set <code>Config.Framework</code> to
+  one of <code>"ESX"</code>, <code>"QB"</code>, or <code>"QBOX"</code>.
+  The matching framework resource must start <strong>before</strong>
+  <code>nx_slotmachine</code>.
+</DependencyList>
+
+## Database import
+
+The resource creates its tables at runtime via
+`CREATE TABLE IF NOT EXISTS`, so you can skip this step. If you prefer
+to install the schema up front, import `sql/install.sql`:
+
+```bash
+mysql -u <user> -p <database> < sql/install.sql
+```
+
+The schema creates two tables:
+
+- `nx_slotmachine_world_slots`. Persistent placements created through
+  the `/manageslots` UI.
+- `nx_slotmachine_trinity_memory`. Per-character crew-role and last
+  bonus god state for **Los Santos Trinity**.
+
+Both table names can be overridden via
+[`Config.SlotPlacement.TableName`](./configuration#configslotplacementtablename)
+and
+[`Config.TrinityMemory.TableName`](./configuration#configtrinitymemorytablename).
+If you change them, also update `sql/install.sql` to match.
+
+## server.cfg order
+
+```bash
+ensure oxmysql
+ensure ox_lib
+ensure ox_target
+ensure nx-3d
+# ensure your framework here (es_extended, qb-core, or qbx_core)
+ensure nx_slotmachine
+```
+
+## Placing slots
+
+The four casino games attach to vanilla cabinet props
+(`vw_prop_casino_slot_01a` through `vw_prop_casino_slot_04a`), which
+already exist inside the Diamond Casino interior. Custom placements
+elsewhere on the map are managed through the
+[`/manageslots`](./commands#manageslots) admin UI, not by editing a
+config table.
+
+Permission for `/manageslots` is controlled by
+[`Config.SlotPlacement.Access`](./configuration#configslotplacementaccess).
+By default only `admin` and `superadmin` ESX groups (or the equivalent
+QBCore/QBox/Ace permissions) may open it.
