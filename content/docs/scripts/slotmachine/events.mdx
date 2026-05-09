@@ -3,14 +3,6 @@ title: Events
 description: Net events used by nx_slotmachine.
 ---
 
-`nx_slotmachine` is a self-contained gameplay loop. Every event below
-is part of the cabinet UI protocol (sit, request data, spin, payout,
-result, exit) and is intended for the resource's own client and server
-to talk to each other. There is no stable third-party integration
-surface today.
-
-If you want to extend the resource (add a new game, hook into a payout
-event, add a custom entry point), the centralized event registry lives
-in `shared/events.lua`. Treat that file as the source of truth, and be
-aware that internal event shapes may change between releases without a
-version bump.
+`nx_slotmachine` is self-contained. All net events belong to the
+cabinet UI protocol (sit, request data, spin, payout, result, exit) and
+are not exposed for third-party use.

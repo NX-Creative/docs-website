@@ -33,6 +33,11 @@ This page only lists what is specific to `nx_slotmachine`.
       name: 'nx-3d',
       description: 'Renders the slot UI onto the cabinet screen as a 3D DUI panel.',
       required: true
+    },
+    {
+      name: 'nx_slotmachine_stream',
+      description: 'Streamed cabinet models. Ships in the same release archive as nx_slotmachine and must start before it.',
+      required: true
     }
   ]}
 >
@@ -67,12 +72,17 @@ If you change them, also update `sql/install.sql` to match.
 
 ## server.cfg order
 
+`nx_slotmachine_stream` must be started **before** `nx_slotmachine`. If
+the stream resource starts after a player has joined, cabinet models
+and textures will be invisible until the player rejoins.
+
 ```bash
 ensure oxmysql
 ensure ox_lib
 ensure ox_target
 ensure nx-3d
 # ensure your framework here (es_extended, qb-core, or qbx_core)
+ensure nx_slotmachine_stream
 ensure nx_slotmachine
 ```
 
