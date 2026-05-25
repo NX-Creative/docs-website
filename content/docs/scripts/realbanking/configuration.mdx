@@ -60,6 +60,11 @@ encrypted resource and is not part of this file.
 
 <ConfigOption name="Config.Accounts.Shared.roles" type="table" description="Role to permission map. Shipped with owner, manager, teller, viewer. Each role sets boolean flags: view, withdraw, deposit, transfer, manage_members, edit_limits, freeze, close." />
 
+## Inventory / cash item
+
+<ConfigOption name="Config.Inventory.useOxInventoryForCash" type="boolean" default="false" description="When true, deposit and withdraw flows write the cash item directly through ox_inventory instead of calling the framework's AddMoney / RemoveMoney. Use this if your server renamed the cash item and the framework's auto-sync no longer fires." />
+<ConfigOption name="Config.Inventory.moneyItem" type="string" default="'money'" description="ox_inventory item name that represents cash. Common values: 'money', 'cash'. Only used when useOxInventoryForCash is true." />
+
 ## PIN code
 
 <ConfigOption name="Config.Pincode.changeCost" type="number" default="100" description="Fee charged when the user changes their PIN. First creation is free." />
@@ -184,7 +189,7 @@ Each fee block shares a shape: `{ enabled, type = 'percentage' | 'flat', value, 
 
 <ConfigOption name="Config.Credit.billing" type="table" description="Billing cycle knobs: inGameDayMinutes, cycleDays, dueDays, checkIntervalSeconds, interestIntervalDays, minimumPaymentPercent, minimumPaymentFlat. In-game days compress real-world billing windows into a gameplay-friendly pace." />
 
-<ConfigOption name="Config.Credit.score" type="table" description="Credit score model: min/max bounds, base score, stable-job bonus, bank-balance thresholds, account-age bonus, payment bonuses and penalties, usage bonus. Tier eligibility is driven by these numbers." />
+<ConfigOption name="Config.Credit.score" type="table" description="Credit score model: min/max bounds, base score, stable-job bonus, bank-balance thresholds, account-age bonus, payment bonuses and penalties, usage bonus, and a usage-bonus cap (cardUsageBonusCap). These numbers drive tier eligibility." />
 
 <ConfigOption name="Config.Credit.penalties" type="table" default="{ lateFeeFlat=250, lateFeePercent=2.5, collectionsThreshold=50000, autoSeizeEnabled=true }" description="Late fees and collections behavior. autoSeizeEnabled will seize funds from linked accounts when debt exceeds collectionsThreshold." />
 

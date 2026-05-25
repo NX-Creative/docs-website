@@ -3,6 +3,32 @@ title: Changelog
 description: Version history for nx_realbanking.
 ---
 
+## 1.1.0 (2026-05-25)
+
+### Added
+
+- **Keyboard PIN entry at the 3D ATM.** Type your PIN on the keyboard. The IK hand glides to each key as you type.
+- **Per-card daily spending limit.** Cap how much can be charged on a card per day. The bank app shows a live Spent Today gauge and an inline editor next to Freeze and Report Stolen.
+- **Tier roadmap card** in the bank app. Standard, Gold, and Black shown side by side with current, next, and locked states.
+- **Per-card utilization breakdown bars** under the aggregate utilization gauge.
+- `Config.Inventory.useOxInventoryForCash` and `Config.Inventory.moneyItem`. Use any ox_inventory item as the cash currency, bypassing the framework's AddMoney and RemoveMoney calls.
+
+### Changed
+
+- **MariaDB compatibility.** Installs cleanly on MariaDB 10.2+ and MySQL 5.7+. Existing PIN hashes verify unchanged.
+- **Single SQL install file.** `sql/schema.sql` and `sql/invoices_schema.sql` are merged into `sql/install.sql`. Existing installs are untouched. Re-running is safe.
+- **Credit tab redesign** in the bank app. Reordered layout with a summary bar, Card Overview, Payments grid, and a new 3D credit card visual.
+- **Statements polish.** Layered glass, promoted chevron, refined hierarchy.
+- **Member views show character names** instead of citizen IDs across contributions, limit usage, member lists, and activity events.
+- **Credit score is now computed live** from config so the factor breakdown always sums to the headline.
+- **Adaptive ATM polling.** Quieter at distance, snappier up close.
+- **Sessions counter** on the Security tab now counts authenticated sessions correctly.
+- QBox bank linkage hardening.
+
+### Removed
+
+- `sql/schema.sql` and `sql/invoices_schema.sql`. Replaced by `sql/install.sql`.
+
 ## 1.0.0 (2026-04-17)
 
 Initial documentation.

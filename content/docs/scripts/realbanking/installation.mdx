@@ -48,14 +48,13 @@ first. This page only lists what is specific to `nx_realbanking`.
 
 ## Database import
 
-Import the two SQL files into the same database `oxmysql` points at:
+Import the schema into the same database `oxmysql` points at:
 
 ```bash
-mysql -u <user> -p <database> < sql/schema.sql
-mysql -u <user> -p <database> < sql/invoices_schema.sql
+mysql -u <user> -p <database> < sql/install.sql
 ```
 
-The schemas create:
+The schema creates:
 
 - `nx_realbanking_accounts`. Account records.
 - `nx_realbanking_transactions`. Transaction history.
@@ -64,9 +63,10 @@ The schemas create:
 - Invoice tables. Invoices, items, autopay, credit cards, billing.
 
 > [!tip]
-> `sql/schema.sql` also renames older legacy columns when upgrading
-> from a pre-release version. A fresh install can ignore
-> `name_change.sql`, it is only for existing installs.
+> `sql/install.sql` is idempotent. It uses `CREATE TABLE IF NOT EXISTS`
+> and `INSERT IGNORE`, so re-running it on an existing install is safe
+> and leaves your data untouched. Tested on MySQL 5.7+ and MariaDB
+> 10.2+.
 
 ## server.cfg order
 
