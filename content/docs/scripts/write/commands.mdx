@@ -1,0 +1,21 @@
+---
+title: Commands
+description: Chat commands registered by nx_write.
+---
+
+`nx_write` registers no player-facing chat commands. Writing starts by
+using the notepad item from the inventory, and placement starts from the
+item's right-click **Place** button. To hand notepads or post-its to a
+player, use `ox_inventory`'s own `/giveitem`:
+
+```bash
+/giveitem <playerId> notepad 1
+/giveitem <playerId> postit 1
+```
+
+> [!note]
+> The resource also defines developer commands (`/writepaper`,
+> `/writestop`, `/givepaper`, `/nxwritedebug`) used during development.
+> They are gated behind a debug flag that lives in the encrypted source,
+> so they do not exist in distributed builds and cannot be enabled on a
+> live server.

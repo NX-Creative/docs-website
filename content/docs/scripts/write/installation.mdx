@@ -1,0 +1,130 @@
+---
+title: Installation
+description: Resource-specific setup for nx_write. Dependencies, database tables, item registration, and the right-click Place button.
+---
+
+For server-wide prerequisites (artifacts, `oxmysql`, `ox_lib`), work
+through the [generic install guide](/docs/getting-started/installation)
+first. This page only lists what is specific to `nx_write`.
+
+## Dependencies
+
+<DependencyList
+  dependencies={[
+    {
+      name: 'oxmysql',
+      description: 'Database driver for saved documents and placements.',
+      required: true,
+      href: 'https://github.com/overextended/oxmysql'
+    },
+    {
+      name: 'ox_lib',
+      description: 'Callbacks, notifications, and locale utilities.',
+      required: true,
+      href: 'https://github.com/overextended/ox_lib'
+    },
+    {
+      name: 'nx-3d',
+      description: 'Renders the writing surface onto the notepad prop and the placed page onto its prop.',
+      required: true
+    },
+    {
+      name: 'ox_inventory',
+      description: 'Provides the notepad and post-it items and the use / place flow. Required for the intended experience.',
+      required: false,
+      href: 'https://github.com/overextended/ox_inventory'
+    },
+    {
+      name: 'ox_target',
+      description: 'Adds the "Pick up" interaction on placed notes.',
+      required: false,
+      href: 'https://github.com/overextended/ox_target'
+    }
+  ]}
+>
+  Framework detection is automatic: ESX, QBCore, or QBox. Start the
+  framework resource <strong>before</strong> <code>nx_write</code>.
+  In practice you will want both <code>ox_inventory</code> and
+  <code>ox_target</code>: the resource is driven by an inventory item,
+  and pickup of placed notes uses a target zone.
+</DependencyList>
+
+## Database
+
+`nx_write` creates its tables on first start using an EnsureTable
+pattern, so no manual import is required. If you prefer to seed the
+schema by hand, import `sql/create.sql` into the database `oxmysql`
+points at:
+
+```bash
+mysql -u <user> -p <database> < sql/create.sql
+```
+
+The schema creates:
+
+- `nx_write_documents`. Saved document rows: owner, author, paper kind,
+  title, content, and a preview image.
+- `nx_write_placements`. Notes placed in the world: kind, linked
+  document, position, and a quaternion rotation.
+
+> [!tip]
+> `sql/create.sql` uses `CREATE TABLE IF NOT EXISTS` and an idempotent
+> migration step, so running it on an existing install is safe and
+> leaves your data untouched.
+
+## server.cfg order
+
+```bash
+ensure oxmysql
+ensure ox_lib
+ensure nx-3d
+# ensure your framework here (es_extended, qb-core, or qbx_core)
+ensure ox_inventory
+ensure ox_target
+ensure nx_write
+```
+
+## Items
+
+When `Config.UseInventory` is `true` (the default), `nx_write`
+registers the `notepad` and `postit` items with `ox_inventory` on
+start. You do not need to add them to `ox_inventory/data/items.lua`
+yourself.
+
+## Place button
+
+The right-click **Place** action on a saved note is wired through
+`ox_inventory`'s per-item buttons, which the resource does not register
+for you. Add a button to the `notepad` (and `postit`) entry in
+`[core_ox]/ox_inventory/data/items.lua` that calls the
+[`placeFromSlot`](./exports) export:
+
+```lua
+['notepad'] = {
+    label = 'Notepad',
+    weight = 1,
+    stack = false,
+    close = true,
+    consume = 0,
+    buttons = {
+        {
+            label = 'Place',
+            action = function(slot)
+                exports.nx_write:placeFromSlot(slot)
+            end,
+        },
+    },
+},
+```
+
+A note must be saved at least once before it can be placed. Saving
+stamps the document id onto the slot; placing reads it from there.
+
+## Convars
+
+Set this in `server.cfg` to override the locale without editing the
+config file:
+
+```bash
+setr nx_write:locale "fi"
+```

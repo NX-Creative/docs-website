@@ -1,0 +1,13 @@
+{
+  "title": "nx_write",
+  "pages": [
+    "index",
+    "installation",
+    "configuration",
+    "exports",
+    "commands",
+    "events",
+    "changelog"
+  ],
+  "defaultOpen": false
+}

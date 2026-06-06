@@ -1,0 +1,37 @@
+---
+title: Exports
+description: Public exports registered by nx_write.
+---
+
+`nx_write` exposes a single client export. It is the entry point for the
+right-click **Place** button on a saved note.
+
+## Client
+
+<ExportSignature
+  name="exports.nx_write:placeFromSlot"
+  side="client"
+  description="Start the in-world placement preview for the note held in the given inventory slot. The slot's item must carry a saved document (a docId in its metadata); if it does not, the player is notified to save it first."
+  params={[
+    { name: 'slot', type: 'number', description: 'ox_inventory slot number of the notepad or post-it to place.' }
+  ]}
+  returns="nil"
+>
+```lua
+-- Wired on the notepad item in ox_inventory/data/items.lua,
+-- so the inventory's right-click "Place" button enters placement.
+buttons = {
+    {
+        label = 'Place',
+        action = function(slot)
+            exports.nx_write:placeFromSlot(slot)
+        end,
+    },
+},
+```
+</ExportSignature>
+
+During the preview the player aims at a surface, then commits with the
+[`Config.Placement.controls.commit`](./configuration) key or cancels
+with the cancel key. On commit the note is placed for every nearby
+player and the item is consumed from the slot.

@@ -1,0 +1,73 @@
+---
+title: Write
+description: Physical paper and notepad writing system for FiveM. A live DUI surface renders handwriting onto the prop while right-arm IK makes the character trace the pen. Documents persist and can be placed in the world.
+---
+
+`nx_write` turns a `notepad` item into a working sheet of paper. While a
+player holds one, a live writing surface is rendered onto the prop via
+`nx-3d`. Typing produces animated handwriting. Freehand mode draws ink
+with the cursor. The pen hand follows the current stroke through
+right-arm IK, so in the world the character genuinely appears to write.
+
+Documents persist server-side. A notepad keeps its identity across
+saves: the first save stamps metadata onto the item slot, so using the
+same notepad again reopens the stored document in edit mode. Saved
+notes can also be placed onto surfaces in the world, where every nearby
+player sees them and anyone can pick one up to continue editing.
+
+## Features
+
+- **Live writing surface.** A DUI page rendered onto the notepad prop.
+  Typed text animates as cursive handwriting; freehand mode draws ink
+  strokes with the cursor.
+- **Hand IK.** Right-arm IK drives the pen hand to the active stroke
+  tip every frame, so the character traces what is being written.
+- **Persistent documents.** Saved content is stored server-side. The
+  notepad slot carries the `docId` in its metadata, so reopening the
+  same item continues the same document.
+- **Place in the world.** Saved notepads and post-its can be placed
+  onto tables (and walls, for post-its). Placements broadcast to all
+  clients and render the saved page onto the prop.
+- **Pickup to edit.** Anyone can pick up a placed note. The inventory
+  item is restored with its metadata so the picker can keep writing.
+- **Post-it notes.** A stackable sticky-note variant that places on
+  walls or tables.
+- **Multiplayer sync.** Nearby players see the writing animation, the
+  IK hand, and the ink as it happens.
+- **Multi-framework.** Detects ESX, QBCore, or QBox at runtime through
+  the `bridge/` layer.
+- **Localization.** English and Finnish included.
+
+## Framework usage
+
+Framework detection is automatic. Items are handed out through
+`ox_inventory`, so the call is the same on every framework. Using a
+notepad opens the writing surface.
+
+<FrameworkTabs>
+  <FrameworkTab framework="esx">
+```lua
+-- ESX is detected automatically.
+-- Using the item opens the writing surface.
+exports.ox_inventory:AddItem(source, 'notepad', 1)
+```
+  </FrameworkTab>
+  <FrameworkTab framework="qbcore">
+```lua
+-- QBCore is detected automatically.
+-- Using the item opens the writing surface.
+exports.ox_inventory:AddItem(source, 'notepad', 1)
+```
+  </FrameworkTab>
+  <FrameworkTab framework="qbox">
+```lua
+-- QBox is detected automatically.
+-- Using the item opens the writing surface.
+exports.ox_inventory:AddItem(source, 'notepad', 1)
+```
+  </FrameworkTab>
+</FrameworkTabs>
+
+## Get it
+
+Available at [nxcreative.tech/write](https://nxcreative.tech/write).

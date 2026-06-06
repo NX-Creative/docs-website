@@ -1,0 +1,19 @@
+---
+title: Events
+description: Integration surface for nx_write.
+---
+
+`nx_write` does not expose net events for third-party resources to
+trigger or listen to. The events it registers form an internal protocol
+(item-use routing, document open and close, multiplayer animation and IK
+sync, placement broadcasts) whose shape is subject to change, so they
+are intentionally undocumented.
+
+Integrate through these surfaces instead:
+
+- **The inventory item.** Giving a player a `notepad` (or `postit`)
+  through `ox_inventory` and having them use it is the supported way to
+  start a writing session. Item use is routed by `ox_inventory`'s own
+  `client.event` hook, not by an event you trigger.
+- **The `placeFromSlot` export.** See [Exports](./exports) for placing a
+  saved note in the world from the item's right-click button.

@@ -1,0 +1,66 @@
+---
+title: Configuration
+description: Every entry in shared/config.lua. Defaults, types, and purpose.
+---
+
+Customer-facing settings live in `shared/config.lua`. The file is in
+`escrow_ignore`, so it stays editable after install. Locale strings live
+in `shared/locales/<lang>.lua`.
+
+Internal calibration (paper geometry, IK tuning, camera offsets,
+multiplayer sync timings, and the placeable definitions) is set inside
+the encrypted resource and is not part of this file.
+
+## Framework
+
+<ConfigOption name="Config.Framework" type="string" default="'auto'" description="Framework selection. 'auto' detects es_extended, qb-core, or qbx_core. Override only if you run multiple frameworks side by side." />
+
+## Locale
+
+<ConfigOption name="Config.Locale" type="string" default="'en'" description="Active locale, passed through to shared/locales/<locale>.lua. Shipped values: 'en', 'fi'. Override per server with the convar setr nx_write:locale." />
+
+## Features
+
+<ConfigOption name="Config.UseInventory" type="boolean" default="true" description="Register the notepad and post-it items with ox_inventory on resource start. Turn off only if you want to manage the items yourself." />
+
+<ConfigOption name="Config.AllowMultiPage" type="boolean" default="true" description="Notepad supports multi-page documents. The page-swap UI is wired; the content schema is single-page until extended. Harmless when unused." />
+
+## Post-it stack
+
+<ConfigOption name="Config.PostitStackSize" type="number" default="10" description="Default number of post-its in a stack, used by any shop or job reward you wire up. ox_inventory does not enforce a per-stack maximum, so this is the default count only." />
+
+<ConfigOption name="Config.PostitPickupMode" type="string" default="'remove'" description="What happens when someone interacts with a placed post-it. 'remove' deletes the placement (disposable sticky-note model). 'pickup' deletes it and returns a post-it with its docId so the player can keep editing. Notepads always behave like 'pickup' regardless of this setting." />
+
+## Server limits
+
+Anti-abuse and cost control. The rate limits are minimum milliseconds
+between callbacks per player. The size caps protect against oversized
+payloads.
+
+<ConfigOption name="Config.Limits.maxContentBytes" type="number" default="262144" description="Cap on document JSON, in bytes. 256 KB by default." />
+<ConfigOption name="Config.Limits.maxStrokePoints" type="number" default="20000" description="Total freehand points across all pages." />
+<ConfigOption name="Config.Limits.maxChars" type="number" default="8000" description="Character cap per page." />
+<ConfigOption name="Config.Limits.maxPages" type="number" default="16" description="Hard cap on pages per document." />
+<ConfigOption name="Config.Limits.maxTitle" type="number" default="128" description="Maximum title length." />
+<ConfigOption name="Config.Limits.saveRateLimitMs" type="number" default="1500" description="Minimum milliseconds between save callbacks per player." />
+<ConfigOption name="Config.Limits.loadRateLimitMs" type="number" default="250" description="Minimum milliseconds between load callbacks per player." />
+<ConfigOption name="Config.Limits.placeRateLimitMs" type="number" default="1500" description="Minimum milliseconds between placement-create callbacks per player." />
+<ConfigOption name="Config.Limits.pickupRateLimitMs" type="number" default="750" description="Minimum milliseconds between pickup callbacks per player." />
+<ConfigOption name="Config.Limits.listRateLimitMs" type="number" default="5000" description="Minimum milliseconds between placement-list callbacks per player." />
+
+## Writing session keybinds
+
+Control IDs follow the [ox_lib key list](https://overextended.dev/ox_lib/Modules/Keys).
+
+<ConfigOption name="Config.Controls.toggleMode" type="number" default="37" description="Swap between text and freehand. Default 37 (Tab)." />
+<ConfigOption name="Config.Controls.toggleModeAlt" type="number" default="25" description="Alternate mode swap, always available. Default 25 (right mouse button)." />
+<ConfigOption name="Config.Controls.savePaper" type="number" default="200" description="Save and close. Default 200 (Esc)." />
+<ConfigOption name="Config.Controls.freehandClick" type="number" default="24" description="Draw or dot in freehand mode. Default 24 (left mouse button)." />
+
+## Placement keybinds
+
+Used during the placement preview after right-clicking **Place** on a
+saved note.
+
+<ConfigOption name="Config.Placement.controls.commit" type="number" default="38" description="Commit the placement. Default 38 (E)." />
+<ConfigOption name="Config.Placement.controls.cancel" type="number" default="177" description="Cancel and return the item to inventory. Default 177 (Backspace)." />
