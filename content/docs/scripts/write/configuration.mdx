@@ -13,29 +13,28 @@ the encrypted resource and is not part of this file.
 
 ## Framework
 
-<ConfigOption name="Config.Framework" type="string" default="'auto'" description="Framework selection. 'auto' detects es_extended, qb-core, or qbx_core. Override only if you run multiple frameworks side by side." />
+<ConfigOption name="Config.Framework" type="string" default="'auto'" description="Framework selection. 'auto' detects es_extended, qb-core, or qbx_core." />
 
 ## Locale
 
-<ConfigOption name="Config.Locale" type="string" default="'en'" description="Active locale, passed through to shared/locales/<locale>.lua. Shipped values: 'en', 'fi'. Override per server with the convar setr nx_write:locale." />
+<ConfigOption name="Config.Locale" type="string" default="'en'" description="Active locale. Shipped values: 'en', 'fi'. Override per server with the convar setr nx_write:locale." />
 
 ## Features
 
-<ConfigOption name="Config.UseInventory" type="boolean" default="true" description="Register the notepad and post-it items with ox_inventory on resource start. Turn off only if you want to manage the items yourself." />
+<ConfigOption name="Config.UseInventory" type="boolean" default="true" description="Register the notepad and post-it items with ox_inventory on resource start." />
 
-<ConfigOption name="Config.AllowMultiPage" type="boolean" default="true" description="Notepad supports multi-page documents. The page-swap UI is wired; the content schema is single-page until extended. Harmless when unused." />
+<ConfigOption name="Config.AllowMultiPage" type="boolean" default="true" description="Notepad supports multi-page documents." />
 
 ## Post-it stack
 
-<ConfigOption name="Config.PostitStackSize" type="number" default="10" description="Default number of post-its in a stack, used by any shop or job reward you wire up. ox_inventory does not enforce a per-stack maximum, so this is the default count only." />
+<ConfigOption name="Config.PostitStackSize" type="number" default="10" description="Default number of post-its in a stack." />
 
-<ConfigOption name="Config.PostitPickupMode" type="string" default="'remove'" description="What happens when someone interacts with a placed post-it. 'remove' deletes the placement (disposable sticky-note model). 'pickup' deletes it and returns a post-it with its docId so the player can keep editing. Notepads always behave like 'pickup' regardless of this setting." />
+<ConfigOption name="Config.PostitPickupMode" type="string" default="'remove'" description="What happens when someone interacts with a placed post-it. 'remove' deletes the placement. 'pickup' deletes it and returns a post-it with its docId so the player can keep editing. Notepads always behave like 'pickup' regardless of this setting." />
 
 ## Server limits
 
-Anti-abuse and cost control. The rate limits are minimum milliseconds
-between callbacks per player. The size caps protect against oversized
-payloads.
+Anti-abuse and cost control. The rate limits are the minimum
+milliseconds between callbacks per player.
 
 <ConfigOption name="Config.Limits.maxContentBytes" type="number" default="262144" description="Cap on document JSON, in bytes. 256 KB by default." />
 <ConfigOption name="Config.Limits.maxStrokePoints" type="number" default="20000" description="Total freehand points across all pages." />
