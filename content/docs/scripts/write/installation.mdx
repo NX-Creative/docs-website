@@ -86,18 +86,21 @@ ensure nx_write
 
 ## Items
 
-When `Config.UseInventory` is `true` (the default), `nx_write`
-registers the `notepad` and `postit` items with `ox_inventory` on
-start. You do not need to add them to `ox_inventory/data/items.lua`
-yourself.
+`nx_write` does **not** register its items for you. Add the `notepad`
+and `postit` definitions below to
+`[core_ox]/ox_inventory/data/items.lua`, and copy `notepad.png` /
+`postit.png` from `nx_write/inventory-images/` into
+`ox_inventory/web/images/`.
 
-## Place button
+> [!warning]
+> The `client` block is what routes *using* the item to the writing
+> session. Leave it out and using the item does nothing — the inventory
+> just closes and **no error is printed**. If the notepad never appears
+> in hand, a missing `client.event` is the first thing to check.
 
-The right-click **Place** action on a saved note is wired through
-`ox_inventory`'s per-item buttons, which the resource does not register
-for you. Add a button to the `notepad` (and `postit`) entry in
-`[core_ox]/ox_inventory/data/items.lua` that calls the
-[`placeFromSlot`](./exports) export:
+The `buttons` block adds the right-click **Place** action for saved
+notes, which calls the [`placeFromSlot`](./exports) export. Keep both
+blocks.
 
 ```lua
 ['notepad'] = {
@@ -106,6 +109,32 @@ for you. Add a button to the `notepad` (and `postit`) entry in
     stack = false,
     close = true,
     consume = 0,
+    description = 'A spiral notepad. Use it to write or continue writing.',
+    client = {
+        event = 'nx_write:client:useItem',
+        kind = 'notepad',
+    },
+    buttons = {
+        {
+            label = 'Place',
+            action = function(slot)
+                exports.nx_write:placeFromSlot(slot)
+            end,
+        },
+    },
+},
+
+['postit'] = {
+    label = 'Post-it Note',
+    weight = 1,
+    stack = true,
+    close = true,
+    consume = 0,
+    description = 'A sticky note. Write a short message; place anywhere.',
+    client = {
+        event = 'nx_write:client:useItem',
+        kind = 'postit',
+    },
     buttons = {
         {
             label = 'Place',

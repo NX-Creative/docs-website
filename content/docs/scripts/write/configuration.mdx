@@ -21,7 +21,7 @@ the encrypted resource and is not part of this file.
 
 ## Features
 
-<ConfigOption name="Config.UseInventory" type="boolean" default="true" description="Register the notepad and post-it items with ox_inventory on resource start." />
+<ConfigOption name="Config.UseInventory" type="boolean" default="true" description="Master switch for inventory integration. true lets nx_write talk to the inventory: stamp the saved docId onto the item slot, consume on place, restore on pickup. false skips all inventory operations (items are still added to ox_inventory/data/items.lua by you, either way)." />
 
 <ConfigOption name="Config.AllowMultiPage" type="boolean" default="true" description="Notepad supports multi-page documents." />
 
