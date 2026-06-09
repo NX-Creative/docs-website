@@ -149,5 +149,8 @@ modify schema.
 ## Config location
 
 All settings live in `shared/config.lua`. The file is in
-`escrow_ignore` so it remains editable after install. See
-[Configuration](./configuration) for every option.
+`escrow_ignore` so it remains editable after install. UI translations
+live in `locales/<lang>.lua`, one file per language, also unescrowed.
+To add a language, copy `locales/en.lua`, rename the table key, and
+translate the strings. See [Configuration](./configuration) for every
+option.
