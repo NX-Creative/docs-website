@@ -62,5 +62,9 @@
   "write@1.0.1": {
     "messageId": "1513147850505064568",
     "hash": "f5aefacb34f1ee29"
+  },
+  "employeemanagement@1.4.0": {
+    "messageId": "1514022057950580867",
+    "hash": "4247e9d4f70065ad"
   }
 }
