@@ -3,6 +3,23 @@ title: Changelog
 description: Version history for nx_employeemanagement.
 ---
 
+## 1.4.0 (2026-06-09)
+
+### Added
+
+- Interaction zones (`Config.Zones`). Fixed world locations open the management menu as a flat window through an ox_target zone or an ox_lib TextUI prompt, with per-zone job and boss-only filters. The new `Config.Tablet.access.mode = 'zone'` value makes zones the only entry point. The flat window renders at the same resolution as the tablet's screen, so both modes look identical. Disabled by default.
+- Granular rank permissions (`Config.Permissions`). Bosses grant non-boss grades access to specific tabs (employee list, management charts, payroll, boss actions, society funds) from a new Permissions tab. Grants are stored in the new `employee_rank_permissions` table, enforced on every server callback, and apply without a restart. Grantees cannot escalate: hiring and grade changes are capped below their own rank.
+- One locale file per language under `locales/` (`en`, `fi`, `es`, `fr`, `it`, `de`, `sv`). The files are unescrowed, so they stay editable after install. Add a language by copying `locales/en.lua` and renaming the table key.
+
+### Changed
+
+- Internal calibration (tablet camera rig, animation sets, DUI panel geometry, NUI overlay placement, debug toggles) moved from `shared/config.lua` to the escrowed `shared/constants.lua`. The customer config went from about 2,200 lines to 230 and now holds only the settings you are meant to change.
+- Server-side hardening pass across payroll, hiring, and the tablet animation relay. Adds two support tables (`employee_autopay_state`, `employee_pending_payments`); both are created automatically on start.
+
+### Fixed
+
+- Hiring, promoting, and firing now write the job change to the database immediately for online players. ESX and QB only flush job data on auto-save, so management views could read stale data for several minutes after a change.
+
 ## 1.3.1 (2026-05-03)
 
 ### Added

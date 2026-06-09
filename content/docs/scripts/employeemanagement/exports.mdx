@@ -12,7 +12,7 @@ tablet UI, internal `lib.callback` channels, and database tables.
 <ExportSignature
   name="exports.nx_employeemanagement:useJobTablet"
   side="client"
-  description="Open the employee management tablet UI for the local player. Boss access is resolved through Config.IsBossRank against the per-job Config.AllowedRanks table. Non-boss employees see the self-service dashboard when Config.SelfService.Enabled is true. Bound to the jobtablet inventory item through the ox_inventory client export hook."
+  description="Open the employee management tablet UI for the local player. Boss access is resolved through Config.IsBossRank against the per-job Config.AllowedRanks table, and granular rank grants are applied on top. Non-boss employees see the self-service dashboard when Config.SelfService.Enabled is true. Bound to the jobtablet inventory item through the ox_inventory client export hook. The export opens the UI in every Config.Tablet.access.mode, including 'zone'."
 >
 ```lua
 -- Open the tablet from any client script

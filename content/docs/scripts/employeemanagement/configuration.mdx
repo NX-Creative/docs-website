@@ -4,9 +4,9 @@ description: Every entry in shared/config.lua. Defaults, types, and purpose.
 ---
 
 All settings live in `shared/config.lua`. The file is in
-`escrow_ignore` so it remains editable after install. Locale strings
-live on the `Config.Locale` table and are merged per language at load
-time (missing keys fall back to English).
+`escrow_ignore` so it remains editable after install. UI translations
+live in `locales/<lang>.lua`, one file per language, also unescrowed.
+See [Localization](#localization) below.
 
 Webhook URLs live in a separate `shared/server-config.lua` file that is
 loaded only on the server. See [Webhooks](#webhooks-server-only) below.
@@ -19,9 +19,7 @@ loaded only on the server. See [Webhooks](#webhooks-server-only) below.
 
 <ConfigOption name="Config.Target" type="string" default="'OX'" description="Target resource identifier. Currently only 'OX' is supported." />
 
-<ConfigOption name="Config.Language" type="string" default="'en'" description="Active UI language. Shipped: 'en', 'fi', 'es', 'fr', 'it', 'de', 'sv'." />
-
-<ConfigOption name="Config.Debug" type="boolean" default="false" description="Enables verbose debug logging." />
+<ConfigOption name="Config.Language" type="string" default="'en'" description="Active UI language. Selects the matching locales/<lang>.lua file. Shipped: 'en', 'fi', 'es', 'fr', 'it', 'de', 'sv'." />
 
 ## Integrations
 
@@ -45,7 +43,7 @@ loaded only on the server. See [Webhooks](#webhooks-server-only) below.
 
 ## Permissions
 
-<ConfigOption name="Config.UIKey" type="string" default="'F7'" description="Default keybind for /employeelist. Registered via RegisterKeyMapping so players can rebind it." />
+<ConfigOption name="Config.UIKey" type="string" default="'F7'" description="Default keybind for /employeelist. Registered via RegisterKeyMapping so players can rebind it. The command and keybind only exist when Config.Tablet.access.mode is 'key' or 'key+item'." />
 
 <ConfigOption name="Config.AllowedRanks" type="table" default="{ default = { boss = true, chief = true, manager = true } }" description="Per-job grades treated as management. Keys are job names, values are tables of allowed grades. Each entry can be keyed by grade name (string) or grade level (number), or mix both. Values must be true to grant access. The 'default' entry is the fallback used for any job without an explicit entry." />
 
@@ -64,6 +62,71 @@ Config.AllowedRanks = {
 }
 ```
 
+## Rank permissions
+
+Boss ranks always have full access. From the Permissions tab in the
+menu, a boss grants each non-boss grade access to specific tabs. Grants
+are stored in the `employee_rank_permissions` table, created
+automatically on first start, and apply without a restart.
+
+Non-boss grades holding the boss-actions grant cannot escalate. They
+can only hire and promote to grades below their own, and they cannot
+fire or modify employees at or above their own rank.
+
+<ConfigOption name="Config.Permissions.Enabled" type="boolean" default="true" description="Master toggle for granular rank permissions. When false, non-boss ranks can never be granted access. Self-service keeps working." />
+
+<ConfigOption name="Config.Permissions.Keys" type="string[]" default="{ 'employees', 'management', 'payroll', 'bossActions', 'society' }" description="Feature areas a boss can grant. Removing a key hides its column in the Permissions tab and blocks the server-side actions behind it for non-boss ranks." />
+
+## Tablet
+
+Behaviour toggles for the handheld tablet.
+
+<ConfigOption name="Config.Tablet.Enabled" type="boolean" default="true" description="Master toggle for the tablet item flow." />
+
+<ConfigOption name="Config.Tablet.access.mode" type="string" default="'item'" description="How the menu opens. One of 'key', 'item', 'key+item', 'zone'. In 'zone' mode only the locations in Config.Zones open the menu." />
+
+<ConfigOption name="Config.Tablet.access.item" type="string" default="'jobtablet'" description="Inventory item id for the tablet." />
+
+<ConfigOption name="Config.Tablet.autoClose" type="table" default="{ onWeapon = true, onCombat = true, onRagdoll = true, onDeath = true }" description="Close the tablet automatically when the player draws a weapon, enters combat, ragdolls, or dies." />
+
+<ConfigOption name="Config.Tablet.hints.enabled" type="boolean" default="true" description="Show hint prompts while the tablet is open." />
+
+<ConfigOption name="Config.Tablet.camera.toggleEnabled" type="boolean" default="true" description="Allow toggling the locked tablet camera." />
+
+<ConfigOption name="Config.Tablet.camera.toggleCommand" type="string" default="'tabletcam'" description="Command name registered for the camera toggle. Only registered when toggleEnabled is true." />
+
+<ConfigOption name="Config.Tablet.camera.toggleKey" type="string" default="'F6'" description="Default key bound to the camera toggle command." />
+
+## Interaction zones
+
+Fixed world locations that open the management menu as a flat window,
+without the tablet item or camera. The window renders at the same
+resolution as the tablet's screen, so both modes look identical.
+Access is permission-checked the same way as every other entry point.
+To make zones the only way to open the menu, set
+`Config.Tablet.access.mode = 'zone'`.
+
+<ConfigOption name="Config.Zones.Enabled" type="boolean" default="false" description="Master toggle for interaction zones." />
+
+<ConfigOption name="Config.Zones.Locations" type="table[]" default="{}" description="Zone definitions. Fields per entry: label (string), coords (vec3), radius (number), interaction ('target' for an ox_target sphere zone, 'textui' for an ox_lib TextUI prompt with E), icon (Font Awesome class, used by 'target'), jobs (array of job names allowed to use the zone, omit to allow any job), bossOnly (boolean, hides the zone from non-boss employees)." />
+
+```lua
+Config.Zones = {
+    Enabled = true,
+    Locations = {
+        {
+            label = "Management",
+            coords = vec3(449.8653, -973.8475, 30.6896),
+            radius = 1.5,
+            interaction = "target",
+            icon = "fa-solid fa-briefcase",
+            jobs = { "police" },
+            bossOnly = false
+        }
+    }
+}
+```
+
 ## Hire scope
 
 <ConfigOption name="Config.HireScope.defaultMode" type="string" default="'nearby'" description="Initial scope of the hiring console. One of 'nearby', 'server'. 'nearby' lists only players within nearbyRadius metres. 'server' lists every online player and falls back to 'nearby' when allowServerWide is false." />
@@ -71,62 +134,6 @@ Config.AllowedRanks = {
 <ConfigOption name="Config.HireScope.nearbyRadius" type="number" default="10.0" description="Radius in GTA world units (approximately metres) used by the 'nearby' hire mode." />
 
 <ConfigOption name="Config.HireScope.allowServerWide" type="boolean" default="false" description="When true, exposes the 'Server-wide' tab in the hiring console so bosses can list every online player. When false, the tab is hidden and the server rewrites unscoped requests to the nearby radius." />
-
-## Debug menu
-
-<ConfigOption name="Config.DebugMenu.Enabled" type="boolean" default="true" description="Master toggle for the /trackdebug in-game debug menu." />
-
-<ConfigOption name="Config.DebugMenu.RequireAce" type="boolean" default="true" description="When true, the debug menu requires the ACE permission below." />
-
-<ConfigOption name="Config.DebugMenu.AcePermission" type="string" default="'nx_employeemanagement.debug'" description="ACE permission checked when RequireAce is true." />
-
-<ConfigOption name="Config.DebugMenu.UseFrameworkGroups" type="boolean" default="true" description="Also allow debug access to players in the framework groups listed below." />
-
-<ConfigOption name="Config.DebugMenu.AllowedGroups" type="string[]" default="{ 'admin', 'superadmin', 'god' }" description="Framework groups granted debug access when UseFrameworkGroups is true." />
-
-## Tablet prop and camera
-
-Controls the in-world tablet item. This is the physical prop plus the
-third-person camera, not the NUI overlay. NUI placement is covered by
-`Config.TabletUI` below.
-
-<ConfigOption name="Config.Tablet.Enabled" type="boolean" default="true" description="Master toggle for the tablet item flow. When false, the UI only opens through the /employeelist command." />
-
-<ConfigOption name="Config.Tablet.debug" type="boolean" default="false" description="Enables verbose tablet-side debug logging." />
-
-<ConfigOption name="Config.Tablet.access.mode" type="string" default="'item'" description="How the tablet opens. One of 'key', 'item', 'key+item'." />
-
-<ConfigOption name="Config.Tablet.access.item" type="string" default="'jobtablet'" description="Inventory item id for the tablet." />
-
-<ConfigOption name="Config.Tablet.anim.flags" type="number" default="49" description="Animation flags used for the upper-body tablet hold. 49 keeps legs in idle." />
-
-<ConfigOption name="Config.Tablet.lowerBody" type="table" description="Lower-body idle animation played alongside the tablet hold. Fields: enabled, dict, name, blendIn, blendOut, duration, flags, freezeAt." />
-
-<ConfigOption name="Config.Tablet.autoClose" type="table" default="{ onWeapon = true, onCombat = true, onRagdoll = true, onDeath = true }" description="Auto-close the tablet when the player draws a weapon, enters combat, ragdolls, or dies." />
-
-<ConfigOption name="Config.Tablet.hints.enabled" type="boolean" default="true" description="Show hint prompts while the tablet is open." />
-
-<ConfigOption name="Config.Tablet.nui" type="table" default="{ setFocus = false, keepInput = false }" description="NUI focus behavior while the tablet is open." />
-
-<ConfigOption name="Config.Tablet.controls.disable" type="boolean" default="true" description="Disable gameplay controls while the tablet is open." />
-
-<ConfigOption name="Config.Tablet.camera" type="table" description="Third-person tablet camera. Fields: fov, nearClip, distance, height, side, followBone, followBoneTarget ('head' or 'tablet'), followBoneOffset, toggleEnabled, toggleCommand, toggleKey, toggleInMs, toggleOutMs, lookAround. The toggle command defaults to 'tabletcam' on key F6 and is only registered when toggleEnabled is true." />
-
-<ConfigOption name="Config.Tablet.stabilization" type="table" description="Optional camera and matrix stabilization. Disabled by default. Useful if the prop jitters on low tick rates." />
-
-<ConfigOption name="Config.Tablet.panel" type="table" description="DUI panel placement on the tablet prop. Fields include resW, resH, updateInterval, updateMaxDistance, syncRadius, faceCamera, frontOnly, frontDotMin, depthCompensation, localNormal, localUp, localOffset, zOffset, width, height. syncRadius controls how close other players must be to receive spectator DUI sync." />
-
-<ConfigOption name="Config.Tablet.input" type="table" description="Input mapping while the tablet is open. Fields: enabled, maxDistance, cursorMode (control, hold, speed), scrollStep, disableControls." />
-
-## Tablet UI (NUI overlay)
-
-<ConfigOption name="Config.TabletUI.Enabled" type="boolean" default="true" description="Master toggle for the NUI overlay." />
-
-<ConfigOption name="Config.TabletUI.BootDelayMs" type="number" default="900" description="Delay before the NUI boot animation starts. Gives the tablet prop time to render." />
-
-<ConfigOption name="Config.TabletUI.Screen" type="table" default="{ x = 0.5, y = 0.5, width = 0.46, height = 0.68, radius = 0.02, padding = 0.02 }" description="Normalized screen placement for the NUI panel. All values are 0..1." />
-
-<ConfigOption name="Config.TabletUI.Debug" type="boolean" default="false" description="Draw a border around the NUI panel to help align the screen." />
 
 ## Time display
 
@@ -217,6 +224,12 @@ on the server (declared in `server_scripts`) and listed in
 
 ## Localization
 
-<ConfigOption name="Config.Locale" type="table" description="String table keyed by language code. Shipped keys: 'en', 'fi', 'es', 'fr', 'it', 'de', 'sv'. Non-English locales are merged with 'en' at load time so missing keys fall back to English." />
+Translations live in `locales/<lang>.lua`, one file per language.
+Shipped languages: `en`, `fi`, `es`, `fr`, `it`, `de`, `sv`. The files
+are listed in `escrow_ignore`, so they stay editable after install.
+To add a language, copy `locales/en.lua`, rename the table key, and
+translate the strings. New files load automatically.
+
+<ConfigOption name="Config.Locale" type="table" description="String table keyed by language code. Each locales/<lang>.lua file fills one key. Non-English locales are merged with 'en' at load time so missing keys fall back to English." />
 
 <ConfigOption name="Config.Translate" type="function" description="Translate helper. Signature: Config.Translate(key, ...). Returns the formatted string for the active language, falling back to English, then to the key itself." />

@@ -7,7 +7,7 @@ description: Chat commands registered by nx_employeemanagement.
 
 <CommandReference
   name="employeelist"
-  description="Open the employee tracking UI. Bosses see the full management console, employees see the self-service dashboard when Config.SelfService.Enabled is true. Registered through RegisterKeyMapping, so players can rebind the trigger (defaults to Config.UIKey, F7)."
+  description="Open the employee tracking UI. Bosses see the full management console, employees see the self-service dashboard when Config.SelfService.Enabled is true. Registered through RegisterKeyMapping, so players can rebind the trigger (defaults to Config.UIKey, F7). Only registered when Config.Tablet.access.mode is 'key' or 'key+item'; in 'item' and 'zone' modes the command and keybind do not exist."
 />
 
 <CommandReference
@@ -17,20 +17,21 @@ description: Chat commands registered by nx_employeemanagement.
 
 ## Debug commands
 
-These commands are gated. They only appear when the related debug
-toggle is enabled and the caller has the configured permission.
+These commands are restricted. They require the ACE permission
+`nx_employeemanagement.debug` or membership in an admin framework
+group (`admin`, `superadmin`, `god`).
 
 <CommandReference
   name="trackdebug"
-  description="Open the debug menu. Gated by Config.DebugMenu.Enabled plus either the ACE permission Config.DebugMenu.AcePermission or membership in Config.DebugMenu.AllowedGroups."
+  description="Open the in-game debug menu with mock-data and tracking helpers."
 />
 
 <CommandReference
   name="policemock"
-  description="Server console helper that seeds mock police data for development. Requires the debug access check defined in server/debug.lua. Not intended for production use."
+  description="Seeds mock police data for development. Restricted command: server console or ACE-permitted admins only. Not intended for production use."
 />
 
 <CommandReference
   name="mechanicmock"
-  description="Server console helper that seeds mock mechanic data for development. Requires the debug access check defined in server/debug.lua. Not intended for production use."
+  description="Seeds mock mechanic data for development. Restricted command: server console or ACE-permitted admins only. Not intended for production use."
 />
