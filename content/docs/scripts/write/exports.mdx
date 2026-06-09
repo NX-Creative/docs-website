@@ -3,8 +3,12 @@ title: Exports
 description: Public exports registered by nx_write.
 ---
 
-`nx_write` exposes a single client export. It is the entry point for the
-right-click **Place** button on a saved note.
+`nx_write` exposes a small client API plus one server-side helper. The
+client exports let a custom inventory open, place, and close writing
+sessions; the server export forwards an open request to a player. See
+[Configuration](./configuration) for `Config.Inventory`, which decides
+whether nx_write touches `ox_inventory` itself or leaves item handling
+to you.
 
 ## Client
 
@@ -35,3 +39,96 @@ During the preview the player aims at a surface, then commits with the
 [`Config.Placement.controls.commit`](./configuration) key or cancels
 with the cancel key. On commit the note is placed for every nearby
 player and the item is consumed from the slot.
+
+<ExportSignature
+  name="exports.nx_write:Open"
+  side="client"
+  description="Open or continue a writing session. Returns false if a session or placement preview is already active, or if the kind is unknown. Pass docId to continue a saved document; omit it for a new one. slot and itemName are opaque values echoed back in nx_write:documentSaved on save."
+  params={[
+    { name: 'opts', type: 'table', description: '{ kind?: string (default "notepad"), docId?: number, title?: string, slot?: any, itemName?: string, page?: number, readOnly?: boolean }.' }
+  ]}
+  returns="boolean"
+>
+```lua
+-- Continue a document your custom inventory stored on the item.
+exports.nx_write:Open({
+    kind     = 'notepad',
+    docId    = item.metadata.docId,
+    slot     = item.slot,
+    itemName = item.name,
+})
+```
+</ExportSignature>
+
+<ExportSignature
+  name="exports.nx_write:Place"
+  side="client"
+  description="Start the in-world placement preview for a saved document. docId is required, since the placement renders the document's saved preview image. slot and itemName ride along to the server and are echoed on nx_write:placementCreated."
+  params={[
+    { name: 'opts', type: 'table', description: '{ kind?: string (default "notepad"), docId: number, slot?: any, itemName?: string }.' }
+  ]}
+  returns="boolean"
+>
+```lua
+exports.nx_write:Place({ kind = 'notepad', docId = item.metadata.docId, slot = item.slot, itemName = item.name })
+```
+</ExportSignature>
+
+<ExportSignature
+  name="exports.nx_write:Close"
+  side="client"
+  description="Save (or discard) the active writing session and close it. Pass true to discard without saving. Returns false if no session was active."
+  params={[
+    { name: 'discard', type: 'boolean', description: 'true discards the session without saving. Defaults to false (save and close).' }
+  ]}
+  returns="boolean"
+>
+```lua
+exports.nx_write:Close()      -- save and close
+exports.nx_write:Close(true)  -- discard and close
+```
+</ExportSignature>
+
+<ExportSignature
+  name="exports.nx_write:IsBusy"
+  side="client"
+  description="True while a writing session or a placement preview is active. Gate your own item-use with it so a second use does not double-open."
+  params={[]}
+  returns="boolean"
+>
+```lua
+if not exports.nx_write:IsBusy() then
+    exports.nx_write:Open({ kind = 'notepad', docId = item.metadata.docId })
+end
+```
+</ExportSignature>
+
+## Server
+
+<ExportSignature
+  name="exports.nx_write:Open"
+  side="server"
+  description="Forward an open request to a player's client. Mirrors the client Open export and accepts the same opts. Use this when your inventory routes item-use through a server hook."
+  params={[
+    { name: 'source', type: 'number', description: 'Server id of the player to open the session for.' },
+    { name: 'opts', type: 'table', description: 'Same shape as the client Open export.' }
+  ]}
+  returns="boolean"
+>
+```lua
+-- From your inventory's server-side item-use handler.
+exports.nx_write:Open(source, {
+    kind     = 'notepad',
+    docId    = item.metadata.docId,
+    slot     = item.slot,
+    itemName = item.name,
+})
+```
+</ExportSignature>
+
+> [!note]
+> These exports work in any inventory mode. They pair with the
+> [server events](./events) (`nx_write:documentSaved`,
+> `nx_write:placementCreated`, `nx_write:placementPickedUp`), which is
+> how a custom inventory persists the `docId` and bridges items on
+> place and pickup.

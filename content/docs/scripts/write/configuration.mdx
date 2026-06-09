@@ -23,13 +23,15 @@ the encrypted resource and is not part of this file.
 
 <ConfigOption name="Config.UseInventory" type="boolean" default="true" description="Master switch for inventory integration. true lets nx_write talk to the inventory: stamp the saved docId onto the item slot, consume on place, restore on pickup. false skips all inventory operations (items are still added to ox_inventory/data/items.lua by you, either way)." />
 
+<ConfigOption name="Config.Inventory" type="string" default="'auto'" description="Which inventory nx_write integrates with. 'auto' uses ox_inventory if it is running, otherwise 'custom'. 'ox' forces ox_inventory: item metadata stamping on save, item bridging on place and pickup. 'custom' means nx_write touches no inventory itself; you drive it from your own inventory with the client exports and the nx_write:documentSaved, nx_write:placementCreated, and nx_write:placementPickedUp server events." />
+
 <ConfigOption name="Config.AllowMultiPage" type="boolean" default="true" description="Notepad supports multi-page documents." />
 
 ## Post-it stack
 
 <ConfigOption name="Config.PostitStackSize" type="number" default="10" description="Default number of post-its in a stack." />
 
-<ConfigOption name="Config.PostitPickupMode" type="string" default="'remove'" description="What happens when someone interacts with a placed post-it. 'remove' deletes the placement. 'pickup' deletes it and returns a post-it with its docId so the player can keep editing. Notepads always behave like 'pickup' regardless of this setting." />
+<ConfigOption name="Config.PostitPickupMode" type="string" default="'remove'" description="What happens when someone interacts with a placed post-it. 'remove' deletes the placement. 'pickup' deletes it and returns a post-it with its docId so the player can keep editing. 'both' shows both options and lets the player choose. Notepads always behave like 'pickup' regardless of this setting." />
 
 ## Server limits
 

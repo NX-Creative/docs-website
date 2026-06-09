@@ -3,6 +3,19 @@ title: Changelog
 description: Version history for nx_write.
 ---
 
+## 1.1.0 (2026-06-10)
+
+### Added
+
+- Custom inventory support via `Config.Inventory` (`auto` / `ox` / `custom`).
+- Client exports: `Open`, `Place`, `Close`, `IsBusy`.
+- Server export: `Open`.
+- Server events: `nx_write:documentSaved`, `nx_write:placementCreated`, `nx_write:placementPickedUp`.
+
+### Changed
+
+- `Config.PostitPickupMode` adds `'both'` (offer Remove and Pick up in one menu).
+
 ## 1.0.1 (2026-06-07)
 
 Fixed an export-related update mismatch; requires downloading the latest version of nx-3d.

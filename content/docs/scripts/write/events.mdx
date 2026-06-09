@@ -1,19 +1,86 @@
 ---
 title: Events
-description: Integration surface for nx_write.
+description: Server-side integration events for nx_write.
 ---
 
-`nx_write` does not expose net events for third-party resources to
-trigger or listen to. The events it registers form an internal protocol
-(item-use routing, document open and close, multiplayer animation and IK
-sync, placement broadcasts) whose shape is subject to change, so they
-are intentionally undocumented.
+`nx_write` fires three server-side events that form its stable
+integration surface. They fire in every inventory mode, so a custom
+inventory can hook the document and placement lifecycle without
+touching the internal protocol. Listen with `AddEventHandler` in a
+server script.
 
-Integrate through these surfaces instead:
+The internal events (item-use routing, document open and close,
+multiplayer animation and IK sync, placement broadcasts) are not part
+of this surface. Their shape is subject to change, so they are
+intentionally undocumented.
 
-- **The inventory item.** Giving a player a `notepad` (or `postit`)
-  through `ox_inventory` and having them use it is the supported way to
-  start a writing session. Item use is routed by `ox_inventory`'s own
-  `client.event` hook, not by an event you trigger.
-- **The `placeFromSlot` export.** See [Exports](./exports) for placing a
-  saved note in the world from the item's right-click button.
+> [!tip]
+> In `Config.Inventory = 'custom'` mode these events are how you persist
+> the saved `docId` onto your own item and bridge items on place and
+> pickup. In `ox` mode nx_write already does that work; the events still
+> fire if you want to observe it. See [Configuration](./configuration).
+
+## Server events
+
+### `nx_write:documentSaved`
+
+Fired after every successful save. Use it to store the `docId` (and
+`kind`, `title`) on your own item so you can pass `docId` back to
+[`exports.nx_write:Open`](./exports) next time and continue the same
+document.
+
+```lua
+AddEventHandler('nx_write:documentSaved', function(d)
+    -- d.source     : server id of the player who saved
+    -- d.docId      : document id (store this on your item)
+    -- d.kind       : 'notepad' | 'postit' | <Config.Papers key>
+    -- d.title      : document title
+    -- d.author     : author identifier
+    -- d.page       : current page number
+    -- d.slot       : opaque slot you passed to Open
+    -- d.itemName   : opaque item name you passed to Open
+    -- d.hasPreview : true if a preview image was saved
+    myInventory:SetItemMetadata(d.source, d.slot, {
+        docId = d.docId, title = d.title, paperKind = d.kind,
+    })
+end)
+```
+
+### `nx_write:placementCreated`
+
+Fired after a placement is committed to the world. In `custom` mode,
+remove one of `itemName` from the placer here. In `ox` mode the item is
+already consumed.
+
+```lua
+AddEventHandler('nx_write:placementCreated', function(d)
+    -- d.source   : server id of the placer
+    -- d.id       : placement id
+    -- d.kind     : placed kind
+    -- d.docId    : linked document id
+    -- d.slot     : opaque slot you passed to Place
+    -- d.itemName : opaque item name you passed to Place
+    myInventory:RemoveItem(d.source, d.itemName, 1, d.slot)
+end)
+```
+
+### `nx_write:placementPickedUp`
+
+Fired after a placed note is removed. In `custom` mode, if `restoreItem`
+is true, add the item back to `source` carrying `metadata`. The
+placement row is already deleted when this fires, so handle a full
+inventory gracefully (for example drop the item) rather than losing the
+note.
+
+```lua
+AddEventHandler('nx_write:placementPickedUp', function(d)
+    -- d.source      : server id of the picker
+    -- d.kind        : picked-up kind
+    -- d.docId       : linked document id
+    -- d.metadata    : { docId, title, paperKind, author, preview }
+    -- d.restoreItem : true if the item should return to the picker
+    if d.restoreItem then
+        myInventory:AddItem(d.source, d.kind, 1, d.metadata)
+    end
+end)
+```
