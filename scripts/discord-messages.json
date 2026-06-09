@@ -58,5 +58,9 @@
   "write@1.0.0": {
     "messageId": "1512894571267493978",
     "hash": "dac04873e596ab6c"
+  },
+  "write@1.0.1": {
+    "messageId": "1513147850505064568",
+    "hash": "f5aefacb34f1ee29"
   }
 }
