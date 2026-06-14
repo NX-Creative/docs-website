@@ -3,9 +3,11 @@ title: Exports
 description: Public exports registered by nx_write.
 ---
 
-`nx_write` exposes a small client API plus one server-side helper. The
-client exports let a custom inventory open, place, and close writing
-sessions; the server export forwards an open request to a player. See
+`nx_write` exposes a client API for opening, placing, and closing writing
+sessions, plus two server-side helpers. The client exports let a custom
+inventory open, place, and close sessions, and let custom positioning
+tooling create placements directly. The server exports forward an open
+request to a player and create trusted placements. See
 [Configuration](./configuration) for `Config.Inventory`, which decides
 whether nx_write touches `ox_inventory` itself or leaves item handling
 to you.
@@ -75,6 +77,56 @@ exports.nx_write:Place({ kind = 'notepad', docId = item.metadata.docId, slot = i
 </ExportSignature>
 
 <ExportSignature
+  name="exports.nx_write:CreatePlacement"
+  side="client"
+  description="Create a committed placement at explicit coords and rotation, skipping the in-world aim preview. This is the hook for custom positioning tooling (transform gizmos, snapping, free-rotate): your UX owns where the note goes, nx_write owns persistence, render, and multiplayer sync. It runs the same server callback as a preview commit, so it persists, bakes and renders on every client, and fires nx_write:placementCreated. Returns the placement id on success, or false. A client-driven create is still validated against the player's position (Config.Placement.maxPlaceDistance plus 2 m slack); use the server export for an unbounded, trusted placement."
+  params={[
+    { name: 'opts', type: 'table', description: 'Pose, in priority order. { kind?: string (default "notepad"), docId: number (the saved document to render), entity?: number (read coords and quat off a live entity, the precise path: point it at your gizmo preview prop), coords?: vector3, quat?: { x, y, z, w } (lossless, preferred over rotation), rotation?: vector3 (pitch, roll, yaw in GTA euler degrees), surfaceKind?: "wall" | "table" (inferred from the pose when omitted), slot?: any, itemName?: string }.' }
+  ]}
+  returns="number | false"
+>
+```lua
+-- From a transform gizmo: the tool owns positioning, nx_write owns the rest.
+-- Passing a live entity is the precise path: the placement is
+-- byte-identical to the preview prop the player was dragging.
+local id = exports.nx_write:CreatePlacement({
+    kind     = 'notepad',
+    docId    = item.metadata.docId,
+    entity   = gizmoPreviewProp,
+    slot     = item.slot,
+    itemName = item.name,
+})
+
+-- Or place at explicit coords with a lossless quat.
+exports.nx_write:CreatePlacement({
+    kind   = 'notepad',
+    docId  = item.metadata.docId,
+    coords = vec3(215.7, -810.2, 30.7),
+    quat   = { x = 0.0, y = 0.0, z = 0.0, w = 1.0 },
+})
+```
+</ExportSignature>
+
+> [!note]
+> Prefer `entity` or `quat` for the pose. Both are exact. `rotation`
+> (GTA euler) is a convenience that round-trips cleanly for flat or
+> upright poses only. When `surfaceKind` is omitted, nx_write infers it
+> from the prop's world face normal and validates it against the kind's
+> allowed surfaces.
+
+<ExportSignature
+  name="exports.nx_write:RefreshPlacements"
+  side="client"
+  description="Re-pull placements from the server and render any not held locally. Live creates already arrive over the spawn broadcast, so this is a manual resync for tooling that writes to nx_write_placements out of band. Idempotent. Returns true if the refresh ran."
+  params={[]}
+  returns="boolean"
+>
+```lua
+exports.nx_write:RefreshPlacements()
+```
+</ExportSignature>
+
+<ExportSignature
   name="exports.nx_write:Close"
   side="client"
   description="Save (or discard) the active writing session and close it. Pass true to discard without saving. Returns false if no session was active."
@@ -122,6 +174,27 @@ exports.nx_write:Open(source, {
     docId    = item.metadata.docId,
     slot     = item.slot,
     itemName = item.name,
+})
+```
+</ExportSignature>
+
+<ExportSignature
+  name="exports.nx_write:CreatePlacement"
+  side="server"
+  description="Create a placement at explicit coords from the server, bypassing the aim preview. The trusted mirror of the client CreatePlacement export. Because the server supplies the coords, the per-player rate-limit and distance gate are skipped (those guard the untrusted client callback). Everything else is identical to a preview commit: it persists, broadcasts so every client bakes and renders it, and fires nx_write:placementCreated. Pass coords with quat or rotation; there is no entity option, since the server cannot read a client entity. Returns the placement id on success, or false."
+  params={[
+    { name: 'source', type: 'number', description: 'Server id of the player credited with the placement.' },
+    { name: 'opts', type: 'table', description: '{ kind?: string (default "notepad"), docId: number, coords: vector3, quat?: { x, y, z, w } (lossless, preferred), rotation?: vector3 (pitch, roll, yaw in GTA euler degrees), surfaceKind?: "wall" | "table" (defaults to a surface the kind allows), slot?: any, itemName?: string }.' }
+  ]}
+  returns="number | false"
+>
+```lua
+-- Seed a placement programmatically from a server hook.
+local id = exports.nx_write:CreatePlacement(source, {
+    kind   = 'notepad',
+    docId  = docId,
+    coords = vec3(215.7, -810.2, 30.7),
+    quat   = { x = 0.0, y = 0.0, z = 0.0, w = 1.0 },
 })
 ```
 </ExportSignature>

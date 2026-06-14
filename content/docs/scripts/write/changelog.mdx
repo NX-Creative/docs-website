@@ -3,6 +3,14 @@ title: Changelog
 description: Version history for nx_write.
 ---
 
+## 1.2.0 (2026-06-14)
+
+### Added
+
+- Client export `CreatePlacement`: create a placement at explicit coords and rotation, skipping the aim preview. The hook for custom positioning tooling (transform gizmos, snapping, free-rotate). Accepts a live entity, a quaternion, or a GTA-euler rotation for the pose.
+- Client export `RefreshPlacements`: re-pull placements from the server and render any not held locally. Useful after writing to `nx_write_placements` out of band.
+- Server export `CreatePlacement`: the trusted, server-authored mirror of the client export. Skips the rate-limit and distance gate, since the server supplies the coords.
+
 ## 1.1.0 (2026-06-10)
 
 ### Added
