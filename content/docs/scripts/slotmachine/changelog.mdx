@@ -3,6 +3,20 @@ title: Changelog
 description: Version history for nx_slotmachine.
 ---
 
+## 1.1.0 (2026-06-15)
+
+### Added
+
+- Per-machine currency system. `Config.Currencies` defines every selectable currency, where each entry is either a framework money account (`type = "account"`) or an ox_inventory item (`type = "item"`). Admins assign a currency per cabinet through `/manageslots`, with one global option for the in-world Diamond Casino cabinets.
+- `Config.DefaultCurrency` sets which `Config.Currencies` entry new slots are created with, independent of menu order.
+- Item-based payouts. Cash and chips can now be charged and paid as ox_inventory items rather than only a framework account balance.
+
+### Changed
+
+- Animation overhaul across all four games: continuously-scrolling reels, physics-based grid tumbles, and pooled money rain, with fixes for turbo-spin reel artifacts, spin-start flashes, and win-screen blackouts.
+- `config.lua` reorganized to the standard NX Creative layout (header box, section dividers, aligned columns).
+- Shipped image assets recompressed losslessly, cutting the UI asset payload to about a third of its previous size.
+
 ## 1.0.0 (2026-05-08)
 
 Initial documentation.

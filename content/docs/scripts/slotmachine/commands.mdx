@@ -19,25 +19,3 @@ By default only `admin` and `superadmin` groups (or matching QBCore /
 QBox / Ace permissions) can open the manager. Whitelisted jobs can be
 granted access through
 [`Config.SlotPlacement.Access.Jobs`](./configuration#configslotplacementaccessjobs).
-
-## Developer
-
-These commands only register when
-[`Config.DevTools.Enabled`](./configuration#configdevtoolsenabled) is
-true. They are intended for tuning DUI panel placement during
-development and should stay off in production.
-
-<CommandReference
-  name="slotdebug"
-  description="Toggles client debug mode. When on, the resource prints DUI lifecycle traces and draws a debug helper (yellow line plus a magenta box) at the cabinet screen anchor."
-/>
-
-<CommandReference
-  name="slotoffset"
-  args={[
-    { name: 'x', type: 'number', description: 'Delta on the X axis. Pass 0 with y and z also 0 to print the current offset.' },
-    { name: 'y', type: 'number', description: 'Delta on the Y axis.' },
-    { name: 'z', type: 'number', description: 'Delta on the Z axis.' }
-  ]}
-  description="Adjusts the active DUI panel offset by the given delta and re-creates the panel in place. Pass 0 0 0 to print the current offset to the F8 console without changing it. Only valid while sitting at a machine."
-/>

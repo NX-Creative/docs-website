@@ -19,15 +19,36 @@ will skew payout shape and is not supported.
 
 <ConfigOption name="Config.Debug" type="boolean" default="false" description="When true, prints verbose lifecycle, spin, and UI traces to the server console and F8 client console. Leave false in production." />
 
-<ConfigOption name="Config.DevTools.Enabled" type="boolean" default="false" description="Master switch for developer-only client commands (/slotdebug, /slotoffset). Keep disabled in production releases." />
-
 ## Economy
 
-<ConfigOption name="Config.Currency" type="string" default="'$'" description="Currency symbol displayed in every game UI." />
+<ConfigOption name="Config.Currency" type="string" default="'$'" description="Legacy single-currency symbol. Used as a fallback when a slot has no currency assigned, or for stripped-down setups. The Config.Currencies table below supersedes it for per-machine customization." />
 
 <ConfigOption name="Config.BetAmounts" type="number[]" default="{ 10, 50, 100, 500 }" description="Available bet steps. The player cycles through these in the bet selector." />
 
 <ConfigOption name="Config.DefaultBetIndex" type="number" default="1" description="1-based index into Config.BetAmounts that is selected on first sit." />
+
+## Currencies
+
+Each slot cabinet runs on one currency. Admins assign it per cabinet
+through the `/manageslots` menu, and one global option covers the
+in-world Diamond Casino cabinets. Define every selectable currency in
+`Config.Currencies`.
+
+<ConfigOption name="Config.Currencies" type="table[]" default="{ { key = 'money', label = 'Cash', symbol = '$', type = 'item', item = 'money' }, { key = 'chips', label = 'Casino Chips', symbol = '◆', type = 'item', item = 'casino_chip' } }" description="List of currency options a slot can use. Each entry is charged on a bet and paid out on a win. See the field reference below." />
+
+Each entry takes:
+
+- `key`. Unique internal id stored in the database. Do not rename in place.
+- `label`. Display label shown in the `/manageslots` menu.
+- `symbol`. Short symbol drawn in the cabinet UI, for example `"$"`, `"◆"`, or `"C"`.
+- `type`. Either `"account"` (framework money account) or `"item"` (ox_inventory item).
+- `account`. Required when `type` is `"account"`. The framework account to charge and pay. ESX: `"money"`, `"bank"`, or `"black_money"`. QB/QBox: `"cash"`, `"bank"`, or `"crypto"`.
+- `item`. Required when `type` is `"item"`. The ox_inventory item used as one chip.
+
+The first entry is the default for newly placed slots and for the
+in-world casino cabinets until an admin overrides them in-game.
+
+<ConfigOption name="Config.DefaultCurrency" type="string" default="nil" description="Optional currency key that sets which Config.Currencies entry new slots are created with. When nil, the first entry is used. Lets you reorder the menu without changing the default." />
 
 ## Presentation
 
