@@ -3,6 +3,39 @@ title: Changelog
 description: Version history for nx_fourseasons.
 ---
 
+## 2.2.0 (2026-06-15)
+
+### Added
+
+- Multi-language support. All in-game text, including the admin menu, now loads from editable per-language files under `locales/<code>.json` and is chosen with `Config.Language`. Eleven languages ship: English, Finnish, German, French, Brazilian Portuguese, Spanish, Turkish, Dutch, Italian, Polish, and Chinese.
+- UI customization panel. New Customize and Help buttons let players rescale the forecast and weather widget, switch glass presets (liquid or frosted), and reposition or resize the UI in a live edit mode.
+
+### Changed
+
+- Refreshed the liquid glass look with a brighter, more reflective surface and subtle edge color.
+- In-game time now advances smoothly between server syncs.
+- Wind speed follows the `UseMetric` setting instead of the active language.
+- Bundled the UI fonts locally, so the interface no longer depends on an external CDN.
+
+### Removed
+
+- The old `Config.Locale`, `Config.WarningMessages`, and `Config.WeatherMessages` tables (and their `*Fi` mirrors) are replaced by the `locales/<code>.json` files. If you customized any of that text, move your wording into the matching locale file and keep the keys and the `%s` and `{placeholder}` tokens intact.
+
+### Fixed
+
+- Gameplay flooding now triggers and recedes reliably.
+- Slippery-road traction applies consistently in wet and icy weather.
+- The forecast window always closes correctly and reads properly in clear weather.
+- Players joining mid-session now sync the current weather, flood, and forecast state.
+
+### Security
+
+- Hardened server-side validation and time and weather sync against abuse.
+
+### Performance
+
+- Lower resource usage, smoother weather and rain transitions, and reduced network traffic.
+
 ## 2.1.1 (2026-05-03)
 
 ### Changed

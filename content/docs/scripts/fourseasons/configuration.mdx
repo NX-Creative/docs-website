@@ -4,9 +4,10 @@ description: Every entry in shared/config.lua. Defaults, types, and purpose.
 ---
 
 All settings live in `shared/config.lua`. The file is in `escrow_ignore`
-so it remains editable after install. Event name constants and locale
-strings live in `shared/constants.lua` and the `Config.Locale` table
-respectively.
+so it remains editable after install. Event name constants live in
+`shared/constants.lua`. All user-facing text lives in the per-language
+files under `locales/`, loaded by `shared/locale.lua` (see Localization
+below).
 
 ## Core
 
@@ -14,7 +15,7 @@ respectively.
 
 <ConfigOption name="Config.Target" type="string" default="'OX'" description="Target resource identifier. One of 'OX', 'QB'." />
 
-<ConfigOption name="Config.Language" type="string" default="'en'" description="Active language for UI and notifications. Shipped: 'en', 'fi'." />
+<ConfigOption name="Config.Language" type="string" default="'en'" description="Active language for the UI, notifications, and the admin menu. Loads the matching locales/<code>.json file. Shipped: 'en', 'fi', 'de', 'fr', 'pt-br', 'es', 'tr', 'nl', 'it', 'pl', 'zh'. See Localization below." />
 
 <ConfigOption name="Config.NotificationSystem" type="string" default="'ox_lib'" description="Notification backend. One of 'ox_lib', 'esx', 'qb', 'custom'." />
 
@@ -198,16 +199,26 @@ Blackout pulses, lightning strike FX, and ocean wave simulation.
 
 <ConfigOption name="Config.RoadEffects.SnowTractionReduction" type="number" default="0.35" />
 
-## Warnings
+## Localization
 
-<ConfigOption name="Config.WarningMessages" type="table" description="Per-weather warning message arrays. Keys: THUNDER (levels 1 to 4), RAIN (levels 1 to 3), SNOW (levels 1 to 3). Index selects by severity." />
+All user-facing text (UI labels, notification titles, warning copy,
+weather and forecast strings, and the admin menu) lives in per-language
+JSON files under `locales/`, loaded at runtime by `shared/locale.lua`.
+The active file is selected by `Config.Language`, and any key missing
+from a translation falls back to English.
 
-<ConfigOption name="Config.WarningMessagesFi" type="table" description="Finnish mirror of WarningMessages." />
+Shipped languages: English (`en`), Finnish (`fi`), German (`de`), French
+(`fr`), Brazilian Portuguese (`pt-br`), Spanish (`es`), Turkish (`tr`),
+Dutch (`nl`), Italian (`it`), Polish (`pl`), and Chinese (`zh`).
 
-<ConfigOption name="Config.WeatherMessages" type="table" description="Notification string per weather type (CLEAR, EXTRASUNNY, CLOUDS, OVERCAST, RAIN, THUNDER, CLEARING, SMOG, FOGGY, XMAS, SNOWLIGHT, BLIZZARD, SNOW)." />
+To add or change a language, copy `locales/en.json`, translate the
+values, and keep the keys and the `%s`, `%d`, and `{placeholder}` tokens
+intact. Set `Config.Language` to the file name. The `locales/*.json`
+files are listed in `escrow_ignore` and the manifest `files{}` block, so
+they stay editable after install and load on the client.
 
-<ConfigOption name="Config.WeatherMessagesFi" type="table" description="Finnish mirror of WeatherMessages." />
-
-## Localization strings
-
-<ConfigOption name="Config.Locale" type="table" description="Flat string table keyed by language code. Shipped keys: 'en', 'fi'. Each language maps UI labels, notification titles, warning copy, forecast labels, debug strings, and server-originated messages. Use Config.Language to select the active language." />
+> [!note]
+> Earlier versions kept this text in `Config.Locale`,
+> `Config.WarningMessages`, `Config.WeatherMessages`, and their `*Fi`
+> mirrors. Those tables were removed in 2.2.0. Move any customizations
+> into the matching `locales/<code>.json` file.
