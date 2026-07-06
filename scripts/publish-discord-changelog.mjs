@@ -9,6 +9,13 @@
 // Re-run with same version + same content hash → no-op.
 // Re-run with same version + changed content → PATCH the existing message.
 // New version → POST a new message (and remember its id).
+//
+// Discord-only overrides live in scripts/discord-overrides.json:
+//   { "<resource>@<version>": "<markdown body>" }
+// When a key matches, that body is sent to Discord instead of the parsed
+// changelog block (the docs site still renders the full changelog). Use this
+// when the full block overflows Discord's 4096-char embed. Overridden messages
+// always get the "Read full changelog →" link appended.
 
 import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
@@ -19,6 +26,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, '..');
 const SCRIPTS_DIR = join(REPO_ROOT, 'content/docs/scripts');
 const STATE_FILE = join(__dirname, 'discord-messages.json');
+const OVERRIDES_FILE = join(__dirname, 'discord-overrides.json');
 
 const WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
 const DOCS_SITE = process.env.DOCS_SITE_URL || 'https://docs.nxcreative.tech';
@@ -38,6 +46,11 @@ function loadState() {
 
 function saveState(state) {
     writeFileSync(STATE_FILE, JSON.stringify(state, null, 2) + '\n');
+}
+
+function loadOverrides() {
+    if (!existsSync(OVERRIDES_FILE)) return {};
+    return JSON.parse(readFileSync(OVERRIDES_FILE, 'utf8'));
 }
 
 function hash(s) {
@@ -72,7 +85,7 @@ function parseLatestVersion(mdx) {
     return null;
 }
 
-function buildEmbed({ resource, version, date, body, changelogUrl }) {
+function buildEmbed({ resource, version, date, body, changelogUrl, forceLink }) {
     const title = `nx_${resource.replace(/^nx_/, '')} v${version}`;
     const suffix = READ_MORE_SUFFIX.replace('{url}', changelogUrl);
 
@@ -82,6 +95,8 @@ function buildEmbed({ resource, version, date, body, changelogUrl }) {
         const truncated = description.slice(0, budget);
         const lastNewline = truncated.lastIndexOf('\n');
         description = truncated.slice(0, lastNewline > 0 ? lastNewline : budget) + suffix;
+    } else if (forceLink) {
+        description += suffix;
     }
 
     return {
@@ -117,6 +132,7 @@ async function patchWebhook(messageId, embed) {
 
 async function main() {
     const state = loadState();
+    const overrides = loadOverrides();
     let stateChanged = false;
 
     for (const { resource, path } of findChangelogs()) {
@@ -128,7 +144,9 @@ async function main() {
         }
 
         const key = `${resource}@${latest.version}`;
-        const contentHash = hash(latest.body);
+        const override = overrides[key];
+        const body = override ?? latest.body;
+        const contentHash = hash(body);
         const prev = state[key];
 
         if (prev?.hash === contentHash) {
@@ -137,7 +155,7 @@ async function main() {
         }
 
         const changelogUrl = `${DOCS_SITE}/docs/scripts/${resource}/changelog`;
-        const embed = buildEmbed({ ...latest, resource, changelogUrl });
+        const embed = buildEmbed({ ...latest, body, resource, changelogUrl, forceLink: override != null });
 
         let messageId = prev?.messageId;
         if (messageId) {
