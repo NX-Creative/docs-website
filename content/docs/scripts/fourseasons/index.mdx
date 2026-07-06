@@ -1,12 +1,14 @@
 ---
 title: Fourseasons
-description: Dynamic weather, seasons, time sync, storms, and gameplay flooding for FiveM. Server-authoritative, ESX and QBCore compatible.
+description: Weather, seasons, time sync, body-temperature survival, storms, and a weather platform API for FiveM. Server-authoritative. ESX, QBCore, QBox, and standalone.
 ---
 
 `nx_fourseasons` is a server-authoritative weather and time system. It
 drives a seasonal cycle (spring, summer, fall, winter), syncs weather
 and temperature across every client, and layers on gameplay effects
-that react to what is happening in the sky.
+that react to what is happening in the sky. Version 3.0 adds
+body-temperature survival, a weather betting kiosk, and a platform API
+that other resources can read and drive.
 
 ## Features
 
@@ -18,21 +20,43 @@ that react to what is happening in the sky.
   interval. `PauseSync` / `RequestSync` exports let other resources
   suspend and resume a player's feed (useful for cutscenes and
   interiors).
+- **Body-temperature survival.** Non-lethal hypothermia and heatstroke
+  driven by a felt-temperature model: altitude, worn clothing, nearby
+  fire and shelter, and how wet the player is. Danger tiers drain
+  stamina, cut sprint, and shake aim. One master switch turns the whole
+  system off, and it never touches health. An optional thermometer HUD
+  shows the felt temperature.
+- **Weather Platform API.** Server exports and GlobalState let other
+  resources read the weather, season, forecast, and player exposure, or
+  request and lock the weather. A lock carries a priority and reverts
+  when the owning resource stops.
+- **Weather betting.** Players wager on the next forecast slot at the
+  newspaper stand. Odds come from the slot's real resolution odds, so
+  every bet is house-favourable. Offline winners reconcile on next login.
 - **Storm systems.** Blackout pulses during thunder, proximity-based
   lightning strike FX, and a coastal or global ocean-wave scaler with
   optional boat physics penalties.
+- **Snow effects.** Snow builds up during snow weather, slows players on
+  foot in deep drifts, and kicks up wheel spray. Deep-snow slip is
+  optional and off by default.
 - **Gameplay flooding.** Subtle low-street flooding tied to the weather
   cycle, separate from the admin-only extreme flooding used for
   testing. Three profiles (subtle, moderate, strong) with season
   rules.
-- **Temperature effects.** Shivering, cold breath, frozen-screen
-  overlay, heatwave screen shift, and configurable thresholds.
+- **Temperature and weather FX.** Cold breath, frost overlay, shivering,
+  sweat, and heat haze, tied to the exposure system and configurable
+  thresholds.
+- **Real forecast stats.** Server-computed humidity, wind, UV, dew
+  point, and feels-like on every forecast day, using Wind Chill and Heat
+  Index math.
 - **Road traction.** Per-weather traction reductions applied to
   vehicles, with exports to override or toggle on individual vehicles.
 - **Screen weather.** Optional screen-space rain drops and global
   weather overlay, toggleable per-player.
 - **Forecast UI.** Multi-day forecast viewable via `/forecast` or
   through a newspaper-stand target interaction.
+- **Discord webhooks.** Optional posts for daily forecasts,
+  severe-weather warnings, and betting payouts.
 - **Admin menu.** `ox_lib` context menu for setting weather, time,
   season, temperature, running seasonal events, and triggering
   floods. Permission-gated.
@@ -51,6 +75,9 @@ that react to what is happening in the sky.
 -- Read current weather from any client script
 local weather = exports.nx_fourseasons:GetCurrentWeather()
 print(weather.weather, weather.intensity, weather.temperature)
+
+-- Read the authoritative state from any server script (Platform API)
+local state = exports.nx_fourseasons:GetWeatherState()
 ```
   </FrameworkTab>
   <FrameworkTab framework="qbcore">
@@ -58,12 +85,15 @@ print(weather.weather, weather.intensity, weather.temperature)
 -- Read current weather from any client script
 local weather = exports.nx_fourseasons:GetCurrentWeather()
 print(weather.weather, weather.intensity, weather.temperature)
+
+-- Read the authoritative state from any server script (Platform API)
+local state = exports.nx_fourseasons:GetWeatherState()
 ```
   </FrameworkTab>
 </FrameworkTabs>
 
-The framework is auto-detected through the `bridge/` layer. Set
-`Config.Framework` to `"ESX"` or `"QB"` to force it.
+The framework is auto-detected through the `bridge/` layer: ESX,
+QBCore, QBox, or standalone. Set `Config.Framework` to force it.
 
 ## Get it
 

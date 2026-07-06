@@ -3,6 +3,17 @@ title: Changelog
 description: Version history for nx_employeemanagement.
 ---
 
+## 1.5.0 (2026-07-06)
+
+### Added
+
+- Custom job providers (`Config.CustomJobs`): manage standalone job scripts (SouF UwU Cafe, BurgerShot, any self-contained job resource) from the tablet beside framework jobs, with an automatic picker when you run more than one. Read-only by default; opt in per job for write-back, payroll, and society.
+
+### Fixed
+
+- Management charts hours (per-employee tracker, Top Hours, and the Hours Logged / Avg Hours KPIs) now respect the selected 7D or 30D range instead of always showing the all-time total.
+- Editing a salary for a job or grade that does not exist no longer reports a false success and then reverts on reload.
+
 ## 1.4.0 (2026-06-09)
 
 ### Added

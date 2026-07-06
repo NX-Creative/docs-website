@@ -1,12 +1,18 @@
 ---
 title: Exports
-description: Public exports registered by nx_fourseasons. All exports are client-side.
+description: Public exports registered by nx_fourseasons. Client-side weather state plus the server-side Weather Platform API.
 ---
 
-`nx_fourseasons` registers only client-side exports. Call them from
-any client script via `exports.nx_fourseasons:<Name>()`.
+`nx_fourseasons` registers client exports for weather state, sync, road
+traction, and screen FX, plus server exports that form the Weather
+Platform API. Call client exports from any client script and server
+exports from any server script, both via `exports.nx_fourseasons:<Name>()`.
 
-## State
+The server exports are gated by `Config.API.Enabled`. The weather-control
+exports (`RequestWeather`, `LockWeather`, `ReleaseWeather`,
+`GetWeatherControlOwner`) also require `Config.API.AllowControl`.
+
+## State (client)
 
 <ExportSignature
   name="exports.nx_fourseasons:GetCurrentWeather"
@@ -81,14 +87,30 @@ end
 ```
 </ExportSignature>
 
-## Forecast
+## Exposure (client)
+
+<ExportSignature
+  name="exports.nx_fourseasons:GetExposureLevel"
+  side="client"
+  description="Return the local player's current body-temperature exposure. level is 0 (comfortable) to 3 (severe). kind is the direction of the danger, or false when comfortable. Available only while Config.Exposure.Enabled is true."
+  returns="{ level: number, kind: 'cold' | 'heat' | false }"
+>
+```lua
+local e = exports.nx_fourseasons:GetExposureLevel()
+if e.level >= 2 and e.kind == 'cold' then
+    -- Player is in cold danger
+end
+```
+</ExportSignature>
+
+## Forecast (client)
 
 <ExportSignature
   name="exports.nx_fourseasons:GetForecast"
   side="client"
   description="Return the server-provided forecast. With no argument, returns the full forecast array. With a day offset, returns that single day."
   params={[
-    { name: 'daysAhead', type: 'number', optional: true, description: '0 for today, 1 for tomorrow, up to Config.ForecastDays - 1.' }
+    { name: 'daysAhead', type: 'number', optional: true, description: '0 for today, 1 for tomorrow, up to Config.Forecast.Days - 1.' }
   ]}
   returns="table[] | { weather: string, type: string, temperature: number, intensity: number, day?: number, date?: any }"
 >
@@ -102,7 +124,7 @@ print(tomorrow.weather, tomorrow.temperature)
 ```
 </ExportSignature>
 
-## Sync control
+## Sync control (client)
 
 Pause or resume the weather and time sync for the local player. Useful
 for cutscenes, interiors, and minigames that run in an isolated
@@ -150,7 +172,7 @@ end
 ```
 </ExportSignature>
 
-## Road traction
+## Road traction (client)
 
 Override traction reductions on individual vehicles. Useful for scripted
 missions where a vehicle should ignore the active weather, or for
@@ -204,7 +226,7 @@ exports.nx_fourseasons:SetVehicleRoadEffect(veh, 0.5)
   ]}
 />
 
-## Screen weather FX
+## Screen weather FX (client)
 
 Toggle the screen-space rain drops and the global weather screen
 overlay per-player. Preferences are kept on the client.
@@ -253,4 +275,158 @@ overlay per-player. Preferences are kept on the client.
   side="client"
   description="Toggle the full screen weather overlay and return the new state."
   returns="boolean"
+/>
+
+## Weather Platform API: read (server)
+
+Server-side reads of the authoritative weather state. Registered only
+when `Config.API.Enabled` is true. For a push model, read the
+`nxWeather` and `nxSnowDepth` GlobalState keys or listen for the `on*`
+events on the Events page.
+
+<ExportSignature
+  name="exports.nx_fourseasons:GetWeather"
+  side="server"
+  description="Return the current weather type. Nil before the first sync."
+  returns="string | nil"
+>
+```lua
+local weather = exports.nx_fourseasons:GetWeather()
+```
+</ExportSignature>
+
+<ExportSignature
+  name="exports.nx_fourseasons:GetSeason"
+  side="server"
+  description="Return the active season id."
+  returns="'SPRING' | 'SUMMER' | 'FALL' | 'WINTER' | nil"
+/>
+
+<ExportSignature
+  name="exports.nx_fourseasons:GetTemperature"
+  side="server"
+  description="Return the current ambient temperature in Celsius."
+  returns="number | nil"
+/>
+
+<ExportSignature
+  name="exports.nx_fourseasons:GetWeatherState"
+  side="server"
+  description="Return the merged weather state blob. This is the same shape published on GlobalState.nxWeather and passed to the onWeatherChanged event."
+  returns="{ weather: string, intensity: number, season: string, temperature: number, feelsLike: number, isBlackout: boolean, snowDepth: number, storm: table, forecastStamp: any }"
+>
+```lua
+local s = exports.nx_fourseasons:GetWeatherState()
+print(s.weather, s.feelsLike, s.snowDepth, s.isBlackout)
+```
+</ExportSignature>
+
+<ExportSignature
+  name="exports.nx_fourseasons:GetStormState"
+  side="server"
+  description="Return the current storm state (blackout, strike, and ocean fields). Nil if storms are disabled."
+  returns="table | nil"
+/>
+
+<ExportSignature
+  name="exports.nx_fourseasons:GetForecast"
+  side="server"
+  description="Return the full server forecast array. Each entry carries a nested stats table with humidity, wind, UV, dew point, and feels-like."
+  returns="table[]"
+/>
+
+<ExportSignature
+  name="exports.nx_fourseasons:GetIntradaySlots"
+  side="server"
+  description="Return today's intraday prediction slots (the timeline that betting settles against). Nil if the forecast is not ready."
+  returns="table | nil"
+/>
+
+<ExportSignature
+  name="exports.nx_fourseasons:IsBlackout"
+  side="server"
+  description="Return whether a storm blackout pulse is currently active."
+  returns="boolean"
+/>
+
+<ExportSignature
+  name="exports.nx_fourseasons:GetSnowDepth"
+  side="server"
+  description="Return the current tracked snow depth in metres. Also published on GlobalState.nxSnowDepth."
+  returns="number"
+/>
+
+<ExportSignature
+  name="exports.nx_fourseasons:GetPlayerExposure"
+  side="server"
+  description="Return a player's body-temperature exposure. Also mirrored on the player statebag nxExposure. Returns level 0 with kind false when exposure is disabled or the player has no record."
+  params={[
+    { name: 'src', type: 'number', description: 'Player server id.' }
+  ]}
+  returns="{ level: number, kind: 'cold' | 'heat' | false }"
+>
+```lua
+local e = exports.nx_fourseasons:GetPlayerExposure(source)
+if e.level >= 2 then
+    -- Player is in a danger tier
+end
+```
+</ExportSignature>
+
+## Weather control (server)
+
+Request or lock the weather from another resource. Registered only when
+both `Config.API.Enabled` and `Config.API.AllowControl` are true. Every
+lock is attributed to the invoking resource and auto-reverts when that
+resource stops. Higher priority wins; the applied owner is published on
+`GlobalState.nxWeatherLockOwner`.
+
+<ExportSignature
+  name="exports.nx_fourseasons:RequestWeather"
+  side="server"
+  description="Request a weather type at default priority 10. Returns a token, or false if control is disabled or the caller is unattributable. Auto-expires after opts.durationMs when provided."
+  params={[
+    { name: 'weatherType', type: 'string', description: "A GTA weather type, e.g. 'THUNDER' or 'SNOW'." },
+    { name: 'opts', type: 'table', optional: true, description: '{ intensity?: number (0.0-1.0), durationMs?: number, priority?: number }. Intensity is snapshotted at register time; omit to reuse the current value.' }
+  ]}
+  returns="string | false"
+>
+```lua
+-- Ask for thunder for 10 minutes
+local token = exports.nx_fourseasons:RequestWeather('THUNDER', { durationMs = 600000 })
+```
+</ExportSignature>
+
+<ExportSignature
+  name="exports.nx_fourseasons:LockWeather"
+  side="server"
+  description="Lock a weather type at default priority 100. A lock never auto-expires: any durationMs is ignored. Returns a token, or false if control is disabled or the caller is unattributable."
+  params={[
+    { name: 'weatherType', type: 'string' },
+    { name: 'opts', type: 'table', optional: true, description: '{ intensity?: number (0.0-1.0), priority?: number }.' }
+  ]}
+  returns="string | false"
+>
+```lua
+local token = exports.nx_fourseasons:LockWeather('EXTRASUNNY')
+-- ... later
+exports.nx_fourseasons:ReleaseWeather(token)
+```
+</ExportSignature>
+
+<ExportSignature
+  name="exports.nx_fourseasons:ReleaseWeather"
+  side="server"
+  description="Release the calling resource's lock. The token must match the lock owned by the invoking resource. A nil token releases the caller's own lock unconditionally. Returns true when a lock was released."
+  params={[
+    { name: 'token', type: 'string', optional: true, description: 'The token returned by RequestWeather or LockWeather.' }
+  ]}
+  returns="boolean"
+/>
+
+<ExportSignature
+  name="exports.nx_fourseasons:GetWeatherControlOwner"
+  side="server"
+  description="Return the resource name whose lock is currently applied, or nil when no lock is active."
+  returns="string | nil"
 />

@@ -3,6 +3,71 @@ title: Changelog
 description: Version history for nx_fourseasons.
 ---
 
+## 3.0.0 (2026-07-06)
+
+### Breaking
+
+- **The config was restructured — an old `config.lua` cannot be copy-pasted onto 3.0.** The loose top-level flags were grouped into nested tables and there is **no back-compat shim**, so an old config silently misses the new keys and falls back to defaults. Start from the shipped `shared/config.lua` and re-apply your values by hand. The file is now ordered Quick setup → Features → Advanced tuning. Defaults and behavior are unchanged — only the names and grouping moved. Old → new map:
+
+  | Old (2.x) | New (3.0) |
+  | --- | --- |
+  | `Config.EnableSeasons` | `Config.Seasons.Enabled` |
+  | `Config.DefaultSeason` | `Config.Seasons.Default` |
+  | `Config.SeasonDuration` | `Config.Seasons.DurationDays` |
+  | `Config.UseRealtimeSeason` | `Config.Seasons.Realtime.Enabled` |
+  | `Config.RealtimeSeasonMonthMap` | `Config.Seasons.Realtime.MonthMap` |
+  | `Config.InitialSeasonalEventCheckDelayMinutes` | `Config.Seasons.FirstEventDelayMinutes` |
+  | `Config.EnableWeatherEffects` | `Config.Weather.Effects` |
+  | `Config.WeatherUpdateInterval` | `Config.Weather.UpdateInterval` |
+  | `Config.MinWeatherDuration` | `Config.Weather.MinDuration` |
+  | `Config.MaxWeatherDuration` | `Config.Weather.MaxDuration` |
+  | `Config.DefaultWeatherDuration` | `Config.Weather.DefaultDuration` |
+  | `Config.WeatherChanceMultipliers` | `Config.Weather.ChanceMultipliers` |
+  | `Config.ForecastDays` | `Config.Forecast.Days` |
+  | `Config.ForecastRefreshInterval` | `Config.Forecast.RefreshInterval` |
+  | `Config.EnableTemperatureSystem` | `Config.Temperature.Enabled` |
+  | `Config.BaseTemperature` | `Config.Temperature.Base` |
+  | `Config.ColdTemperature` | `Config.Temperature.Cold` |
+  | `Config.HotTemperature` | `Config.Temperature.Hot` |
+  | `Config.MinTemperature` | `Config.Temperature.Min` |
+  | `Config.MaxTemperature` | `Config.Temperature.Max` |
+  | `Config.EnableWarnings` | `Config.Warnings.Enabled` |
+  | `Config.EnableWarningSounds` | `Config.Warnings.Sounds` |
+  | `Config.AdminIdentifiers` | `Config.Admin.Identifiers` |
+  | `Config.AdminKeybind.enabled` / `.key` | `Config.Admin.Keybind.Enabled` / `.Key` |
+
+- Removed the deprecated `Config.Exposure.HeatSources.VehicleBonusC` and `.IndoorBonusC` (nothing read them — climate pull handles interiors and vehicles).
+
+### Added
+
+- Body-temperature exposure system. A felt-temperature model shifts the ambient temperature by altitude, worn clothing warmth, nearby fires and shelter, and wetness, then drives non-lethal hypothermia and heatstroke. Danger tiers apply stamina drain, reduced sprint, and aim shake. It never drains health. Everything lives under `Config.Exposure`, behind the single master switch `Config.Exposure.Enabled`.
+- All vanilla clothing mapped out based on how warm or cold they are affecting body-temperature.
+- Optional body-temperature thermometer on the weather HUD. Shows the felt temperature, a warming or cooling trend arrow, and the active source glyph. Opt in with `Config.Exposure.Hud.Enabled` and `Config.UI.EnableWeatherHud`.
+- Weather Platform API. Server exports read weather, season, temperature, forecast, intraday slots, blackout, snow depth, and player exposure. Control exports (`RequestWeather`, `LockWeather`, `ReleaseWeather`, `GetWeatherControlOwner`) let other resources drive the weather with a priority lock that reverts when the owning resource stops. Configured under `Config.API`.
+- Shared state for a poll or subscribe model: the `nxWeather`, `nxSnowDepth`, and `nxWeatherLockOwner` GlobalState keys, and the `nxExposure` player statebag.
+- Public server events `nx_fourseasons:onWeatherChanged`, `onSeasonChanged`, `onTemperatureChanged`, `onForecastUpdated`, `onStormStateChanged`, and `playerTemperatureDanger`.
+- Weather betting kiosk. Players wager on the next forecast slot at the newspaper stand through ox_target. Bets settle on the server's own weather roll and pay out through the framework money API. Offline winners reconcile on next login. Configured under `Config.Betting`.
+- Snow accumulation affecting temperature and gameplay. Snow accumulates during snow weather, slows players on foot in deep drifts, and kicks up wheel FX. Configured under `Config.SnowDepth`.
+- Real forecast stats. Server-computed humidity, wind, UV, dew point, and feels-like using Wind Chill and Heat Index math. Exposed on each forecast day's `stats` table.
+- Discord webhooks for daily forecasts, severe-weather warnings, and betting payouts. Configured under `Config.Webhooks` or the matching convars.
+- Altitude cooling. Higher ground feels colder and feeds exposure, with no effect on the displayed ambient temperature. Configured under `Config.LapseRate`.
+- Inert weather. Fog, smog, and light Christmas snow now spawn on per-season weights inside time windows. Configured under `Config.InertWeather`.
+- Client export `GetExposureLevel` returns the local player's exposure tier and kind.
+- Four-framework bridge money API (ESX, QBCore, QBox, standalone) with ox_inventory-first item grants. Betting payouts run through it.
+- The weather tables are now editable in the config. `Config.WeatherChances` (per-season spawn weights), `Config.WeatherVariations` (transition chains), and `Config.WeatherIntensity` (per-weather strength ranges) each override-merge over the built-in defaults, so a partial edit changes only what you list. The betting kiosk prices its odds off `Config.WeatherVariations`, so retuning the chains re-balances betting automatically.
+
+### Changed
+
+- Exports now span both sides. Earlier versions registered client exports only. The Weather Platform API adds a set of server exports (see the Exports page).
+- Summer heatwaves raise the ambient temperature by `Config.Exposure.HeatwaveBoostC` while active, so heat danger is reachable.
+- Forecast payloads and the forecast exports now carry a `stats` table per day. The old client-side random feels-like values were removed.
+- Weather and temperature notifications (weather-change, temperature-change, and severe-weather warnings) are held for 15 seconds after a player spawns, so the initial sync no longer fires a burst of toasts on connect. The weather HUD still updates during that window.
+- Temperature-change notifications now round to a whole degree instead of printing the raw float.
+
+### Notes
+
+- Two optional tables ship in `sql/install.sql`: `nx_fourseasons_bets` and `nx_fourseasons_bettor_stats`. Fresh installs create them automatically. 
+
 ## 2.2.0 (2026-06-15)
 
 ### Added

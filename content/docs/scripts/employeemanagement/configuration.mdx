@@ -29,6 +29,55 @@ loaded only on the server. See [Webhooks](#webhooks-server-only) below.
 
 <ConfigOption name="Config.Integrations.MultiJobFallbackJob" type="string" default="'unemployed'" description="Job assigned when an employee has no other jobs remaining." />
 
+## Custom job providers
+
+Bring standalone job scripts (SouF UwU Cafe, BurgerShot, any self-contained
+job resource) into the tablet next to framework jobs. A player who manages
+more than one business picks one on open, then lands on that business's
+dashboard. Membership and grade for a custom job are read live from the
+external script while the player is online, through its public exports or a
+statebag, so nothing touches escrowed internals.
+
+Hiring, firing, and promotion are read-only by default. Keep staffing in the
+external script's own boss menu, or opt in per job with a write adapter.
+Payroll and Society are off by default so you do not double-handle the
+external economy. See `INSTALLATION.md`, section "Custom Job Providers", for
+the full field guide and its limits (online-only live grade, tracked roster,
+opt-in writes).
+
+<ConfigOption name="Config.CustomJobs.Enabled" type="boolean" default="false" description="Master toggle for the whole custom-job system." />
+
+<ConfigOption name="Config.CustomJobs.Jobs" type="table[]" default="{}" description="One entry per external business. Fields per entry: job (stable key this resource stores hours, payroll, society, and permissions under, need not exist in jobs.lua), label (display name), enabled (boolean), grades (table keyed by grade level, each holding name, salary, and optional isBoss), detect (how an online member and grade are resolved, mode 'export' or 'statebag' plus the export names or statebag keys), roster ('tracked' for this resource's own hours or 'table' for an external database table), actions (write-back adapter, mode 'none', 'event', 'command', or 'export', one binding per hire, fire, and setGrade), society (nil to hide the Society tab, or a { backend, account } table to bind it), payroll (boolean, enables tablet payroll for this job), trackHours (boolean, records worked hours for members)." />
+
+```lua
+Config.CustomJobs = {
+    Enabled = true,
+    Jobs = {
+        {
+            job     = "burgershot",
+            label   = "Burger Shot",
+            enabled = true,
+            grades = {
+                [0] = { name = "Trainee",          salary = 150 },
+                [3] = { name = "Shift Supervisor", salary = 250 },
+                [4] = { name = "Manager",          salary = 300, isBoss = true }
+            },
+            detect = {
+                mode           = "export",
+                resource       = "sf_burgershot",
+                hasJob         = "hasJob",
+                hasJobAndGrade = "hasJobAndGrade"
+            },
+            roster     = { mode = "tracked" },
+            actions    = { mode = "none" },  -- read-only: staff from the external boss menu
+            society    = nil,
+            payroll    = false,
+            trackHours = true
+        }
+    }
+}
+```
+
 ## Tracking
 
 <ConfigOption name="Config.UpdateInterval" type="number" default="5" description="Minutes between working-time accumulator updates." />

@@ -25,14 +25,15 @@ first. This page only lists what is specific to `nx_fourseasons`.
     },
     {
       name: 'ox_target',
-      description: 'Optional. Used by the newspaper-stand forecast interaction.',
+      description: 'Optional. Used by the newspaper-stand forecast and the weather betting kiosk.',
       required: false,
       href: 'https://github.com/overextended/ox_target'
     }
   ]}
 >
-  Framework detection is automatic: ESX or QBCore. Force it with
-  <code>Config.Framework</code> if detection picks the wrong one.
+  Framework detection is automatic: ESX, QBCore, QBox, or standalone.
+  Force it with <code>Config.Framework</code> if detection picks the
+  wrong one.
 </DependencyList>
 
 ## Database import
@@ -50,6 +51,9 @@ The install script creates:
 - `nx_fourseasons_events`. Seasonal and system event log.
 - `weather_logs`, `weather_stats`, `player_weather_effects`. Optional
   analytics tables. Only populated when `Config.EnableLogging = true`.
+- `nx_fourseasons_bets`, `nx_fourseasons_bettor_stats`. Store open and
+  settled weather bets and per-player betting stats. Used by the weather
+  betting kiosk.
 
 The resource also auto-creates these tables on startup if they are
 missing, so the manual import is only required if your MySQL user
@@ -72,13 +76,13 @@ long as the resource starts in a streamed context.
 ```bash
 ensure oxmysql
 ensure ox_lib
-# ensure your framework here (es_extended or qb-core)
+# ensure your framework here (es_extended, qb-core, or qbx_core)
 ensure nx_fourseasons
 ```
 
-If you use the newspaper stand, `ox_target` must be running too. The
-resource reads `ox_target` at runtime and silently skips the
-interaction if it is not started.
+If you use the newspaper stand or the betting kiosk, `ox_target` must be
+running too. The resource reads `ox_target` at runtime and silently
+skips the interaction if it is not started.
 
 ## Config location
 

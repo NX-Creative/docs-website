@@ -1,6 +1,6 @@
 ---
 title: Events
-description: Events your resources can listen to or trigger.
+description: Events and shared state your resources can listen to, trigger, or read.
 ---
 
 Only events that form a stable integration surface are listed here.
@@ -95,7 +95,7 @@ Sent on join, and on every forecast refresh.
 
 ```lua
 RegisterNetEvent('nx_fourseasons:receiveForecast', function(forecast)
-    -- forecast: array of { weather, temperature, intensity, day, date }
+    -- forecast: array of { weather, temperature, intensity, day, date, stats }
 end)
 ```
 
@@ -145,4 +145,126 @@ hooks are not firing in your setup.
 
 ```lua
 TriggerServerEvent('nx_fourseasons:playerLoaded')
+```
+
+## Platform API events (server)
+
+These fire on the server as local events. Listen with `AddEventHandler`
+in any server script. They are registered only when `Config.API.Enabled`
+is true, and each fires when the underlying field actually changes, so
+they are safe to treat as change notifications rather than a fixed tick.
+
+### `nx_fourseasons:onWeatherChanged`
+
+Fired when weather, intensity, blackout, or snow depth changes. The
+payload is the same blob returned by the `GetWeatherState` export.
+
+```lua
+AddEventHandler('nx_fourseasons:onWeatherChanged', function(state)
+    -- state.weather, state.intensity, state.temperature, state.feelsLike
+    -- state.isBlackout, state.snowDepth, state.storm, state.forecastStamp
+end)
+```
+
+### `nx_fourseasons:onSeasonChanged`
+
+```lua
+AddEventHandler('nx_fourseasons:onSeasonChanged', function(season)
+    -- season: 'SPRING' | 'SUMMER' | 'FALL' | 'WINTER'
+end)
+```
+
+### `nx_fourseasons:onTemperatureChanged`
+
+```lua
+AddEventHandler('nx_fourseasons:onTemperatureChanged', function(temperature)
+    -- temperature: number (Celsius)
+end)
+```
+
+### `nx_fourseasons:onForecastUpdated`
+
+Fired once per daily forecast regeneration.
+
+```lua
+AddEventHandler('nx_fourseasons:onForecastUpdated', function(forecast)
+    -- forecast: the full forecast array (each day carries a stats table)
+end)
+```
+
+### `nx_fourseasons:onStormStateChanged`
+
+Fired when the storm signature (enabled, blackout, or ocean state)
+shifts.
+
+```lua
+AddEventHandler('nx_fourseasons:onStormStateChanged', function(stormState)
+    -- stormState: table describing blackout, strike, and ocean state
+end)
+```
+
+## Exposure events (server)
+
+### `nx_fourseasons:playerTemperatureDanger`
+
+Fired on the server whenever a player's exposure tier changes. Registered
+only when `Config.Exposure.Enabled` is true. Use it to react to
+hypothermia or heatstroke from another resource (medical scripts, HUDs,
+logging). The exposure system itself never drains health.
+
+```lua
+AddEventHandler('nx_fourseasons:playerTemperatureDanger', function(src, level, kind)
+    -- src   : player server id
+    -- level : 0 (comfortable) to 3 (severe)
+    -- kind  : 'cold' | 'heat' | false
+end)
+```
+
+## Shared state (GlobalState and statebags)
+
+For a poll or subscribe model that survives resource restarts, read
+these keys instead of listening for events. GlobalState keys are written
+only when `Config.API.Enabled` is true.
+
+### `GlobalState.nxWeather`
+
+The weather state blob (same shape as the `GetWeatherState` export) plus
+a `t` timestamp. Rebuilt at most every `Config.API.GlobalStateThrottleMs`.
+
+```lua
+local state = GlobalState.nxWeather
+if state then
+    print(state.weather, state.feelsLike, state.isBlackout)
+end
+```
+
+### `GlobalState.nxSnowDepth`
+
+Current tracked snow depth in metres. Written only when
+`Config.SnowDepth.Enabled` is true.
+
+```lua
+local depth = GlobalState.nxSnowDepth or 0.0
+```
+
+### `GlobalState.nxWeatherLockOwner`
+
+The resource name whose weather lock is currently applied, or `false`
+when no lock is active.
+
+```lua
+local owner = GlobalState.nxWeatherLockOwner
+```
+
+### Player statebag `nxExposure`
+
+Each player's body-temperature exposure, mirrored on their statebag.
+Readable from client or server.
+
+```lua
+-- Server
+local e = Player(src).state.nxExposure
+-- Client (another player's exposure by server id)
+local e = Player(serverId).state.nxExposure
+-- e = { level = 0..3, kind = 'cold' | 'heat' | false }
 ```
