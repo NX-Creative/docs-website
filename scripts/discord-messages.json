@@ -82,5 +82,13 @@
   "slotmachine@1.1.0": {
     "messageId": "1516144462148010055",
     "hash": "3ef84cdb163dce16"
+  },
+  "employeemanagement@1.5.0": {
+    "messageId": "1523727760319578363",
+    "hash": "14304e60c70e1a55"
+  },
+  "fourseasons@3.0.0": {
+    "messageId": "1523727761494114366",
+    "hash": "11e3bc6b115978d5"
   }
 }
