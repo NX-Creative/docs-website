@@ -132,6 +132,12 @@ export default function HomePage() {
         <div
           aria-hidden
           className="pointer-events-none relative -mt-6 h-80 w-full md:-mt-10 md:h-[30rem]"
+          style={{
+            maskImage:
+              'linear-gradient(to bottom, transparent, black 35%)',
+            WebkitMaskImage:
+              'linear-gradient(to bottom, transparent, black 35%)',
+          }}
         >
           <Strands
             colors={['#7f1d1d', '#dc2626', '#ff8a70']}
