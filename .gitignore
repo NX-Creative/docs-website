@@ -13,3 +13,5 @@ out
 # Claude Code local settings
 .claude/
 /videos
+DESIGN.md
+PRODUCT.md

@@ -131,6 +131,183 @@
   }
 }
 
+/*
+ * Motion — one house curve (expo-out), used for load-in reveals. Elements
+ * are visible by default when animations are off; the keyframe only runs
+ * when motion is allowed.
+ */
+@keyframes nx-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .nx-fade-up {
+    animation: nx-fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}
+
+/*
+ * React Bits: BorderGlow (components/reactbits/border-glow.tsx).
+ * Pointer-proximity edge glow for the script catalog cards. Adapted to the
+ * NX system: hairline border from the token set, tight radius, no drop
+ * shadow stack (the dark ground carries depth on its own).
+ */
+.border-glow-card {
+  --edge-proximity: 0;
+  --cursor-angle: 45deg;
+  --edge-sensitivity: 30;
+  --color-sensitivity: calc(var(--edge-sensitivity) + 20);
+  --border-radius: 14px;
+  --glow-padding: 32px;
+  --cone-spread: 25;
+
+  position: relative;
+  border-radius: var(--border-radius);
+  isolation: isolate;
+  transform: translate3d(0, 0, 0.01px);
+  display: grid;
+  border: 1px solid var(--color-fd-border);
+  background: var(--card-bg, var(--color-fd-card));
+  overflow: visible;
+  transition: border-color 0.25s ease-out;
+}
+
+.border-glow-card::before,
+.border-glow-card::after,
+.border-glow-card > .edge-light {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  transition: opacity 0.25s ease-out;
+  z-index: -1;
+}
+
+.border-glow-card:not(:hover)::before,
+.border-glow-card:not(:hover)::after,
+.border-glow-card:not(:hover) > .edge-light {
+  opacity: 0;
+  transition: opacity 0.75s ease-in-out;
+}
+
+/* colored mesh-gradient border */
+.border-glow-card::before {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--card-bg, var(--color-fd-card)) 0 100%) padding-box,
+    linear-gradient(rgb(255 255 255 / 0%) 0% 100%) border-box,
+    var(--gradient-one) border-box,
+    var(--gradient-two) border-box,
+    var(--gradient-three) border-box,
+    var(--gradient-four) border-box,
+    var(--gradient-five) border-box,
+    var(--gradient-six) border-box,
+    var(--gradient-seven) border-box,
+    var(--gradient-base) border-box;
+
+  opacity: calc(
+    (var(--edge-proximity) - var(--color-sensitivity)) /
+      (100 - var(--color-sensitivity))
+  );
+
+  mask-image: conic-gradient(
+    from var(--cursor-angle) at center,
+    black calc(var(--cone-spread) * 1%),
+    transparent calc((var(--cone-spread) + 15) * 1%),
+    transparent calc((100 - var(--cone-spread) - 15) * 1%),
+    black calc((100 - var(--cone-spread)) * 1%)
+  );
+}
+
+/* colored mesh-gradient background fill near edges */
+.border-glow-card::after {
+  border: 1px solid transparent;
+  background:
+    var(--gradient-one) padding-box,
+    var(--gradient-two) padding-box,
+    var(--gradient-three) padding-box,
+    var(--gradient-four) padding-box,
+    var(--gradient-five) padding-box,
+    var(--gradient-six) padding-box,
+    var(--gradient-seven) padding-box,
+    var(--gradient-base) padding-box;
+
+  mask-image:
+    linear-gradient(to bottom, black, black),
+    radial-gradient(ellipse at 50% 50%, black 40%, transparent 65%),
+    radial-gradient(ellipse at 66% 66%, black 5%, transparent 40%),
+    radial-gradient(ellipse at 33% 33%, black 5%, transparent 40%),
+    radial-gradient(ellipse at 66% 33%, black 5%, transparent 40%),
+    radial-gradient(ellipse at 33% 66%, black 5%, transparent 40%),
+    conic-gradient(
+      from var(--cursor-angle) at center,
+      transparent 5%,
+      black 15%,
+      black 85%,
+      transparent 95%
+    );
+
+  mask-composite: subtract, add, add, add, add, add;
+  opacity: calc(
+    var(--fill-opacity, 0.35) *
+      (var(--edge-proximity) - var(--color-sensitivity)) /
+      (100 - var(--color-sensitivity))
+  );
+  mix-blend-mode: soft-light;
+}
+
+/* outer glow layer */
+.border-glow-card > .edge-light {
+  inset: calc(var(--glow-padding) * -1);
+  pointer-events: none;
+  z-index: 1;
+
+  mask-image: conic-gradient(
+    from var(--cursor-angle) at center,
+    black 2.5%,
+    transparent 10%,
+    transparent 90%,
+    black 97.5%
+  );
+
+  opacity: calc(
+    (var(--edge-proximity) - var(--edge-sensitivity)) /
+      (100 - var(--edge-sensitivity))
+  );
+  mix-blend-mode: plus-lighter;
+}
+
+.border-glow-card > .edge-light::before {
+  content: '';
+  position: absolute;
+  inset: var(--glow-padding);
+  border-radius: inherit;
+  box-shadow:
+    inset 0 0 0 1px var(--glow-color),
+    inset 0 0 6px 0 var(--glow-color-40),
+    inset 0 0 15px 0 var(--glow-color-30),
+    0 0 1px 0 var(--glow-color-60),
+    0 0 6px 0 var(--glow-color-40),
+    0 0 15px 0 var(--glow-color-30),
+    0 0 32px 2px var(--glow-color-10);
+}
+
+.border-glow-inner {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  border-radius: inherit;
+  z-index: 1;
+}
+
 @layer utilities {
   .font-display {
     font-family: var(--font-display);
@@ -151,4 +328,22 @@
     letter-spacing: 0.02em;
     color: var(--color-fd-muted-foreground);
   }
+}
+
+/*
+ * Docs shell — headings in the display face so article pages carry the
+ * same voice as the home page, with body prose left to Sora.
+ */
+.prose h1,
+.prose h2,
+.prose h3 {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  font-variation-settings: 'opsz' 96;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.prose {
+  line-height: 1.65;
 }

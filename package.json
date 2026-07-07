@@ -15,17 +15,20 @@
     "fumadocs-ui": "^15.6.1",
     "lucide-react": "^0.469.0",
     "next": "^15.3.3",
+    "ogl": "^1.0.11",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "three": "^0.185.1"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.0.0",
     "@types/mdx": "^2.0.13",
     "@types/node": "^22.10.1",
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.1",
+    "@types/three": "^0.185.0",
     "postcss": "^8.5.1",
     "tailwindcss": "^4.0.0",
-    "@tailwindcss/postcss": "^4.0.0",
     "typescript": "^5.7.2"
   },
   "engines": {

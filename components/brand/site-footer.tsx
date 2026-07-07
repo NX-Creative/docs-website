@@ -1,16 +1,16 @@
 import Link from 'next/link';
 import { NxLogo } from './nx-logo';
+import { FooterAscii } from './footer-ascii';
 
 /**
- * Minimal footer for the docs site. The full marketing footer lives on
- * nxcreative.tech — here we just echo the brand line, ownership, and the
- * core outbound links.
+ * Docs footer. Link columns up top, then the "NX Docs" ASCII wordmark as the
+ * closing brand moment. The full marketing footer lives on nxcreative.tech.
  */
 export function SiteFooter() {
   return (
-    <footer className="mt-24 border-t border-fd-border bg-fd-background">
-      <div className="mx-auto flex max-w-7xl flex-col gap-8 px-6 py-10 md:flex-row md:items-start md:justify-between">
-        <div className="flex max-w-md flex-col gap-3">
+    <footer className="mt-28 border-t border-fd-border bg-fd-background">
+      <div className="mx-auto flex max-w-6xl flex-col gap-10 px-6 py-14 md:flex-row md:items-start md:justify-between">
+        <div className="flex max-w-sm flex-col gap-3">
           <Link
             href="/"
             className="inline-flex items-center gap-2 text-base font-semibold text-fd-foreground transition-colors hover:text-fd-primary"
@@ -18,9 +18,8 @@ export function SiteFooter() {
             <NxLogo className="h-6 w-6" />
             NX Creative
           </Link>
-          <p className="text-sm text-fd-muted-foreground">
-            Built for FiveM. Engineered for Growth. Premium scripts for ESX,
-            QBCore, and QBox roleplay servers.
+          <p className="text-sm leading-relaxed text-fd-muted-foreground">
+            Premium FiveM scripts for ESX, QBCore, and QBox roleplay servers.
           </p>
           <p className="mt-2 text-xs text-fd-muted-foreground">
             © {new Date().getFullYear()} NX Creative. All rights reserved.
@@ -61,6 +60,8 @@ export function SiteFooter() {
           />
         </div>
       </div>
+
+      <FooterAscii />
     </footer>
   );
 }
@@ -74,7 +75,7 @@ function FooterColumn({
 }) {
   return (
     <div className="flex flex-col gap-3">
-      <p className="mono-label">{heading}</p>
+      <p className="mono-label uppercase">{heading}</p>
       <ul className="flex flex-col gap-2 text-sm text-fd-muted-foreground">
         {links.map((link) => {
           const isExternal = /^https?:/.test(link.href);
