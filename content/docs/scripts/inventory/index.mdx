@@ -1,0 +1,54 @@
+---
+title: Inventory
+description: Open-source redesign of ox_inventory plus a premium addon with liquid glass, a 3D weapon inspector, plate carrier armor, and a persistent backpack.
+---
+
+The NX inventory ships in two parts:
+
+- **`ox_inventory` (the base).** A redesigned build of [Overextended's ox_inventory](https://github.com/overextended/ox_inventory). Free and open source at [github.com/NX-Creative/ox_inventory](https://github.com/NX-Creative/ox_inventory). It replaces your existing `ox_inventory` folder and works on its own.
+- **`nx-ox_inventory` (the addon).** Loads into the base at runtime and adds the liquid glass look, the weapon inspector, utility slots, and the plate carrier system. Available at [nxcreative.tech/inventory](https://nxcreative.tech/inventory).
+
+The addon modifies no base files. Remove it and the base inventory keeps running with its plain CSS look.
+
+These pages cover what NX adds. Item definitions, stashes, shops, crafting, hooks, and the export surface are upstream ox_inventory behavior; the [upstream repository](https://github.com/overextended/ox_inventory) remains the canonical reference for those.
+
+## The base
+
+Based on upstream ox_inventory v2.45.0. The redesign is in the web UI; existing exports, events, and item definitions keep working.
+
+- **Visual redesign.** New slot grid, spacing, borders, shadows, typography, and color palette.
+- **Slot-slide drag animation.** Items slide between slots with spring physics instead of the ghost-image drag preview.
+- **Customize panel.** Players rescale the UI, drag the inventory, hotbar, and notification anchor anywhere on screen, pick a glass preset, and toggle the backdrop blur. Settings persist per client.
+- **Inventory search.** Ctrl+F (or the pill above the inventory) filters every open panel, including shops, crafting, and the addon's backpack.
+- **Plugin API.** Addon resources mount UI at runtime without touching base files. This is how `nx-ox_inventory` loads.
+
+## The addon
+
+### Liquid glass
+
+Real frosted glass over the game. The scene behind the inventory shows through every panel, blurred and tinted, with visible depth between the panels and the backdrop and edges that catch the light. Text adapts so labels stay readable at night or against bright signs. Every slot, tooltip, context menu, and hotbar item gets the treatment.
+
+Players choose between the Liquid and Frosted presets in the base's Customize panel.
+
+### Weapon inspector
+
+Open **Inspect** from a weapon's context menu to see the actual weapon in a live 3D view inside the inventory. Drag to rotate it. Components can be attached and removed from the inspector, and the view shows durability, ammo, and serial number.
+
+### Utility slots and backpack
+
+A center column between the two inventory panels holds two extra slots: backpack and armor. The backpack slot accepts any ox_inventory container item and opens its own grid with drag-and-drop transfers to the player inventory, a second open inventory, or the ground. Equipped slots persist per player in the `nx_utility_slots` database table.
+
+### Plate carrier armor
+
+Vest items equip into the armor slot and hold ballistic plates. Plate durability maps linearly to ped armor and wears down as the player takes damage. Vest items, plate types, slot counts, and armor values are set in [config.lua](./configuration).
+
+Every utility slot and plate action is validated server-side. Ownership is resolved from the server's own inventory state, not from client input.
+
+## Framework compatibility
+
+The addon contains no framework code. Any server that runs ox_inventory is supported: ESX, QBCore, QBox, and ox_core.
+
+## Get it
+
+- Base: free at [github.com/NX-Creative/ox_inventory](https://github.com/NX-Creative/ox_inventory)
+- Addon: [nxcreative.tech/inventory](https://nxcreative.tech/inventory)

@@ -1,0 +1,94 @@
+---
+title: Installation
+description: Install the NX ox_inventory base and the nx-ox_inventory addon.
+---
+
+For server-wide prerequisites work through the [generic install guide](/docs/getting-started/installation) first. This page covers the base swap, the addon, and the item setup.
+
+## Dependencies
+
+<DependencyList
+  dependencies={[
+    {
+      name: 'ox_inventory (NX base)',
+      description: 'Required. The open-source redesigned base. The addon mounts through its plugin API and does not work with stock ox_inventory.',
+      required: true,
+      href: 'https://github.com/NX-Creative/ox_inventory'
+    },
+    {
+      name: 'ox_lib',
+      description: 'Required. Callbacks and shared utilities.',
+      required: true,
+      href: 'https://github.com/overextended/ox_lib'
+    },
+    {
+      name: 'oxmysql',
+      description: 'Required. Persists equipped backpack and armor slots.',
+      required: true,
+      href: 'https://github.com/overextended/oxmysql'
+    }
+  ]}
+>
+  The base replaces upstream <code>ox_inventory</code>. The addon is a
+  separate resource that loads after it.
+</DependencyList>
+
+## Install the base
+
+1. Stop your server.
+2. Move or delete your existing `ox_inventory` folder.
+3. Download the NX build from [GitHub](https://github.com/NX-Creative/ox_inventory) and drop it in its place. Keep the folder name `ox_inventory`; other resources reference it by name.
+4. Start the server. The base works on its own; the addon is optional.
+
+Your existing items, stashes, and inventory data are untouched. The redesign changes the web UI, not the data layer.
+
+## Install the addon
+
+1. Download `nx-ox_inventory` from [keymaster](https://portal.cfx.re/assets/granted-assets) after purchase.
+2. Place the folder in `resources/`.
+3. Add the `ensure` line after `ox_inventory` (see below).
+
+## server.cfg order
+
+```bash
+ensure oxmysql
+ensure ox_lib
+ensure ox_inventory
+ensure nx-ox_inventory
+```
+
+## Vest and plate items
+
+The plate carrier system expects four items in the base's `data/items.lua`. These names are the defaults from `config.lua`; if your server already has vest or plate items, [rename them in the config](./configuration) instead.
+
+```lua
+['heavypc'] = { label = 'Heavy Plate Carrier', weight = 1500, stack = false },
+['lightpc'] = { label = 'Light Plate Carrier', weight = 800, stack = false },
+['heavyplate'] = { label = 'Ballistic Plate', weight = 500, stack = false },
+['lightplate'] = { label = 'Light Ballistic Plate', weight = 300, stack = false },
+```
+
+Labels and weights are examples. Keep `stack = false`: vests store their inserted plates in item metadata and plates carry individual durability, so each item must be its own instance.
+
+## Backpack items
+
+The backpack slot accepts any item registered as an ox_inventory container. Containers are registered in the base's `modules/items/containers.lua`, or from any of your own resources through the export:
+
+```lua
+exports.ox_inventory:setContainerProperties('backpack', {
+    slots = 20,
+    maxWeight = 20000,
+})
+```
+
+The item itself (`backpack` in this example) must also exist in `data/items.lua` with `stack = false`.
+
+## Database
+
+The addon creates its `nx_utility_slots` table automatically on first start. There is no SQL file to import.
+
+## Verify
+
+1. Restart the server and open the inventory. The center column between the two panels shows the backpack and armor slots.
+2. Drag a container item onto the backpack slot and a vest onto the armor slot.
+3. If the slots do not appear, confirm the base is the NX build and that `nx-ox_inventory` starts after it in the console output.

@@ -1,0 +1,5 @@
+{
+  "title": "Inventory",
+  "pages": ["index", "installation", "configuration", "changelog"],
+  "defaultOpen": false
+}

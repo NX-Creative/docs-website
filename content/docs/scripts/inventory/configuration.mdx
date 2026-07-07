@@ -1,0 +1,26 @@
+---
+title: Configuration
+description: Every entry in the addon's config.lua, plus the base's player-facing customization.
+---
+
+The addon ships a single `config.lua` in the resource root. It is excluded from escrow encryption, so you can read and edit it freely. The item names in it must match items in the base's `data/items.lua`; see [Installation](./installation) for the item setup.
+
+## Armor and plates
+
+<ConfigOption name="Config.ArmorItems" type="table" default="{ heavypc = true, lightpc = true }" description="Items that can be equipped in the armor utility slot. Key is the item name, value is true." />
+
+<ConfigOption name="Config.VestSlots" type="table" default="{ heavypc = 2, lightpc = 1 }" description="Number of plate slots each vest item has." />
+
+<ConfigOption name="Config.VestPlateType" type="table" default="{ heavypc = 'heavyplate', lightpc = 'lightplate' }" description="Which plate item each vest accepts." />
+
+<ConfigOption name="Config.PlateMaxArmor" type="table" default="{ heavyplate = 50, lightplate = 25 }" description="Ped armor points a plate provides at 100 percent durability. The applied armor scales linearly with the plate's current durability." />
+
+<ConfigOption name="Config.MaxArmor" type="number" default="100" description="Hard ceiling on total ped armor. The engine maximum is 100; lower this only if plates should cap below full armor." />
+
+## Weapon inspector
+
+<ConfigOption name="Config.WeaponInspectPadding" type="number" default="0.50" description="Padding in metres around the weapon's bounding box when the inspection camera frames it. Higher values place the weapon further back with more margin." />
+
+## Player customization (base)
+
+The base's Customize panel is client-side and needs no server configuration. Each player's UI scale, element positions, glass preset, and backdrop blur choice are stored in their own game cache and restored on the next session. The panel's reset action returns everything to the stock layout.
