@@ -94,5 +94,9 @@
   "inventory@1.0.0": {
     "messageId": "1524143785980989553",
     "hash": "73ca3dd1192a616f"
+  },
+  "computer@1.0.3": {
+    "messageId": "1530189431741485058",
+    "hash": "d3f83c8bb7913e4d"
   }
 }
