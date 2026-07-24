@@ -90,5 +90,9 @@
   "fourseasons@3.0.0": {
     "messageId": "1523727761494114366",
     "hash": "6f534322689fb435"
+  },
+  "inventory@1.0.0": {
+    "messageId": "1524143785980989553",
+    "hash": "73ca3dd1192a616f"
   }
 }
