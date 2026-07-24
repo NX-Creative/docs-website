@@ -1,0 +1,302 @@
+---
+title: Custom apps
+description: Publish a web page from your own resource as a first-class app on the laptop with RegisterApp and the nxc-sdk.js client library.
+---
+
+A custom app is a web page served by **your** resource that appears on
+the laptop as a real OS app: a desktop tile, a Start menu entry, a
+taskbar presence, and its own window. This page covers registration,
+the client library, and each capability in detail. Read the
+[SDK overview](/docs/scripts/computer/sdk) first for the security model
+and owner controls.
+
+## Quick start
+
+**1. Register the app** from a client or server script in your
+resource:
+
+```lua
+-- client.lua in YOUR resource
+CreateThread(function()
+    Wait(1500) -- let nx_computer's export bind on boot
+    exports['nx_computer']:RegisterApp({
+        id     = 'my_app',
+        title  = 'My App',
+        url    = ('https://cfx-nui-%s/ui/index.html'):format(GetCurrentResourceName()),
+        icon   = 'sparkles', -- a lucide icon name, or an image url
+        accent = '#5468E6',
+        width  = 760, height = 560,
+    })
+end)
+```
+
+**2. Build the page** and load the SDK:
+
+```html
+<!-- ui/index.html -->
+<script src="https://cfx-nui-nx_computer/sdk/nxc-sdk.js"></script>
+<script src="app.js"></script>
+```
+
+**3. Use it.** `nxc` is a global once the script loads:
+
+```js
+const ctx = await nxc.ready();
+console.log('hello', ctx.identity.displayName);
+await nxc.kv.set('hi', { seen: true });
+nxc.notify({ title: 'My App', body: 'Up and running' });
+```
+
+**4. List your files** (`ui/index.html`, `ui/app.js`, any CSS or
+images) in your `fxmanifest.lua` `files {}` block, and `ensure` your
+resource **after** `nx_computer`.
+
+A complete runnable starter ships with the resource in `sdk/example/`.
+
+## RegisterApp reference
+
+`exports['nx_computer']:RegisterApp(def)` is callable from a client or
+a server script. It returns `true` on success and `false` when
+rejected, with the reason printed to the console. Calling it again with
+the same `id` updates the definition live.
+`exports['nx_computer']:UnregisterApp(id)` removes it.
+
+Always use the colon call form (`exports['nx_computer']:RegisterApp`)
+so the arguments line up; a dot call shifts them.
+
+| Field | Type | Required | Rules and default |
+|---|---|---|---|
+| `id` | string | yes | `A-Z a-z 0-9 _ . -`, up to 48 chars. Must not be a reserved built-in id (see below). Namespaced internally so it can never collide with a built-in app. Also the storage namespace and the `Allow`/`Deny` key. |
+| `url` | string | yes | The document to load. Scheme must be `https://cfx-nui-<resource>/...`, plain `https://`, or `nui://...`. No `data:`, `javascript:`, or `file:` documents. Up to 512 chars. |
+| `title` | string | no | Window and launcher label. Whitespace-collapsed, up to 40 chars. Shown literally, never translated. Defaults to `id`. |
+| `icon` | string | no | A [lucide icon name](https://lucide.dev/icons) (for example `radio`, `car`, `sparkles`) or an image URL (`https://`, `cfx-nui-`, `nui://`, or `data:image/`). Up to 256 chars. Falls back to a generic tile. |
+| `accent` | string | no | Tile accent color, 6-digit hex (`#RRGGBB`). Default `#5468E6`. |
+| `width` | number | no | Default window width, clamped to 320 to 1280. Default 900. |
+| `height` | number | no | Default window height, clamped to 240 to 720. Default 600. |
+
+### Reserved ids
+
+These built-in ids are rejected:
+
+```
+banking finance markets exchange portfolio wallet jobs vehicles darknet
+casino forums notes calculator settings email messages contacts browser
+terminal map photos admin
+```
+
+## Server vs client registration
+
+Both sides use the same signature and the same definition table.
+
+- **Server** (`server_scripts`): the app is broadcast to every
+  connected player and replayed to anyone who connects later. Use this
+  when one resource adds the app for the whole server. No client glue
+  needed.
+- **Client** (`client_scripts`): the app is added on that client only.
+  Use this for per-player apps. If nx_computer restarts, client
+  registrations are cleared, so re-register on
+  `onClientResourceStart` for `'nx_computer'` (the bundled example does
+  this).
+
+If both register the same `id`, the client definition wins on that
+client. When a registering resource stops, its apps are dropped
+automatically.
+
+## The client library
+
+`sdk/nxc-sdk.js` is dependency-free. It loads as a classic `<script>`
+(setting the `window.nxc` global) and is also consumable through
+CommonJS, AMD, and bundlers. Loading it from
+`https://cfx-nui-nx_computer/sdk/nxc-sdk.js` always gives you the
+version matching the installed OS; you can also vendor the file into
+your resource.
+
+The library performs the handshake, holds the session nonce, exposes
+the API below, and transparently handles the
+[in-game keyboard](#the-in-game-keyboard).
+
+```js
+// Handshake. Resolves once the OS is connected. Rejects if there is no
+// host (page opened standalone) or the app URL is not allowed.
+const ctx = await nxc.ready();
+//   ctx = { app, capabilities[], identity{handle,displayName}, theme, locale, view }
+
+nxc.isReady();            // boolean
+nxc.capabilities();       // string[] of available method names
+
+// Notifications
+await nxc.notify({ title: 'Hi', body: 'message' });   // -> { delivered: boolean }
+await nxc.notify('shorthand body');
+
+// Private per-app key/value store
+await nxc.kv.set('key', { any: 'json' });
+const v = await nxc.kv.get('key');     // value, or null
+await nxc.kv.remove('key');
+const keys = await nxc.kv.keys();      // string[]
+
+// Identity (public only)
+const me = await nxc.identity();       // { handle, displayName }
+nxc.identitySync();                    // same, cached and synchronous after ready()
+
+// Window controls (your window)
+await nxc.window.setTitle('New title');
+await nxc.window.minimize();
+await nxc.window.close();
+
+// Theme. Cached and synchronous, kept live by events.
+const theme = nxc.theme();             // { mode, accent, tokens{...} } or null
+const off = nxc.onTheme((theme) => applyTheme(theme));  // fires now and on change
+off();                                  // unsubscribe
+
+nxc.locale();                          // 'en', 'fi', ... (current OS locale)
+
+// Generic event bus. Returns an unsubscribe function.
+nxc.on('theme-changed',  (theme) => {});
+nxc.on('locale-changed', ({ locale }) => {});
+nxc.on('focus',          () => {});
+nxc.on('blur',           () => {});
+nxc.on('ready',          (ctx) => {});
+
+// Cross-display view state (survives minimize and moves between displays)
+await nxc.view.set({ tab: 'home', draft: 'unsent text' });
+nxc.view.get();                        // the restored payload (also in ctx.view)
+```
+
+Every call waits for the handshake internally; calling a method before
+`ready()` resolves waits rather than failing. With no host at all, the
+promise rejects with a clear message after a short timeout, so
+standalone previews fail loudly instead of hanging.
+
+## Capabilities
+
+Each capability is an allowlisted bridge method with host-enforced
+limits.
+
+### notify
+
+```js
+await nxc.notify({ title: 'Order ready', body: 'Table 4' });
+```
+
+`title` up to 80 chars (defaults to your app title); `body` (alias
+`message`) up to 280. Respects the player's notification preferences:
+if they muted all notifications or your app's channel, the call returns
+`{ delivered: false }` without an error, and the desktop toast is
+suppressed under Do Not Disturb.
+
+### kv
+
+```js
+await nxc.kv.set('settings', { volume: 0.8 });
+const s = await nxc.kv.get('settings');
+```
+
+- Stored per player and namespaced per app. App A can never read app
+  B's data, and one player cannot read another's.
+- Keys: `A-Z a-z 0-9 _ . -`, 1 to 64 chars. Values: any
+  JSON-serializable value, up to 16 KB encoded. A bad key rejects with
+  `invalid_key`, an oversized value with `value_too_large`, a
+  non-serializable one with `value_not_serializable`.
+- This is per-player preference storage, not a server database. For
+  shared or authoritative data, use your own resource's server
+  callbacks.
+
+### identity
+
+```js
+const { handle, displayName } = await nxc.identity();
+```
+
+Returns only the public `@handle` and display name. No license, steam,
+or citizenid, and no character, job, or money data.
+
+### window
+
+```js
+await nxc.window.setTitle('Live: 3 orders');  // up to 60 chars
+await nxc.window.minimize();
+await nxc.window.close();
+```
+
+### theme
+
+```js
+function applyTheme(theme) {
+  const r = document.documentElement.style, t = theme.tokens;
+  r.setProperty('--bg', t.bg);
+  r.setProperty('--brand', theme.accent);
+}
+applyTheme(nxc.theme());
+nxc.onTheme(applyTheme);   // re-apply when the player changes accent
+```
+
+The theme object:
+
+```js
+{
+  mode: 'dark',
+  accent: '#2b7fff',
+  tokens: {
+    bg, surface1, surface2, surface3,
+    text, textMuted, textSubtle, line,
+    brand, brandContrast, success, warning, danger,
+    radiusSm, radiusMd, radiusLg, fontSans, fontMono
+  }
+}
+```
+
+All color tokens are plain sRGB strings (`#rrggbb` or `rgba(...)`),
+safe to drop straight into your CSS.
+
+### view
+
+Each display is a separate browser context, so when your window is
+minimized, dragged to the monitor, or cast to the projector, your page
+reloads from scratch. Mirror a small JSON snapshot of "where the user
+is" (current tab, selection, unsent text) with `nxc.view.set`; it comes
+back through `nxc.view.get()` and `ctx.view` when the page reloads on
+the other display. Keep it small and serializable: no DOM nodes,
+functions, or large lists.
+
+## The in-game keyboard
+
+The laptop is a 3D surface without real browser keyboard focus.
+nx_computer runs an input relay that captures keystrokes and forwards
+them to the focused display. When your app's frame holds focus, the SDK
+re-dispatches each forwarded keystroke into your focused `<input>`,
+`<textarea>`, or `contenteditable`, including Backspace, Delete,
+arrows, Home/End, Enter, and clipboard paste. It writes through the
+native value setter, so controlled React and Vue inputs update
+correctly.
+
+You do not have to do anything: load `nxc-sdk.js` and use normal form
+fields. If you load your page without the SDK, typing will not work
+in-game.
+
+Notes:
+
+- `Esc` suspends the laptop, and `Alt+Tab`, `Alt+1`, `Alt+2`, and
+  `Ctrl+Space` are OS chords. The shell handles these; they are not
+  delivered as text to your fields.
+- Browser dev preview uses the real keyboard, so everything works there
+  too.
+
+## The bundled example
+
+The resource ships a minimal, heavily commented, runnable app in
+`sdk/example/`:
+
+```
+example/
+  fxmanifest.lua   -- copy-out header and files{} list
+  client.lua       -- RegisterApp (URL built from GetCurrentResourceName)
+  ui/
+    index.html     -- loads nxc-sdk.js and app.js
+    app.js         -- demonstrates each capability
+    styles.css     -- plain CSS, themed live from the OS
+```
+
+It demonstrates the handshake, identity, the keyboard and storage
+round-trip, notifications, live theming, window controls, and view
+handoff. To try it: copy `example/` into your resources, rename the
+folder, `ensure` it after `nx_computer`, and open the laptop.

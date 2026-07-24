@@ -1,0 +1,91 @@
+---
+title: Displays
+description: The laptop, a paired desk monitor, and the holographic projector. Pairing, switching, casting, and calibration.
+---
+
+One player can run up to three live displays: the laptop, a paired desk
+monitor, and a ceiling-mounted holographic projector. Windows move
+between them by dragging or casting, and each display keeps rendering
+while the others are in use.
+
+## The laptop
+
+Use the laptop item to enter placement mode, put the laptop down on a
+surface, and open it through ox_target. Pick it back up the same way
+(`Config.EnablePickup`). Placed laptops persist.
+
+Two options shape how the laptop feels to bystanders:
+
+- **`Config.Networking.OpenLaptopForAll`** (default `false`): when
+  `true`, the open laptop is a networked prop with a synced screen, so
+  nearby players see it open with live content. This adds a short
+  warm-up on open. When `false`, the open laptop is local to the
+  operator and the screen appears instantly.
+- **`Config.Prewarm`**: boots the OS in the background while a player
+  stands near a closed laptop, so opening it shows a live screen without
+  a boot delay.
+
+While a screen is focused, the operator is posed to match the surface
+height (standing, kneeling, and further stances under
+`Config.Animation`), and the screen casts an ambient glow tinted by
+what is on it (`Config.ScreenGlow`).
+
+`Esc` suspends the session and returns control without shutting
+anything down; targeting the laptop again resumes where you left off.
+Shut Down in the Start menu ends the session fully.
+
+## Pairing a monitor
+
+While a laptop is open, target any supported monitor prop within about
+3 meters and choose **Connect laptop**. The monitor becomes a second
+display running at 1920x1080, alongside the laptop's 1280x720.
+
+- **`Alt+1`** focuses the laptop, **`Alt+2`** the monitor. The camera
+  glides between them without leaving the session, and a control hint
+  marks the active display while two are live
+  (`Config.DisplaySwitch`).
+- **Drag a window across the touching edge** to move it to the other
+  display. The window carries your grab point with it.
+- Disconnecting the monitor sweeps its windows back to the laptop.
+
+## The projector
+
+The projector is a third display: a ceiling-mounted unit that casts a
+16:9 image onto whatever surface its lens faces, with a visible light
+beam and wall glow. It comes from either the placeable item
+(`Config.Projector.Item`) or any matching projector prop already mapped
+into an interior (`Config.Projector.Model`).
+
+To place one, use the item and aim at a ceiling; scrolling rotates the
+lens direction. Then target the mounted unit:
+
+- **Connect projector** (within `Config.Projector.DetectRadius` of an
+  open laptop) pairs it as a third display.
+- **View projection** focuses the projected image and drives it with
+  mouse and keyboard.
+- **Calibrate** nudges and zooms the projected image. Calibration is
+  saved per projector and applies for every player.
+
+Cast any window to the projector with the cast button in its title bar.
+The image size follows the throw distance
+(`Config.Projector.ThrowRatio`, clamped between `MinWidth` and
+`MaxWidth`), and bystanders see the image, beam, and glow when
+`Config.Projector.SyncForAll` is on.
+
+The projected picture has an optical treatment (lens defocus, hotspot,
+vignette, grain) tunable under `Config.Projector.Fx`, and the beam
+(color, brightness, dust) under `Config.Projector.Beam`.
+
+## Windows keep their place
+
+When a window moves to another display, or is minimized and reopened,
+its app restores where you were: the same tab, selection, and unsent
+drafts. This also applies to third-party SDK apps that use the view
+state API (see [Custom apps](./sdk/custom-apps)).
+
+## Related configuration
+
+All display options live in `config.lua`: `Config.Projector`,
+`Config.DisplaySwitch`, `Config.Prewarm`, `Config.Networking`,
+`Config.Animation`, and `Config.ScreenGlow`. See
+[Configuration](./configuration).

@@ -1,0 +1,101 @@
+---
+title: SDK
+description: Publish your own apps and browser sites onto the laptop from a separate resource. No nx_computer source edits.
+---
+
+nx_computer is a platform. Any other resource can extend the laptop at
+runtime with one export call and its own web page:
+
+- **[Custom apps](/docs/scripts/computer/sdk/custom-apps)** (`RegisterApp`): your page
+  appears as a first-class app on the desktop, in the Start menu, the
+  taskbar, and search, in its own OS window.
+- **[Directory sites](/docs/scripts/computer/sdk/directory-sites)** (`RegisterSite`): your
+  page appears as a built-in `.lc` site inside the laptop's browser
+  (for example `pizzaplanet.lc`), with full browser chrome around it.
+
+A radio, a taxi meter, a pizza tracker, a faction dashboard, a business
+site: anything with a web UI can live on the laptop without forking
+nx_computer. Registration works from a client or a server script, apps
+of a stopped resource are removed automatically, and the server owner
+keeps full control over what may load.
+
+## What your app can and cannot do
+
+Your page talks to the OS only through a small, allowlisted bridge.
+The entire surface:
+
+| Your app can | Your app cannot |
+|---|---|
+| Show OS notifications | Touch money, banking, or crypto |
+| Read and write a private per-app key/value store | Touch inventory or items |
+| Read the player's public `@handle` and display name | Read identifiers (license, steam, citizenid) |
+| Control its own window, or navigate within the browser | Run admin actions |
+| Read OS theme tokens and react to changes | Call nx_computer's own protected callbacks |
+| Subscribe to theme, locale, and focus events | Reach other apps' data |
+| Persist view state across displays | Escape the sandbox |
+
+For gameplay logic (payments, jobs, items, anything
+server-authoritative) your page calls **its own resource** with its own
+NUI callbacks, exactly like any standalone UI. The laptop hosts your
+page and provides the safe OS conveniences above; it never proxies its
+own protected callbacks to you.
+
+## Owner controls
+
+Server owners gate both SDKs in `config.lua`:
+
+```lua
+Config.Apps.External = {
+    Enabled = true,   -- false ignores every RegisterApp call
+    Allow   = nil,    -- nil or empty: any app may register; a list is an allowlist
+    Deny    = {},     -- these app ids can never register
+    MaxApps = 24,     -- ceiling on simultaneously registered apps
+}
+
+Config.SiteBuilder.Directory = {
+    Enabled  = true,  -- false ignores every RegisterSite call
+    Allow    = nil,
+    Deny     = {},
+    MaxSites = 24,
+}
+```
+
+## Security model
+
+The SDK is deliberately small and defensive:
+
+- **Sandboxed frame.** Your page runs isolated from the OS. It keeps
+  its own origin so it can call its own resource, and nothing more.
+- **Handshake and nonce.** Each window mints a random nonce during the
+  handshake. The host accepts a message only from that exact frame,
+  carrying that nonce, matching that window's app id. Spoofed, foreign,
+  or stale messages are dropped.
+- **Rate limiting.** Bridge calls are capped per window with a token
+  bucket (burst 40, refill 30 per second). Bursts beyond that are
+  dropped.
+- **Capability allowlist.** There is no generic "call nx_computer"
+  method. Only the listed capabilities exist, and there is no money,
+  crypto, inventory, admin, or identifier surface.
+- **Namespaced storage.** Key/value data is namespaced per app and per
+  player. App A can never read app B's data, and one player can never
+  read another's.
+- **Public identity only.** The bridge exposes the `@handle` and
+  display name, nothing else.
+- **Validation on both ends.** Every registration is validated in Lua
+  and sanitized again in the OS before it reaches a window: id charset
+  and length, URL scheme allowlist (no `data:`, `javascript:`, or
+  `file:` documents), icon scheme allowlist, color format, clamped
+  window dimensions.
+- **Lifecycle.** When the registering resource stops, its apps and
+  sites are removed so dead URLs do not linger.
+
+A malicious or buggy external app can annoy its own user with its own
+notifications and its own storage. It cannot touch the economy, other
+apps, other players, or the host, and the operator can switch it off.
+
+## Versioning
+
+The client library `nxc-sdk.js` is served by nx_computer itself, so
+loading it from the resource URL always matches the installed OS
+version. See [Custom apps](/docs/scripts/computer/sdk/custom-apps#the-client-library) for
+how to load it.

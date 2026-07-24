@@ -1,0 +1,123 @@
+---
+title: Directory sites
+description: Publish a built-in .lc site into the laptop browser from your own resource with RegisterSite.
+---
+
+A directory site is the browser counterpart of a
+[custom app](./custom-apps). Instead of an app window, your page is a
+built-in `.lc` site players reach by typing its slug in the laptop's
+browser (for example `pizzaplanet.lc`), with full browser chrome around
+it: the address bar shows the slug, and back and forward work.
+Registered sites also appear in the address bar autocomplete, marked
+Official.
+
+The sandbox, handshake, and capability rules from the
+[SDK overview](/docs/scripts/computer/sdk) apply identically. The one
+difference: a site gets browser navigation controls (`nav.*`) instead
+of an app's window controls (`window.*`). For gameplay logic, a site
+calls its own resource, exactly like an app.
+
+## Quick start
+
+```lua
+-- client.lua (or a server_script) in YOUR resource
+CreateThread(function()
+    Wait(1500) -- let nx_computer's export bind on boot
+    exports['nx_computer']:RegisterSite({
+        slug        = 'pizzaplanet',   -- addressed as pizzaplanet.lc
+        title       = 'Pizza Planet',
+        url         = ('https://cfx-nui-%s/site/index.html'):format(GetCurrentResourceName()),
+        icon        = 'pizza',         -- a lucide name, or an image url
+        accent      = '#E0642E',
+        description = 'Order hot pizza, delivered.',  -- optional, up to 160 chars
+    })
+end)
+```
+
+Your page loads the same SDK and uses `nxc.nav.*`:
+
+```html
+<script src="https://cfx-nui-nx_computer/sdk/nxc-sdk.js"></script>
+```
+
+```js
+const ctx = await nxc.ready();
+await nxc.kv.set('lastOrder', 'Large pepperoni');   // private, namespaced per site
+nxc.notify({ title: 'Pizza Planet', body: 'On the way!' });
+await nxc.nav.navigate('directory.lc');             // browse onward
+await nxc.nav.back();                               // browser back
+```
+
+## RegisterSite reference
+
+`exports['nx_computer']:RegisterSite(def)` is callable from a client or
+a server script, with the same broadcast, replay, and lifecycle
+semantics as
+[RegisterApp](./custom-apps#server-vs-client-registration):
+server-registered sites reach every player and replay to late joiners.
+It returns `true` on success and `false` when rejected, with the reason
+printed to the console. Re-call with the same `slug` to update the
+definition live. `exports['nx_computer']:UnregisterSite(slug)` removes
+it. Use the colon call form so the arguments line up.
+
+| Field | Type | Required | Rules and default |
+|---|---|---|---|
+| `slug` | string | yes | The browser address; the site lives at `<slug>.lc`. Normalized to lowercase `a-z 0-9` and dashes, 3 to 32 chars (following `Config.SiteBuilder.Slug`). See the slug rules below. Also the storage namespace and the `Allow`/`Deny` key. |
+| `url` | string | yes | The document to load. Scheme must be `https://cfx-nui-<resource>/...`, plain `https://`, or `nui://...`. No `data:`, `javascript:`, or `file:` documents. Up to 512 chars. |
+| `title` | string | no | Tab and listing label. Whitespace-collapsed, up to 40 chars. Shown literally, never translated. Defaults to the slug. |
+| `icon` | string | no | A lucide icon name or an image URL (`https://`, `cfx-nui-`, `nui://`, `data:image/`). Up to 256 chars. Shown in autocomplete. |
+| `accent` | string | no | Favicon and listing accent, 6-digit hex (`#RRGGBB`). Default `#5468E6`. |
+| `description` | string | no | Short blurb shown in autocomplete. Whitespace-collapsed, up to 160 chars. |
+
+## Slug rules and collision policy
+
+Registered sites and player-built sites (from the in-game Website
+Builder) can never shadow each other:
+
+- A requested slug is normalized and validated by the same rules a
+  player slug obeys: length and the `a-z 0-9` dash shape. It can never
+  be a built-in browser route (`directory.lc`, `jobs.lc`, and the
+  rest) or a reserved name (`home`, `admin`, `manage`, `www`,
+  `support`, and the list in `Config.SiteBuilder.Slug.Reserved`).
+- While a slug is registered, it is reserved at runtime: a player
+  cannot create a Website Builder site with that slug.
+- Registration is refused if a player site already owns the slug, so
+  you cannot shadow an existing business site.
+- When the registering resource stops, or you call `UnregisterSite`,
+  the slug is released: players can claim it again, and the dead URL
+  stops resolving.
+
+## Capabilities
+
+Same as the [app capabilities](./custom-apps#capabilities): `notify`,
+`kv.*` (namespaced per site), `identity.get`, `theme.get` with theme
+events, `view.set`, the in-game keyboard, and the event bus, except
+window controls are replaced by browser navigation:
+
+```js
+await nxc.nav.back();              // step back in browser history
+await nxc.nav.navigate('home');    // navigate the active tab (stays in the browser)
+```
+
+There is no `window.setTitle`, `minimize`, or `close` for a site.
+Calling a capability the host did not advertise rejects cleanly, and
+the same goes for an app calling `nav.*`.
+
+## Owner controls
+
+`Config.SiteBuilder.Directory` mirrors `Config.Apps.External`:
+
+```lua
+Config.SiteBuilder.Directory = {
+    Enabled  = true,   -- false ignores every RegisterSite call
+    Allow    = nil,    -- nil or empty: any slug may register; a list is an allowlist
+    Deny     = {},     -- these slugs can never register
+    MaxSites = 24,     -- ceiling on simultaneously registered sites
+}
+```
+
+## The bundled example
+
+A runnable template ships with the resource in `sdk/example-site/`:
+copy it out, rename the folder, pick a `slug`, `ensure` it after
+`nx_computer`, and type `<slug>.lc` in the laptop browser.

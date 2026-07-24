@@ -1,0 +1,44 @@
+---
+title: Commands
+description: Admin console commands and the Config.Debug tuning tools.
+---
+
+There is no player-facing chat command. Players open the laptop through the
+ox_inventory item and ox_target. The commands below are for server operators
+and for live tuning during development.
+
+## Admin commands
+
+<CommandReference
+  name="nx_computer_factory_reset"
+  args={[{name: 'computer_id', type: 'string', description: 'The id of the laptop device to reset.'}]}
+  permission="nx_computer.admin ACE or server console"
+  description="Revoke every session for one laptop and delete its device row. The scope is a single device, identified by its computer id. The owning user account and its data are preserved. Runnable from the server console or by an admin holding the nx_computer.admin ACE."
+/>
+
+<CommandReference
+  name="nx_computer_reap_now"
+  permission="nx_computer.admin ACE or server console"
+  description="Force an immediate cleanup sweep that prunes stale rows. This runs the same maintenance pass the reaper performs on its schedule. Runnable from the server console or by an admin holding the nx_computer.admin ACE."
+/>
+
+## Development tuning tools
+
+These client commands exist for live tuning of world coordinates, prop
+offsets, and camera settings. They are gated behind `Config.Debug`, which
+defaults to `false`. Leave it disabled on a live server; with the gate off,
+these commands are not registered or refuse to run.
+
+| Command | Purpose |
+|---|---|
+| `/nxc_place` | Live placement and tuning tool for laptop, monitor, and projector world coordinates. |
+| `/nxc_place_close` | Close the placer UI. |
+| `/nxc_cable` | Monitor-cable decoration placement tool. |
+| `/nxc_cable_close` | Close the cable placer. |
+| `/nxc_cam` | Live-tune the held camera prop offsets. Pass `copy` to print a Config.Camera snippet. |
+| `/nxc_cam_close` | Close the camera tuner. |
+| `/nxc_anim` | Live-tune the operator typing IK posture. Pass `copy` to print a config.lua snippet. |
+| `/nxc_anim_close` | Close the anim tuner. |
+| `/nxcc` | Toggle third-person freelook while using a laptop. |
+| `/nxc_freelook` | Alias of `/nxcc`. |
+| `/nxcnc` | Live-tune the laptop and monitor camera near-clip, for example `0.35`. |

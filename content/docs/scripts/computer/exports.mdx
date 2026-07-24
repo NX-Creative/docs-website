@@ -1,0 +1,153 @@
+---
+title: Exports
+description: Public exports for integrating other resources with nx_computer.
+---
+
+These are the exports a server owner or third-party resource is expected to
+call against `nx_computer`. Every export uses the colon call form
+`exports['nx_computer']:Fn(...)` so that `self` is passed; a dot call shifts
+the arguments and breaks the table-def exports.
+
+The four SDK registration exports (`RegisterApp`, `UnregisterApp`,
+`RegisterSite`, `UnregisterSite`) are summarized here and covered in depth in
+the [SDK section](./sdk).
+
+## Shared (client and server)
+
+`RegisterApp`, `UnregisterApp`, `RegisterSite`, and `UnregisterSite` are
+registered on both the client and the server. The call site changes the scope:
+a server call broadcasts the registration to every connected player and replays
+it to players who join later, while a client call registers only on that one
+client.
+
+<ExportSignature
+  name="exports.nx_computer:RegisterApp"
+  side="shared"
+  params={[{name: 'def', type: 'table', description: 'App definition. See fields below.'}]}
+  returns="boolean"
+  description="Publish a custom web app onto the laptop desktop, Start menu, taskbar, and Spotlight. Called on the server it broadcasts to all players and replays to late joiners. Called on a client it adds the app on that client only. Re-call with the same id to update the app live. Gated by Config.Apps.External."
+>
+The `def` table fields:
+
+- `id` (string, required): the raw identifier for the app. Re-registering the same id updates the existing app in place.
+- `url` (string, required): the app URL to load.
+- `title` (string, optional): the display name shown on the desktop and taskbar.
+- `icon` (string, optional): the icon reference.
+- `accent` (string, optional): the accent color.
+- `width` (number, optional): the window width.
+- `height` (number, optional): the window height.
+
+```lua
+CreateThread(function()
+    Wait(1500)
+    exports['nx_computer']:RegisterApp({
+        id = 'pizzaplanet',
+        url = 'https://apps.example.com/pizzaplanet',
+        title = 'Pizza Planet',
+        accent = '#e23b3b',
+        width = 1024,
+        height = 720,
+    })
+end)
+```
+
+See [Custom apps](./sdk/custom-apps) for the full field reference.
+</ExportSignature>
+
+<ExportSignature
+  name="exports.nx_computer:UnregisterApp"
+  side="shared"
+  params={[{name: 'id', type: 'string', description: 'The raw id passed to RegisterApp.'}]}
+  description="Remove a previously registered custom app by its id. Server and client scope match RegisterApp."
+>
+```lua
+exports['nx_computer']:UnregisterApp('pizzaplanet')
+```
+</ExportSignature>
+
+<ExportSignature
+  name="exports.nx_computer:RegisterSite"
+  side="shared"
+  params={[{name: 'def', type: 'table', description: 'Directory site definition. See fields below.'}]}
+  returns="boolean"
+  description="Publish a built-in .lc directory site inside the laptop browser, for example pizzaplanet.lc. Called on the server it broadcasts to all players and replays to late joiners. Called on a client it registers on that client only. Re-call with the same slug to update live. Gated by Config.SiteBuilder.Directory."
+>
+The `def` table fields:
+
+- `slug` (string, required): the site slug, resolved as `slug.lc` in the browser.
+- `url` (string, required): the site URL to load.
+- `title` (string, optional): the display title.
+- `icon` (string, optional): the icon reference.
+- `accent` (string, optional): the accent color.
+- `description` (string, optional): the short description shown in listings.
+
+```lua
+CreateThread(function()
+    Wait(1500)
+    exports['nx_computer']:RegisterSite({
+        slug = 'pizzaplanet',
+        url = 'https://apps.example.com/pizzaplanet-site',
+        title = 'Pizza Planet',
+        description = 'Order delivery across the city.',
+    })
+end)
+```
+
+See [Directory sites](./sdk/directory-sites) for the full field reference.
+</ExportSignature>
+
+<ExportSignature
+  name="exports.nx_computer:UnregisterSite"
+  side="shared"
+  params={[{name: 'slug', type: 'string', description: 'The slug passed to RegisterSite.'}]}
+  description="Remove a registered directory site by slug and release the slug for player use. Server and client scope match RegisterSite."
+>
+```lua
+exports['nx_computer']:UnregisterSite('pizzaplanet')
+```
+</ExportSignature>
+
+## Server
+
+<ExportSignature
+  name="exports.nx_computer:sendSystemEmail"
+  side="server"
+  params={[{name: 'payload', type: 'table', description: 'Email fields. See below.'}]}
+  description="Deliver a system or automated email into a player's laptop inbox from another resource."
+>
+The `payload` table fields:
+
+- `to` (string or number, required): the recipient, given as an `@handle` or an account id.
+- `subject` (string, required): the email subject line.
+- `body` (string, required): the email body.
+- `sourceApp` (string, optional): the app the email is attributed to.
+- `senderName` (string, optional): the display name of the sender.
+
+```lua
+exports['nx_computer']:sendSystemEmail({
+    to = '@jdoe',
+    subject = 'Your order shipped',
+    body = 'Your package is on the way.',
+    sourceApp = 'store',
+    senderName = 'Pizza Planet',
+})
+```
+</ExportSignature>
+
+## Client
+
+<ExportSignature
+  name="exports.nx_computer:useCamera"
+  side="client"
+  description="Open in-world photo mode. This is the ox_inventory usable-item entry point for the camera item, wired as client = { export = 'nx_computer.useCamera' } in the item definition. It requires the screencapture (screenshot-basic) resource. Captured shots sync to the Photos app for the active account."
+>
+```lua
+-- ox_inventory item definition
+['camera'] = {
+    label = 'Camera',
+    weight = 500,
+    stack = false,
+    client = { export = 'nx_computer.useCamera' },
+},
+```
+</ExportSignature>

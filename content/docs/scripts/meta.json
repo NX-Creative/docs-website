@@ -1,5 +1,5 @@
 {
   "title": "Scripts",
-  "pages": ["index", "employeemanagement", "fourseasons", "inventory", "laptop", "ox_target", "realbanking", "slotmachine", "write"],
+  "pages": ["index", "computer", "employeemanagement", "fourseasons", "inventory", "laptop", "ox_target", "realbanking", "slotmachine", "write"],
   "defaultOpen": false
 }

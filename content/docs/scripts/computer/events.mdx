@@ -1,0 +1,48 @@
+---
+title: Events
+description: Item hook events and the event policy for third-party integrations.
+---
+
+## Item hook events
+
+nx_computer exposes two client events as ox_inventory item hooks. They are
+triggered by the item definition when a player uses the item, not by external
+code. Set them as the `client.event` on the matching item in ox_inventory
+`data/items.lua`.
+
+The laptop item opens the in-world laptop:
+
+```lua
+['laptop'] = {
+    label = 'Laptop',
+    weight = 1000,
+    stack = false,
+    client = { event = 'nx_computer:client:useLaptop' },
+},
+```
+
+The projector item opens the projector:
+
+```lua
+['projector'] = {
+    label = 'Projector',
+    weight = 2000,
+    stack = true,
+    client = { event = 'nx_computer:client:useProjector' },
+},
+```
+
+For back-compat, the legacy alias `nx_laptop:client:useLaptop` is also accepted
+in place of `nx_computer:client:useLaptop`.
+
+## No other public events
+
+Every other `nx_computer:*` network event is internal. Auth, laptop and
+projector lifecycle, app and directory-site sync, notifications, messages,
+email, media, camera, and transaction events are client-to-server traffic that
+nx_computer fires for itself. They are not a supported integration point.
+Triggering or listening to them from another resource is unsupported and may
+break between versions.
+
+The supported integration surface is the [exports](./exports) and the
+[SDK](./sdk).

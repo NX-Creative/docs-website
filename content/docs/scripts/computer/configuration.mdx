@@ -1,0 +1,703 @@
+---
+title: Configuration
+description: Every owner-editable entry in config.lua and config_server.lua. Defaults, types, and purpose.
+---
+
+All settings live in `config.lua`. The file is in `escrow_ignore`, so your edits
+survive updates. It is ordered by how often an owner touches it: Quick Setup first,
+then Features, then Advanced. Server-only secrets live in `config_server.lua`, a
+server script that never downloads to clients. Keep tokens and API keys there.
+
+## Quick setup
+
+### Core
+
+<ConfigOption name="Config.Framework" type="string" default="'esx'" description="Framework integration. One of 'esx', 'qbcore', or 'qbox'. 'qbx' is accepted as an alias of 'qbox'." />
+
+<ConfigOption name="Config.Locale" type="string" default="'en'" description="Interface language. One of the ten shipped ids: en, fi, de, fr, pt-br, es, tr, nl, it, pl. See locales/README.md for the full list." />
+
+<ConfigOption name="Config.Account" type="string" default="'bank'" description="Account used for trading. One of bank, money, or cash." />
+
+<ConfigOption name="Config.LaptopItem" type="string" default="'laptop'" description="Inventory item that places the laptop.">
+The `laptop` item must exist in ox_inventory. See [Installation](./installation).
+</ConfigOption>
+
+<ConfigOption name="Config.TableName" type="string" default="'nx_computer_assets'" description="Database table that stores per-account assets. Change only if you renamed the table." />
+
+### Banking
+
+Backend for the Banking app and all in-app money movement.
+
+<ConfigOption name="Config.Banking.Backend" type="string" default="'auto'" description="Money backend for the Banking app. One of auto, framework, or realbanking.">
+- `'auto'` uses nx_realbanking when it is started, otherwise the framework backend. Recommended.
+- `'framework'` uses the framework's own cash and bank accounts. Works anywhere with no dependencies.
+- `'realbanking'` bridges to nx_realbanking. Proximity-gated, with a clean not-configured state when absent.
+</ConfigOption>
+
+<ConfigOption name="Config.Banking.CashAccount" type="string" default="nil" description="Framework-backend cash account name. nil uses stock naming per framework." />
+
+<ConfigOption name="Config.Banking.BankAccount" type="string" default="nil" description="Framework-backend bank account name. nil uses stock naming per framework." />
+
+<ConfigOption name="Config.Banking.MinTransfer" type="number" default="1" description="Smallest transfer, request, or scheduled payment." />
+
+<ConfigOption name="Config.Banking.MaxTransfer" type="number" default="1000000" description="Largest single transfer, request, or scheduled payment." />
+
+<ConfigOption name="Config.Banking.TransferMemoMaxLen" type="number" default="140" description="Memo character cap. 0 disables memos." />
+
+<ConfigOption name="Config.Banking.MaxTransfersPerMinute" type="number" default="6" description="Per-account outbound burst cap. Guards against a compromised client sweeping an account. The scheduled-payment watcher is exempt. 0 disables it." />
+
+<ConfigOption name="Config.Banking.DailyTransferCap" type="number" default="5000000" description="Per-account outbound total over a trailing 24 hours, in fiat." />
+
+<ConfigOption name="Config.Banking.SchedulePollIntervalMs" type="number" default="60000" description="Framework-backend standing-payment watcher cadence in milliseconds, clamped between 15 seconds and 10 minutes." />
+
+<ConfigOption name="Config.Banking.Adapter" type="table" default="nil" description="Custom money adapter, used only when Config.Framework is set to a custom value. Provides getCash, getBank, addCash, removeCash, addBank, and removeBank functions. Mutators must be atomic, reject overdraw, and return a boolean success." />
+
+### Apps
+
+Built-in app ids: banking, finance, markets, jobs, vehicles, darknet, casino,
+forums, notes, docs, calculator, explorer, settings, email, messages, contacts,
+browser, terminal, map, photos, store, admin.
+
+<ConfigOption name="Config.Apps.Disabled" type="array" default="{}" description="Built-in apps to hide everywhere and refuse to open. Given as an array of ids or a map of id to true." />
+
+<ConfigOption name="Config.Apps.External" type="table" description="SDK for third-party apps. Any resource can publish its own app that renders in a sandboxed frame with a locked-down bridge and no access to banking, crypto, inventory, admin, or identifiers.">
+Publishing third-party apps from another resource is covered in the [SDK guide](./sdk).
+</ConfigOption>
+
+<ConfigOption name="Config.Apps.External.Enabled" type="boolean" default="true" description="Master toggle. false makes every registration call be ignored." />
+
+<ConfigOption name="Config.Apps.External.Allow" type="array" default="nil" description="Resource allowlist. nil or empty lets any resource register. A non-empty list restricts registration to those resources." />
+
+<ConfigOption name="Config.Apps.External.Deny" type="array" default="{}" description="App ids that can never register." />
+
+<ConfigOption name="Config.Apps.External.MaxApps" type="number" default="24" description="Ceiling on the number of registered external apps." />
+
+<ConfigOption name="Config.Apps.Store" type="table" description="NX Store. Apps start uninstalled per account and are installed from the Store app. Ids also present in InstallerSites are hidden from the store and found through a website instead. An empty NotPreinstalled, or Enabled set to false, preinstalls everything." />
+
+<ConfigOption name="Config.Apps.Store.Enabled" type="boolean" default="true" description="Master toggle for the NX Store app." />
+
+<ConfigOption name="Config.Apps.Store.NotPreinstalled" type="array" default="{ 'banking', 'finance', 'markets', 'docs', 'contacts', 'jobs', 'vehicles', 'forums', 'casino', 'darknet' }" description="Apps that start uninstalled per account." />
+
+<ConfigOption name="Config.Apps.Store.InstallerSites" type="table" default="{ darknet = 'undernet.lc' }" description="Map of app id to the .lc site that serves its installer. These apps are not sold in-store." />
+
+### Targeting and placement
+
+<ConfigOption name="Config.TargetDistance" type="number" default="1.5" description="ox_target interaction range in meters." />
+
+<ConfigOption name="Config.TargetOpenLabel" type="string" default="'Open Laptop'" description="Label shown on the open-laptop target prompt." />
+
+<ConfigOption name="Config.TargetOpenIcon" type="string" default="'fa-solid fa-laptop'" description="Font Awesome icon for the open-laptop target prompt." />
+
+<ConfigOption name="Config.TargetPickupLabel" type="string" default="'Pick Up Laptop'" description="Label shown on the pickup target prompt." />
+
+<ConfigOption name="Config.TargetPickupIcon" type="string" default="'fa-solid fa-box'" description="Font Awesome icon for the pickup target prompt." />
+
+<ConfigOption name="Config.EnablePickup" type="boolean" default="true" description="Whether a placed laptop can be picked back up." />
+
+<ConfigOption name="Config.PlaceDistance" type="number" default="5.0" description="Maximum placement distance in meters." />
+
+<ConfigOption name="Config.PreviewAlpha" type="number" default="100" description="Opacity of the ghost placement preview." />
+
+<ConfigOption name="Config.PickupMaxDistance" type="number" default="5.0" description="Server-side pickup range check. An anti-harvest guard, so keep it small." />
+
+## Features
+
+### Exchange
+
+Crypto and stock trading.
+
+<ConfigOption name="Config.Exchange.TradeFeeBps" type="number" default="25" description="Trade fee in basis points. 25 equals 0.25 percent." />
+
+<ConfigOption name="Config.Exchange.MaxSlippageBps" type="number" default="200" description="Maximum drift in basis points between the displayed quote and the fill price. 200 equals 2 percent. 0 disables the check." />
+
+<ConfigOption name="Config.Exchange.StaleQuoteMs" type="number" default="30000" description="A protected fill whose quote is older than this many milliseconds is rejected." />
+
+<ConfigOption name="Config.Exchange.OrderPollIntervalMs" type="number" default="15000" description="Limit-order and price-alert watcher cadence in milliseconds." />
+
+### Casino
+
+<ConfigOption name="Config.Casino.BlackjackBets" type="array" default="{ 10, 25, 50, 100 }" description="Selectable bet amounts for Blackjack." />
+
+<ConfigOption name="Config.Casino.HiLoBets" type="array" default="{ 10, 25, 50, 100 }" description="Selectable bet amounts for Hi-Lo." />
+
+<ConfigOption name="Config.Casino.VideoPokerBets" type="array" default="{ 25, 50, 100, 250 }" description="Selectable bet amounts for Video Poker." />
+
+<ConfigOption name="Config.Casino.RouletteBets" type="array" default="{ 10, 25, 50, 100 }" description="Selectable bet amounts for Roulette." />
+
+<ConfigOption name="Config.Casino.MaxPayout" type="number" default="1000000" description="Absolute ceiling on a single payout in any game. Hi-Lo multipliers compound with no natural cap, so this clamps the pot. 0 removes the cap." />
+
+<ConfigOption name="Config.Casino.Payouts.BlackjackWin" type="number" default="2.0" description="Payout multiplier for a standard Blackjack win." />
+
+<ConfigOption name="Config.Casino.Payouts.Blackjack" type="number" default="2.5" description="Payout multiplier for a natural blackjack." />
+
+<ConfigOption name="Config.Casino.Payouts.BlackjackPush" type="number" default="1.0" description="Payout multiplier for a push, returning the stake." />
+
+<ConfigOption name="Config.Casino.HiLo.HouseEdge" type="number" default="0.05" description="House hold per call. Expected value stays at 0.95 at any streak length." />
+
+<ConfigOption name="Config.Casino.HiLo.MaxPerGuessMultiplier" type="number" default="20.0" description="Cap on the multiplier offered for a single call." />
+
+<ConfigOption name="Config.Casino.VideoPokerPaytable" type="table">
+Map of hand name to payout multiplier. Shape: `[handName] = number`.
+
+```lua
+Config.Casino.VideoPokerPaytable = {
+  ['Royal Flush'] = 250,
+  ['Straight Flush'] = 50,
+  -- Four of a Kind 25, Full House 9, Flush 6, Straight 4,
+  -- Three of a Kind 3, Two Pair 2, Jacks or Better 1, Nothing 0
+}
+```
+...
+</ConfigOption>
+
+<ConfigOption name="Config.Casino.RoulettePayouts" type="table">
+Map of bet type to payout multiplier. Shape: `[betType] = number`.
+
+```lua
+Config.Casino.RoulettePayouts = {
+  straight = 35,
+  split = 17,
+  -- street 11, corner 8, sixline 5, dozen 2, column 2,
+  -- red 1, black 1, even 1, odd 1, low 1, high 1
+}
+```
+...
+</ConfigOption>
+
+### Darknet
+
+Darknet and black market.
+
+<ConfigOption name="Config.Darknet.Enabled" type="boolean" default="true" description="Master toggle for the darknet app." />
+
+<ConfigOption name="Config.Darknet.AccessItem" type="string" default="'usb'" description="Inventory item required to enter the darknet.">
+The `usb` item must exist in ox_inventory. See [Installation](./installation).
+</ConfigOption>
+
+<ConfigOption name="Config.Darknet.DeliveryCheckInterval" type="number" default="30" description="Seconds between delivery-ready checks." />
+
+<ConfigOption name="Config.Darknet.ListingFee" type="number" default="0" description="Flat fee to create a player-run listing." />
+
+<ConfigOption name="Config.Darknet.MinPrice" type="number" default="250" description="Minimum price for a player-run listing." />
+
+<ConfigOption name="Config.Darknet.MaxPrice" type="number" default="500000" description="Maximum price for a player-run listing." />
+
+<ConfigOption name="Config.Darknet.PayInCrypto.Enabled" type="boolean" default="true" description="Charge darknet purchases from the buyer's coin wallet at the live exchange rate. Catalog prices stay in fiat. false restores classic cash payments." />
+
+<ConfigOption name="Config.Darknet.PayInCrypto.Symbol" type="string" default="'BTC'" description="Coin used to settle darknet purchases. Any listed coin: BTC, ETH, XMR, LTC, DOGE, ADA, SOL, DOT, MATIC." />
+
+<ConfigOption name="Config.Darknet.Pickup" type="table">
+Courier pickup point for physical orders. The hint fields control the in-world marker that points the player toward the pickup once a delivery is ready.
+
+```lua
+Config.Darknet.Pickup = {
+  coords = vector4(-1361.3589, -932.6345, 9.7058, 305.4851),
+  model = 's_m_m_dockwork_01',
+  scenario = 'WORLD_HUMAN_CLIPBOARD',
+  label = 'Collect Delivery',
+  icon = 'fa-solid fa-box-open',
+  distance = 2.0,
+  hintRadius = 120.0,
+  hintDuration = 300,
+  hintClearDistance = 3.0,
+}
+```
+</ConfigOption>
+
+<ConfigOption name="Config.Darknet.Catalog" type="array">
+Array of products in two shapes. Item products deliver a real inventory item through the courier pickup after a delay. Data-file products land instantly in the buyer's Downloads and are pure flavor. The item fields must reference items that exist in ox_inventory. See [Installation](./installation).
+
+```lua
+-- item product: { id, label, item, amount, price, delivery }
+{ id = 'lockpick_adv', label = 'Advanced Lockpick', item = 'advanced_lockpick', amount = 1, price = 2500, delivery = 180 },
+
+-- data-file product: { id, label, category = 'datafile', price, description, file = { name, content } }
+{ id = 'df_plates', label = 'Scraped Plate Registry', category = 'datafile', price = 3200, description = '...', file = { name = 'plates.csv', content = '...' } },
+```
+...
+</ConfigOption>
+
+<ConfigOption name="Config.Darknet.DataFiles" type="array" default="{}" description="Your own purchasable data files, in the same shape as the datafile catalog entries. Kept in a separate list so script updates never touch it. The body may be inline through content or read server-side from a path through contentFile." />
+
+### Vehicle marketplace
+
+<ConfigOption name="Config.VehicleMarket.Enabled" type="boolean" default="true" description="Master toggle for the marketplace app." />
+
+<ConfigOption name="Config.VehicleMarket.ListingFee" type="number" default="0" description="Flat fee charged to the seller to create a listing." />
+
+<ConfigOption name="Config.VehicleMarket.TaxPercent" type="number" default="0" description="Percentage deducted from the sale price on a successful purchase." />
+
+<ConfigOption name="Config.VehicleMarket.MinPrice" type="number" default="1000" description="Minimum allowed listing price." />
+
+<ConfigOption name="Config.VehicleMarket.MaxPrice" type="number" default="2500000" description="Maximum allowed listing price." />
+
+### Jobs hub
+
+<ConfigOption name="Config.JobsHub.Enabled" type="boolean" default="true" description="Master toggle for the jobs app." />
+
+<ConfigOption name="Config.JobsHub.ApplicationWebhooks" type="boolean" default="false" description="Discord mirroring of new applications. The in-app flow is intended, where bosses review applications in the Jobs app and each decision emails the applicant. true also posts each new application to that job's webhook." />
+
+<ConfigOption name="Config.JobsHub.Jobs" type="array">
+Array of job definitions. Shipped with police, ems, and mechanic, each with two questions. The webhook fields are empty by default and take a Discord webhook URL.
+
+```lua
+{
+  id = 'police',
+  label = 'Los Santos Police Department',
+  description = '...',
+  requirements = '...',
+  webhook = '',
+  questions = {
+    { id = 'why', label = '...', placeholder = '...', required = true },
+  },
+},
+```
+...
+</ConfigOption>
+
+### Website builder
+
+Bosses of any job, per AllowedRanks, can build a public company site addressable
+by a custom slug such as lscustoms.lc.
+
+<ConfigOption name="Config.SiteBuilder.Enabled" type="boolean" default="true" description="Master toggle for the website builder." />
+
+<ConfigOption name="Config.SiteBuilder.AllowedRanks" type="table">
+Rank gate. Per-job entries are keyed by grade name or grade level, with a default fallback.
+
+```lua
+Config.SiteBuilder.AllowedRanks = {
+  ['default'] = { ['boss'] = true, ['chief'] = true, ['manager'] = true },
+  -- per-job overrides keyed by grade name or grade level
+}
+```
+...
+</ConfigOption>
+
+<ConfigOption name="Config.SiteBuilder.Slug.MinLength" type="number" default="3" description="Minimum slug length." />
+
+<ConfigOption name="Config.SiteBuilder.Slug.MaxLength" type="number" default="32" description="Maximum slug length." />
+
+<ConfigOption name="Config.SiteBuilder.Slug.Reserved" type="array">
+Slugs that can never be claimed. Static browser routes are reserved automatically server-side.
+
+```lua
+Config.SiteBuilder.Slug.Reserved = {
+  'home', 'manage', 'admin', 'www', 'site', 'sites', 'help', 'support',
+  -- about, contact, login, logout, browser, search, index, mail, email,
+  -- newspaper, weather, marketplace, casino, records
+}
+```
+...
+</ConfigOption>
+
+<ConfigOption name="Config.SiteBuilder.Limits.MaxBlocks" type="number" default="60" description="Maximum content blocks per site." />
+
+<ConfigOption name="Config.SiteBuilder.Limits.MaxJobs" type="number" default="20" description="Maximum job openings per site." />
+
+<ConfigOption name="Config.SiteBuilder.Limits.MaxProducts" type="number" default="50" description="Maximum products per site." />
+
+<ConfigOption name="Config.SiteBuilder.Limits.MaxInquiriesShown" type="number" default="200" description="Maximum inquiries shown to a site owner." />
+
+<ConfigOption name="Config.SiteBuilder.Limits.MaxReviewsShown" type="number" default="200" description="Maximum reviews shown on a site." />
+
+<ConfigOption name="Config.SiteBuilder.Limits.InquiryBodyMax" type="number" default="1500" description="Character cap on an inquiry body." />
+
+<ConfigOption name="Config.SiteBuilder.Limits.ReviewBodyMax" type="number" default="600" description="Character cap on a review body." />
+
+<ConfigOption name="Config.SiteBuilder.AllowedImageHosts" type="array" default="{ 'cdn.discordapp.com', 'media.discordapp.net', 'i.ibb.co', 'raw.githubusercontent.com' }" description="Extra image hosts allowed in typed image-URL fields. Imgur is always allowed. Published sites load these to visitors, so only add hosts you trust with visitor IPs. Matching is exact host or a leading dot for subdomains." />
+
+<ConfigOption name="Config.SiteBuilder.DefaultTheme.palette" type="string" default="'midnight'" description="Legacy palette id." />
+
+<ConfigOption name="Config.SiteBuilder.DefaultTheme.accent" type="string" default="'#00bcff'" description="Accent color. The accent must be a standard sRGB color value such as hex or rgb(). oklch() is not supported." />
+
+<ConfigOption name="Config.SiteBuilder.DefaultTheme.font" type="string" default="'sora'" description="Default site font." />
+
+<ConfigOption name="Config.SiteBuilder.DefaultTheme.kit" type="string" default="'maze'" description="One of the eight design kits." />
+
+<ConfigOption name="Config.SiteBuilder.DefaultTheme.density" type="string" default="'standard'" description="Layout density. One of compact, standard, or spacious." />
+
+<ConfigOption name="Config.SiteBuilder.Directory" type="table" description="Directory-site SDK, the browser counterpart of the external apps SDK. Other resources publish .lc browser sites through an export.">
+Publishing directory sites from another resource is covered in the [SDK guide](./sdk).
+</ConfigOption>
+
+<ConfigOption name="Config.SiteBuilder.Directory.Enabled" type="boolean" default="true" description="Master toggle. false makes every registration call be ignored." />
+
+<ConfigOption name="Config.SiteBuilder.Directory.Allow" type="array" default="nil" description="Slug allowlist. nil or empty lets any slug register. A non-empty list restricts registration to those slugs." />
+
+<ConfigOption name="Config.SiteBuilder.Directory.Deny" type="array" default="{}" description="Slugs that can never register." />
+
+<ConfigOption name="Config.SiteBuilder.Directory.MaxSites" type="number" default="24" description="Ceiling on the number of registered directory sites." />
+
+### Media uploads
+
+Player uploads go through FiveManage at fivemanage.com. The server validates every
+upload for size, sniffed type, and rate, then relays it with your API token. The
+token is a secret set in `config_server.lua`.
+
+<ConfigOption name="Config.Media.Provider" type="string" default="'fivemanage'" description="Upload provider. Fixed for 1.0." />
+
+<ConfigOption name="Config.Media.MaxImageBytes" type="number" default="6 * 1024 * 1024" description="Ceiling per decoded image in bytes. FiveManage plan limits still apply." />
+
+<ConfigOption name="Config.Media.AllowedTypes" type="array" default="{ 'png', 'jpg', 'gif', 'webp' }" description="Allowed image types, sniffed from magic bytes and never trusted from the client. jpg covers jpeg." />
+
+<ConfigOption name="Config.Media.AllowPdf" type="boolean" default="true" description="Whether the Docs export to PDF rail is enabled, producing a hosted pdf URL. false hides the export button." />
+
+<ConfigOption name="Config.Media.RateLimit.Window" type="number" default="60" description="Rate-limit window in seconds." />
+
+<ConfigOption name="Config.Media.RateLimit.Burst" type="number" default="8" description="Uploads allowed per window. 0 turns the limit off." />
+
+<ConfigOption name="Config.Media.PageSize" type="number" default="60" description="Photos gallery page size." />
+
+<ConfigOption name="Config.Media.MaxPerAccount" type="number" default="500" description="Maximum stored rows per account. The oldest are pruned on upload." />
+
+### Filesystem
+
+Explorer, desktop, and Recycle Bin.
+
+<ConfigOption name="Config.Filesystem.MaxItems" type="number" default="600" description="Total items per account including the Recycle Bin. The disk reports full past this." />
+
+<ConfigOption name="Config.Filesystem.MaxFileBytes" type="number" default="16000" description="Size ceiling per text file in bytes." />
+
+<ConfigOption name="Config.Filesystem.MaxCopyNodes" type="number" default="120" description="Maximum nodes one copy or paste may duplicate. Protects the database." />
+
+### Camera
+
+The camera item opens photo mode and requires the screencapture resource.
+
+<ConfigOption name="Config.Camera.Enabled" type="boolean" default="true" description="Master toggle for photo mode." />
+
+<ConfigOption name="Config.Camera.ItemName" type="string" default="'camera'" description="Inventory item that opens photo mode.">
+The `camera` item must exist in ox_inventory. See [Installation](./installation).
+</ConfigOption>
+
+<ConfigOption name="Config.Camera.Cooldown" type="number" default="1500" description="Milliseconds between shots." />
+
+<ConfigOption name="Config.Camera.Encoding" type="string" default="'jpg'" description="Image encoding. One of jpg, png, or webp." />
+
+<ConfigOption name="Config.Camera.Grid" type="boolean" default="true" description="Whether the rule-of-thirds grid shows by default." />
+
+<ConfigOption name="Config.Camera.LookSensitivity" type="number" default="6.0" description="Mouse-look speed in photo mode." />
+
+<ConfigOption name="Config.Camera.MinFov" type="number" default="18.0" description="Maximum zoom-in. Lower is closer." />
+
+<ConfigOption name="Config.Camera.MaxFov" type="number" default="70.0" description="Zoomed-out default framing." />
+
+<ConfigOption name="Config.Camera.Sound" type="table" default="{ name='Camera_Shoot', set='Phone_SoundSet_Default' }" description="Shutter sound from a frontend soundset." />
+
+<ConfigOption name="Config.Camera.RateLimit" type="table" default="{ Burst=20, Window=60 }" description="Server-side upload anti-spam, separate from laptop uploads." />
+
+<ConfigOption name="Config.Camera.Prop" type="table">
+Held prop and idle anim while shooting. The position and rotation are tuned for prop_ing_camera_01 on the right hand and can be retuned with /nxc_cam. Set Prop to false to disable the held prop.
+
+```lua
+Config.Camera.Prop = {
+  model = 'prop_ing_camera_01',
+  bone = 28422,
+  pos = vector3(0.21, -0.04, -0.04),
+  rot = vector3(-85, 75, 97),
+}
+```
+</ConfigOption>
+
+<ConfigOption name="Config.Camera.Filters" type="array">
+Visual styles cycled with the F key. Each maps to a GTA timecycle modifier baked into the frame. Shape: `{ id, name, modifier, strength }`, where modifier may be nil.
+
+```lua
+{ id = 'normal', name = 'Normal', modifier = nil, strength = 0.0 },
+{ id = 'mono', name = 'Mono', modifier = 'NG_deathfail_BW_base', strength = 1.00 },
+-- sepia, vintage, vivid, noir
+```
+...
+</ConfigOption>
+
+### Projector
+
+The holographic projector pairs with the laptop as a third display. It comes from
+interiors that carry a v_res_mountedprojector or from a placeable item. See
+[Displays](./displays) for pairing, placement, and calibration.
+
+<ConfigOption name="Config.Projector.Enabled" type="boolean" default="true" description="Master toggle for the projector display." />
+
+<ConfigOption name="Config.Projector.Item" type="string" default="'projector'" description="Placeable projector item. nil or empty limits the feature to world-mapped projectors.">
+The `projector` item must exist in ox_inventory. See [Installation](./installation).
+</ConfigOption>
+
+<ConfigOption name="Config.Projector.Model" type="string" default="'v_res_mountedprojector'" description="Projector prop model." />
+
+<ConfigOption name="Config.Projector.LensOffset" type="table" default="vector3(0.0, 0.0, -0.78)" description="Lens offset that seeds the raycast deciding where the image lands. Tuned with /nxc_place projector." />
+
+<ConfigOption name="Config.Projector.LensForward" type="table" default="vector3(1.0, 0.0, 0.0)" description="Forward direction of the lens raycast." />
+
+<ConfigOption name="Config.Projector.BeamOffset" type="table" default="vector3(-0.15, 0.18, -0.075)" description="Where the visible beam starts. nil uses the same point as LensOffset." />
+
+<ConfigOption name="Config.Projector.MaxThrow" type="number" default="24.0" description="Maximum meters from lens to wall before no surface is reported." />
+
+<ConfigOption name="Config.Projector.MinThrow" type="number" default="0.8" description="Closer than this leaves no room for an image." />
+
+<ConfigOption name="Config.Projector.ThrowRatio" type="number" default="0.55" description="Image width equals distance times this ratio, clamped, at 16 by 9." />
+
+<ConfigOption name="Config.Projector.MinWidth" type="number" default="0.9" description="Minimum image width in meters." />
+
+<ConfigOption name="Config.Projector.MaxWidth" type="number" default="6.0" description="Image width stops growing here." />
+
+<ConfigOption name="Config.Projector.WallGap" type="number" default="0.022" description="Meters the image floats off the wall, guarding against z-fighting." />
+
+<ConfigOption name="Config.Projector.ResW" type="number" default="1280" description="Projected image width in pixels." />
+
+<ConfigOption name="Config.Projector.ResH" type="number" default="720" description="Projected image height in pixels." />
+
+<ConfigOption name="Config.Projector.Alpha" type="number" default="240" description="Image opacity. Below 255 gives a slightly translucent beamer wash." />
+
+<ConfigOption name="Config.Projector.FlipImage" type="boolean" default="false" description="Flip the image if an odd surface renders it rotated 180 degrees." />
+
+<ConfigOption name="Config.Projector.DetectRadius" type="number" default="8.0" description="Maximum laptop to projector distance for the connect option." />
+
+<ConfigOption name="Config.Projector.PlaceDistance" type="number" default="6.0" description="Item placement distance, mounted against a ceiling." />
+
+<ConfigOption name="Config.Projector.Calibration.Enabled" type="boolean" default="true" description="Whether the player-facing calibrate option is offered." />
+
+<ConfigOption name="Config.Projector.Calibration.MaxVertical" type="number" default="0.50" description="Meters of up and down lens shift." />
+
+<ConfigOption name="Config.Projector.Calibration.MaxHorizontal" type="number" default="0.25" description="Meters of left and right lens shift." />
+
+<ConfigOption name="Config.Projector.Calibration.MinScale" type="number" default="0.75" description="Lower bound of the zoom range, times the throw-derived size." />
+
+<ConfigOption name="Config.Projector.Calibration.MaxScale" type="number" default="1.25" description="Upper bound of the zoom range." />
+
+<ConfigOption name="Config.Projector.Calibration.Step" type="number" default="0.02" description="Meters per arrow nudge. Hold Shift for five times the step." />
+
+<ConfigOption name="Config.Projector.Calibration.ScaleStep" type="number" default="0.02" description="Zoom change per scroll notch." />
+
+<ConfigOption name="Config.Projector.Camera.fov" type="number" default="50.0" description="Field of view while the projection is focused." />
+
+<ConfigOption name="Config.Projector.Camera.margin" type="number" default="1.18" description="Framing margin around the projection." />
+
+<ConfigOption name="Config.Projector.Camera.distance" type="number" default="nil" description="Camera distance. nil auto-frames the projection." />
+
+<ConfigOption name="Config.Projector.Beam.Enabled" type="boolean" default="true" description="Whether the visible light cone renders." />
+
+<ConfigOption name="Config.Projector.Beam.Color" type="table" default="{ r=226, g=233, b=255 }" description="Base beam color." />
+
+<ConfigOption name="Config.Projector.Beam.Brightness" type="number" default="0.12" description="Beam brightness." />
+
+<ConfigOption name="Config.Projector.Beam.Hardness" type="number" default="0.17" description="Beam edge hardness." />
+
+<ConfigOption name="Config.Projector.Beam.Falloff" type="number" default="25.0" description="Beam falloff rate." />
+
+<ConfigOption name="Config.Projector.Beam.TintFromScreen" type="number" default="0.7" description="How far the cone blends toward the average on-screen color." />
+
+<ConfigOption name="Config.Projector.Beam.Shaft.Enabled" type="boolean" default="true" description="Whether the layered light shaft renders." />
+
+<ConfigOption name="Config.Projector.Beam.Shaft.Alpha" type="number" default="10" description="Per-layer alpha from 0 to 255." />
+
+<ConfigOption name="Config.Projector.Beam.Shaft.Layers" type="number" default="3" description="Nested planes from full cone down to a hot core." />
+
+<ConfigOption name="Config.Projector.Beam.Dust.Enabled" type="boolean" default="true" description="Whether dust motes render inside the cone." />
+
+<ConfigOption name="Config.Projector.Beam.Dust.Effect" type="string" default="'env_dust_motes_int_hvy'" description="Looped particle effect inside the cone." />
+
+<ConfigOption name="Config.Projector.Beam.Dust.Points" type="number" default="4" description="Emitters spread along the beam." />
+
+<ConfigOption name="Config.Projector.Beam.Dust.Scale" type="number" default="2.0" description="Dust emitter scale." />
+
+<ConfigOption name="Config.Projector.Fx.Additive" type="boolean" default="true" description="Additive blending for the projected image." />
+
+<ConfigOption name="Config.Projector.Fx.Floor" type="number" default="0.8" description="Per-pixel alpha floor. 0 is physically pure, 1 is a flat screen." />
+
+<ConfigOption name="Config.Projector.Fx.Blur" type="number" default="0.6" description="Lens defocus in pixels." />
+
+<ConfigOption name="Config.Projector.Fx.Chroma" type="number" default="0.8" description="RGB convergence error in pixels." />
+
+<ConfigOption name="Config.Projector.Fx.Hotspot" type="boolean" default="true" description="Whether the center hotspot renders." />
+
+<ConfigOption name="Config.Projector.Fx.Vignette" type="number" default="0.34" description="Vignette strength." />
+
+<ConfigOption name="Config.Projector.Fx.EdgeFeather" type="boolean" default="true" description="Whether the image edges are feathered." />
+
+<ConfigOption name="Config.Projector.Fx.Fringe" type="boolean" default="true" description="Whether color fringing renders." />
+
+<ConfigOption name="Config.Projector.Fx.PixelGrid" type="number" default="0.12" description="LCD screen-door structure opacity. 0 turns it off." />
+
+<ConfigOption name="Config.Projector.Fx.Grain" type="boolean" default="true" description="Whether film grain renders." />
+
+<ConfigOption name="Config.Projector.Fx.GrainOpacity" type="number" default="0.12" description="Grain opacity." />
+
+<ConfigOption name="Config.Projector.Fx.Flicker" type="boolean" default="true" description="Whether the image shimmers by about 1.5 percent." />
+
+<ConfigOption name="Config.Projector.Glow.Push" type="number" default="0.27" description="Meters the wall glow sits in front of the surface." />
+
+<ConfigOption name="Config.Projector.Glow.Range" type="number" default="2.4" description="Wall glow radius." />
+
+<ConfigOption name="Config.Projector.Glow.Intensity" type="number" default="1.7" description="Wall glow brightness." />
+
+<ConfigOption name="Config.Projector.SyncForAll" type="boolean" default="true" description="Whether bystanders see the projected image, beam, and glow." />
+
+<ConfigOption name="Config.Projector.SyncRadius" type="number" default="20.0" description="Meters within which bystanders receive projector sync." />
+
+### Display switcher
+
+With a paired monitor both screens stay live. Alt and 1 selects the laptop, Alt and
+2 selects the monitor. See [Displays](./displays) for the paired-monitor workflow.
+
+<ConfigOption name="Config.DisplaySwitch.Enabled" type="boolean" default="true" description="Master toggle for the display switcher." />
+
+<ConfigOption name="Config.DisplaySwitch.HintPosition" type="string" default="'bottom-center'" description="ox_lib textUI position. One of bottom-center, top-center, left-center, or right-center." />
+
+<ConfigOption name="Config.DisplaySwitch.TransitionMs" type="number" default="350" description="Camera glide time in milliseconds between displays. Lower is snappier." />
+
+### Screen prewarm
+
+Boots the OS page in a hidden background while a player stands near a closed laptop,
+then drops it again with five meters of hysteresis. Not used when OpenLaptopForAll is on.
+
+<ConfigOption name="Config.Prewarm.Enabled" type="boolean" default="true" description="Master toggle for screen prewarm." />
+
+<ConfigOption name="Config.Prewarm.Distance" type="number" default="12.0" description="Meters from a placed, closed laptop at which prewarm starts." />
+
+### Networking
+
+<ConfigOption name="Config.Networking.OpenLaptopForAll" type="boolean" default="false" description="true makes an open laptop a networked entity with a synced screen that nearby players see, adding a short warm-up on open. false keeps the open laptop local so the operator's screen opens instantly." />
+
+### Animation
+
+While a screen is focused the operator is posed for the surface height. Bands are
+chosen by the height delta, ordered high to low, and the first enabled band that fits
+wins. Tune live with /nxc_anim.
+
+<ConfigOption name="Config.Animation.Enabled" type="boolean" default="true" description="Master toggle for the operator stance." />
+
+<ConfigOption name="Config.Animation.FreezePed" type="boolean" default="true" description="Whether the operator is frozen while posed." />
+
+<ConfigOption name="Config.Animation.BlendIn" type="number" default="4" description="Anim blend-in speed." />
+
+<ConfigOption name="Config.Animation.BlendOut" type="number" default="-4" description="Anim blend-out speed." />
+
+<ConfigOption name="Config.Animation.Align.Enabled" type="boolean" default="true" description="Whether the operator is aligned to the surface." />
+
+<ConfigOption name="Config.Animation.Align.Heading" type="boolean" default="true" description="Whether heading is adjusted during alignment." />
+
+<ConfigOption name="Config.Animation.Align.Slide" type="boolean" default="true" description="Whether the operator slides into position." />
+
+<ConfigOption name="Config.Animation.Align.Lateral" type="number" default="0" description="Lateral alignment offset." />
+
+<ConfigOption name="Config.Animation.Align.PosTolerance" type="number" default="0.3" description="Position tolerance in meters before a nudge is applied." />
+
+<ConfigOption name="Config.Animation.Align.HeadingToleranceDeg" type="number" default="22" description="Heading tolerance in degrees before a turn is applied." />
+
+<ConfigOption name="Config.Animation.Align.MaxNudge" type="number" default="0.6" description="Maximum slide distance in meters." />
+
+<ConfigOption name="Config.Animation.Align.SettleMs" type="number" default="350" description="Settle time in milliseconds after alignment." />
+
+<ConfigOption name="Config.Animation.Bands" type="array">
+Ordered pose bands. Shape: `{ Id, Enabled, Min, StandOffset, Flag, Dict, Name }`, where Min is the height delta at which the band applies and Dict and Name are the anim.
+
+```lua
+{ Id = 'stand', Enabled = true, Min = 0.64, Dict = 'anim@amb@warehouse@laptop@', Name = 'idle_a' },
+{ Id = 'kneel', Enabled = true, Min = 0, Dict = 'amb@medic@standing@kneel@base', Name = 'base' },
+-- seated, low, floor (disabled by default)
+```
+...
+</ConfigOption>
+
+### Audio
+
+Native GTA soundsets only. Retune by swapping any set and name pair. PlaySoundFrontend
+has no per-call volume.
+
+<ConfigOption name="Config.Audio.Enabled" type="boolean" default="true" description="Master switch for all UI sounds." />
+
+<ConfigOption name="Config.Audio.Keystroke" type="table" default="{ enabled=true, throttleMs=50 }" description="Keystroke tick, throttled so key-repeat does not machine-gun." />
+
+<ConfigOption name="Config.Audio.Click" type="table" default="{ enabled=true }" description="Left-click tick." />
+
+<ConfigOption name="Config.Audio.BootFromEntity" type="boolean" default="true" description="Whether the power-on chime plays from the laptop in 3D so bystanders hear it." />
+
+<ConfigOption name="Config.Audio.Sounds" type="table">
+Map of sound key to a set and name pair. Shape: `[key] = { set, name }`.
+
+```lua
+Config.Audio.Sounds = {
+  boot = { set = 'GTAO_Exec_SecuroServ_Warehouse_PC_Sounds', name = 'Login' },
+  notify = { set = 'HUD_MINI_GAME_SOUNDSET', name = 'CONFIRM_BEEP' },
+  lockout = { set = 'DLC_HEIST_BIOLAB_PREP_HACKING_SOUNDS', name = 'Hack_Failed' },
+  -- keys: keystroke, click, boot, notify, success, error, close, lockout
+}
+```
+...
+</ConfigOption>
+
+### Screen glow
+
+A lit screen casts colored light onto the player and desk, tinted per zone by colors
+sampled from the layout.
+
+<ConfigOption name="Config.ScreenGlow.Enabled" type="boolean" default="true" description="Master toggle for the screen glow." />
+
+<ConfigOption name="Config.ScreenGlow.DayStart" type="number" default="7" description="Hour at which daytime begins. Glow shows outside the daytime window or when inside an interior." />
+
+<ConfigOption name="Config.ScreenGlow.DayEnd" type="number" default="19" description="Hour at which daytime ends." />
+
+<ConfigOption name="Config.ScreenGlow.ForceAlways" type="boolean" default="false" description="true ignores the day and interior gate." />
+
+<ConfigOption name="Config.ScreenGlow.Push" type="number" default="0.04" description="Meters the lights sit in front of the screen." />
+
+<ConfigOption name="Config.ScreenGlow.Range" type="number" default="0.40" description="Per-light radius in meters." />
+
+<ConfigOption name="Config.ScreenGlow.Intensity" type="number" default="2.2" description="Per-light brightness." />
+
+<ConfigOption name="Config.ScreenGlow.LerpRate" type="number" default="6.0" description="Color easing per second. Higher is snappier." />
+
+<ConfigOption name="Config.ScreenGlow.Flicker" type="number" default="0.04" description="Subtle screen flicker. 0 turns it off." />
+
+<ConfigOption name="Config.ScreenGlow.Networked" type="boolean" default="true" description="Whether the owner's zone colors broadcast so bystanders see the glow too." />
+
+<ConfigOption name="Config.ScreenGlow.SyncRadius" type="number" default="14.0" description="Meters within which players receive glow updates." />
+
+## Advanced
+
+### Vehicle ownership tables
+
+Where the Vehicle Marketplace reads and writes owned vehicles, per framework. Defaults
+match stock schemas.
+
+<ConfigOption name="Config.VehicleTables" type="table">
+Per-framework map of column roles to database column names. Change only if your server uses a non-standard schema.
+
+```lua
+Config.VehicleTables = {
+  esx = { table = 'owned_vehicles', ownerColumn = 'owner', plateColumn = 'plate', vehicleColumn = 'vehicle', typeColumn = 'type', storedColumn = 'stored', storedValue = 1 },
+  qbcore = { table = 'player_vehicles', ownerColumn = 'citizenid', plateColumn = 'plate', modelColumn = 'vehicle', modsColumn = 'mods', stateColumn = 'state', stateValue = 1, garageColumn = 'garage', defaultGarage = 'pillbox' },
+  -- qbox and qbx match qbcore
+}
+```
+...
+</ConfigOption>
+
+### Map tiles
+
+<ConfigOption name="Config.MapTileCDN" type="string" default="nil" description="Base URL for hosted map tiles. Atlas tiles ship bundled. To offer Satellite or Grid styles, host them on your own CDN or bucket and set the base URL. nil serves Atlas only." />
+
+### Audit
+
+<ConfigOption name="Config.AuditLargeMoveFiat" type="number" default="50000" description="Money movements at or above this fiat value are logged at notice severity in the security audit log. Visibility only. It does not block or cap transfers." />
+
+### Admin access
+
+<ConfigOption name="Config.AllowCommandAceAdmin" type="boolean" default="false" description="The admin console requires the nx_computer.admin ace or a framework admin check. true also accepts holders of the broad command ace, which is not recommended." />
+
+### Debug
+
+<ConfigOption name="Config.Debug" type="boolean" default="false" description="Master switch for the developer tuning tools. Keep false in production. true unlocks the placement, anim, camera, and cable tuning commands plus verbose site-builder logging." />
+
+The helper functions at the bottom of `config.lua`, such as `Config.IsAppOptional`,
+are internal to the resource and are not meant to be edited.
+
+## Server secrets (config_server.lua)
+
+`config_server.lua` loads only on the server and never ships to clients. It extends the
+same `Config` table. Put all secrets and API tokens here.
+
+<ConfigOption name="Config.Media.FiveManageToken" type="string" default="''" description="FiveManage Images API token, the one secret the media and Photos feature needs. Create your own Images token in the FiveManage dashboard under API keys and paste it here. Leaving it empty keeps uploads disabled with a clean not-set-up state.">
+Never put this token in `config.lua`, which downloads to every client. It belongs only in `config_server.lua`.
+</ConfigOption>

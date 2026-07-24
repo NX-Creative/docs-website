@@ -1,0 +1,85 @@
+---
+title: Computer
+description: A full desktop operating system rendered on an in-world 3D laptop. 22 windowed apps, a paired monitor and projector, per-computer identity, and an SDK for custom apps. Runs on ESX, QBCore, and QBox.
+---
+
+`nx_computer` is a desktop operating system that runs on a physical
+laptop prop in the game world. Apps open in draggable, snappable
+windows above a taskbar and a Start menu, with `Alt+Tab` cycling
+between them, the way a real desktop behaves rather than a phone-style
+app grid. Other players see the open laptop and its live screen over
+your shoulder.
+
+One player can run up to three displays at once: the laptop itself, a
+paired desk monitor, and a ceiling-mounted holographic projector.
+Windows drag across the seam from one display to the next. See the
+[Displays guide](/docs/scripts/computer/displays) for pairing and casting.
+
+## Features
+
+- **22 windowed apps.** Banking, Markets (stock and crypto trading with
+  limit orders and price alerts), Finance, Messages, Email, Contacts,
+  Forums, a Browser with an in-game Website Builder, Jobs, Vehicles,
+  Darknet, Casino, Notepad, Docs, File Explorer, Terminal, Calculator,
+  Map, Photos, Settings, NX Store, and an admin Console. Each is
+  summarized on the [Apps page](/docs/scripts/computer/apps).
+- **Per-computer identity.** Every laptop item instance is its own
+  computer: two laptops in the same pocket are two machines with
+  separate logins. PINs are hashed server-side and every protected
+  request is validated against a server-issued session. Details on the
+  [Security page](/docs/scripts/computer/security).
+- **An SDK for your own apps.** Any other resource can publish its
+  own app onto the desktop, or its own `.lc` site into the browser,
+  with one export and no source edits. See the [SDK section](/docs/scripts/computer/sdk).
+- **10 languages.** English, Suomi, Deutsch, Français, Português (BR),
+  Español, Türkçe, Nederlands, Italiano, and Polski, selected via
+  `Config.Locale` with a per-player override in Settings.
+- **Immersive presence.** A networked open laptop, a live screen for
+  bystanders, ambient screen glow, an operator typing pose, and native
+  GTA UI sounds.
+
+## Self-contained by default
+
+Fonts are self-hosted; there are no runtime CDN font dependencies. The
+one optional external call is the Exchange chart widget, and it degrades
+gracefully when blocked. Price data behind the chart is served locally.
+The Map ships its Atlas tiles with the resource; optional Satellite and
+Grid styles can point at your own CDN via `Config.MapTileCDN`.
+
+## Framework support
+
+Set `Config.Framework` to match your server. The laptop item itself is
+registered in `ox_inventory` on every framework, since `ox_inventory` is
+a hard dependency.
+
+<FrameworkTabs>
+  <FrameworkTab framework="esx">
+```lua
+-- config.lua
+Config.Framework = 'esx'
+```
+  </FrameworkTab>
+  <FrameworkTab framework="qbcore">
+```lua
+-- config.lua
+Config.Framework = 'qbcore'
+```
+  </FrameworkTab>
+  <FrameworkTab framework="qbox">
+```lua
+-- config.lua
+Config.Framework = 'qbox'   -- 'qbx' is accepted as an alias
+```
+  </FrameworkTab>
+</FrameworkTabs>
+
+## Where to go next
+
+- [Installation](/docs/scripts/computer/installation): dependencies, items, ACE setup, and
+  the banking backend.
+- [Configuration](/docs/scripts/computer/configuration): every owner-editable option.
+- [SDK](/docs/scripts/computer/sdk): publish your own apps and browser sites onto the laptop.
+
+## Get it
+
+Available at [nxcreative.tech/computer](https://nxcreative.tech/computer).

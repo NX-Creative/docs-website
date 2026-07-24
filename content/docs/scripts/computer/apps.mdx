@@ -1,0 +1,112 @@
+---
+title: Apps
+description: The 22 built-in apps of the laptop OS, what each one does, and how to disable or gate them.
+---
+
+The laptop ships with 22 windowed apps. Each opens in its own OS window
+and can be dragged, snapped, minimized, and moved between displays.
+Third-party resources can add further apps at runtime; those are covered
+by the [SDK](./sdk).
+
+## Controlling the lineup
+
+Three levers in `config.lua` shape what players see:
+
+- **`Config.Apps.Disabled`** hides a built-in app everywhere (desktop,
+  Start menu, taskbar, search) and refuses to open it. Common picks are
+  `'casino'` and `'darknet'`.
+- **`Config.Apps.Store.NotPreinstalled`** lists apps that start
+  uninstalled. Players add them per account from the NX Store app.
+- **`Config.Apps.Store.InstallerSites`** hides an app from the store and
+  serves its installer from a browser site instead. By default the
+  Darknet installer is found on a site players have to discover, not in
+  the store listing.
+
+See [Configuration](./configuration) for the full option reference.
+
+## Money
+
+- **Banking.** Deposit, withdraw, transfer to any `@handle`, request
+  payments, and set up standing payments. The money backend is
+  selectable; see the
+  [banking backend section](./installation#banking-backend).
+- **Finance.** A money dashboard: daily cashflow (income against
+  expense) and a composition view of cash, bank, and asset holdings,
+  built from the transaction ledger.
+- **Markets.** Stock and crypto trading in one tabbed app: live prices,
+  market and limit orders, price alerts, a holdings view with
+  performance, and a crypto wallet for sending coins to other players.
+  Trade fees, slippage protection, and polling cadence are configurable
+  under `Config.Exchange`.
+
+## Work and mobility
+
+- **Jobs.** Job openings with per-job application questions. Bosses
+  review applications in the app; each decision emails the applicant.
+  A Seekers tab lists players looking for work. Openings come from
+  `Config.JobsHub.Jobs` and from postings published on player-built
+  sites.
+- **Vehicles.** A marketplace for player-owned vehicles: list, browse,
+  buy, and make offers. Reads your framework's vehicle ownership table;
+  fees and price bounds are configurable under `Config.VehicleMarket`.
+
+## Underground and play
+
+- **Darknet.** An alias-based black market behind an access item:
+  a curated catalog with timed courier deliveries, player-to-player
+  listings, seller ratings, and purchasable data files that land in the
+  buyer's Downloads. Payments can charge the buyer's crypto wallet at
+  the live exchange rate (`Config.Darknet.PayInCrypto`). Server owners
+  can add their own data files without touching script files.
+- **Casino.** Blackjack, Hi-Lo, video poker, and roulette. Every bet
+  and payout settles server-side; bet sizes, paytables, house edge, and
+  a payout ceiling are configurable under `Config.Casino`.
+
+## Communication
+
+- **Messages.** Direct messages addressed by `@handle`, with reactions,
+  attachments, and typing indicators. Conversations update live while
+  the laptop is open.
+- **Email.** An in-world inbox. Other resources can deliver system mail
+  into it through the `sendSystemEmail` export (see
+  [Exports](./exports)).
+- **Contacts.** A contact book with blocking. Blocked users cannot
+  message you.
+- **Forums.** Public boards with posts, comments, and likes. Players
+  can delete their own posts.
+
+## Web
+
+- **Browser.** A curated in-game internet of `.lc` sites backed by real
+  server state: a business directory, classifieds, job listings, a live
+  newspaper assembled from actual city activity, weather, and more.
+  Bosses build and publish a public company site with the built-in
+  Website Builder at `manage.lc`, addressable by a custom slug such as
+  `lscustoms.lc`. Third-party resources can register their own `.lc`
+  sites; see [Directory sites](./sdk/directory-sites).
+
+## Utilities and system
+
+- **Notepad.** Quick text notes, stored per account.
+- **Docs.** A document editor with export to a hosted PDF
+  (`Config.Media.AllowPdf`).
+- **File Explorer.** A per-account virtual filesystem with folders,
+  Downloads, and a Recycle Bin. Purchased data files and saved
+  attachments land here.
+- **Terminal.** A command line with utilities (calculator, system info,
+  per-command help) and network flavor commands that seed a small
+  discovery trail for attentive players.
+- **Calculator.** A calculator.
+- **Map.** A city map with the bundled Atlas style, optional
+  Satellite and Grid styles via `Config.MapTileCDN`, and a locate
+  action.
+- **Photos.** The account's picture library: uploads, screen snips, and
+  shots taken with the in-world camera item all sync here.
+- **Settings.** Per-player locale, accent color, wallpaper, and
+  notification preferences, stored per account.
+- **NX Store.** Installs the optional apps listed in
+  `Config.Apps.Store.NotPreinstalled` on a per-account basis.
+- **Console.** The admin app, visible only to holders of the
+  `nx_computer.admin` ACE: device management, remote PIN reset, wipe
+  and lock, policy overrides, and the audit log. See
+  [Security](./security).

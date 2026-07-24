@@ -1,0 +1,85 @@
+---
+title: Security
+description: The per-computer identity model, sessions, admin tooling, and the abuse limits built into nx_computer.
+---
+
+nx_computer treats every laptop as a machine with an owner, not as a
+menu attached to a player. This page describes the model and the
+operator tools around it.
+
+## Per-computer identity
+
+Every laptop item instance is its own computer. On first use a laptop
+receives a permanent identity stored in its item metadata, and that
+identity survives dropping, trading, and picking the laptop back up.
+Two laptops in the same pocket are two separate machines with separate
+logins. This is why the laptop item ships with `stack = false`.
+
+Player data (photos, notes, files, messages, preferences) belongs to
+the character's account and follows it across every computer that
+account signs into. The computer itself holds the login and its own
+device record.
+
+## PINs and sessions
+
+- PINs are never stored or compared in plain text. They are hashed
+  server-side with a per-computer salt.
+- Five wrong PIN attempts lock the computer for five minutes.
+- A successful unlock issues a session bound to that player and that
+  computer. Every protected request the OS makes is validated
+  server-side against the session; requests without a valid session are
+  refused, regardless of what the client claims.
+- Money movement, trades, and casino rounds settle server-side. The
+  screen displays results; it does not decide them.
+
+## Admin tooling
+
+Admin access requires the dedicated `nx_computer.admin` ACE (see
+[Installation](./installation#admin-access-ace)). Admins get the
+Console app on their own laptop:
+
+- Look up devices and their owners.
+- Reset a PIN remotely.
+- Lock or wipe a device.
+- Override app policies per user.
+- Review the audit log.
+
+Two server console commands exist alongside the app:
+`nx_computer_factory_reset` and `nx_computer_reap_now`. See
+[Commands](./commands).
+
+By default the broad `command` ACE is not accepted for admin access,
+since many servers grant it to non-admin principals. The opt-in is
+`Config.AllowCommandAceAdmin`.
+
+## Audit log
+
+Security-relevant actions are recorded in an audit table readable from
+the Console app. Money movements at or above
+`Config.AuditLargeMoveFiat` (default 50000) are logged at notice
+severity. This is visibility only; it does not block transfers.
+
+## Abuse limits
+
+Defaults that bound what a compromised or scripted client can do:
+
+- **Banking:** per-account outbound rate limit
+  (`Config.Banking.MaxTransfersPerMinute`) and a trailing 24-hour
+  outbound cap (`Config.Banking.DailyTransferCap`).
+- **Trading:** slippage protection and stale-quote rejection under
+  `Config.Exchange`.
+- **Casino:** an absolute per-payout ceiling (`Config.Casino.MaxPayout`).
+- **Uploads:** every image relays through the server, which enforces a
+  size cap, verifies the real file type from its bytes, and rate-limits
+  per player. There is no URL re-hosting path.
+- **Pickup:** the server checks placement distance on pickup
+  (`Config.PickupMaxDistance`).
+
+## Third-party apps are sandboxed
+
+Apps and sites added through the SDK run in an isolated frame with a
+small, allowlisted bridge: notifications, private per-app storage, the
+player's public handle, window controls, and theming. They cannot touch
+money, inventory, identifiers, other apps' data, or admin actions, and
+the server owner can allowlist, denylist, or disable them entirely.
+Details in the [SDK security model](./sdk#security-model).

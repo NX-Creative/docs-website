@@ -1,0 +1,176 @@
+---
+title: Installation
+description: Dependencies, inventory items, admin ACE, the banking backend, and first-start checks for nx_computer.
+---
+
+This page covers what `nx_computer` needs beyond the
+[generic installation guide](/docs/getting-started/installation):
+its dependency set, the inventory items, admin access, and the banking
+backend choice.
+
+## Dependencies
+
+<DependencyList
+  dependencies={[
+    { name: 'oxmysql', description: 'Database access. All tables are created automatically at runtime.', href: 'https://github.com/CommunityOx/oxmysql' },
+    { name: 'ox_lib', description: 'Callbacks, UI helpers, and locale glue.', href: 'https://github.com/CommunityOx/ox_lib' },
+    { name: 'ox_target', description: 'Opening and picking up the laptop, pairing the monitor and projector.', href: 'https://github.com/CommunityOx/ox_target' },
+    { name: 'ox_inventory', description: 'The laptop, projector, camera, and darknet access items.', href: 'https://github.com/CommunityOx/ox_inventory' },
+    { name: 'nx-3d', description: 'Ships with nx_computer. Renders the OS onto the laptop screen in the world.' },
+    { name: 'nx_realbanking', description: 'Optional. Richer Banking backend with per-character accounts. See the banking backend section below.', required: false, href: 'https://nxcreative.tech/realbanking' },
+    { name: 'screencapture', description: 'Optional. Required only for the in-world camera item.', required: false, href: 'https://github.com/lusty-fivem/screencapture' },
+  ]}
+/>
+
+## Start order
+
+`nx-3d` must start before `nx_computer`, and both after the ox stack:
+
+```bash
+ensure ox_lib
+ensure oxmysql
+ensure ox_inventory
+ensure ox_target
+
+ensure nx-3d
+ensure nx_computer
+```
+
+## Database: no import required
+
+Every table is created and updated automatically the first time the
+resource starts. Each server module runs an idempotent schema check on
+boot and stamps a version marker into `nx_computer_meta`. The bundled
+`nx_computer.sql` is a reference index of the tables for DBAs, not an
+import script.
+
+The database user configured in oxmysql must be allowed to
+`CREATE TABLE` and `ALTER TABLE`.
+
+## Inventory items
+
+Add these to `ox_inventory/data/items.lua`. The item names must match
+their keys in `config.lua` (`Config.LaptopItem`, `Config.Projector.Item`,
+`Config.Camera.ItemName`, `Config.Darknet.AccessItem`). QB and QBox
+servers running `ox_inventory` register items in the same file, so the
+snippets apply on every framework.
+
+```lua
+-- Required: the laptop itself (Config.LaptopItem = 'laptop').
+["laptop"] = {
+    label = "Laptop",
+    weight = 1000,
+    stack = false,           -- each laptop is its own computer; never stack
+    close = true,
+    description = "A personal computer. Invest, message, browse, and more.",
+    client = { event = 'nx_computer:client:useLaptop' }
+},
+
+-- Optional: ceiling-mounted projector, a third display
+-- (Config.Projector.Item = 'projector').
+["projector"] = {
+    label = "Projector",
+    weight = 2000,
+    stack = true,
+    close = true,
+    description = "Mounts to a ceiling and casts your laptop onto the wall.",
+    client = { event = 'nx_computer:client:useProjector' }
+},
+
+-- Optional: in-world camera (Config.Camera.ItemName = 'camera').
+-- Uses an export, not an event. Requires the screencapture resource.
+["camera"] = {
+    label = "Camera",
+    weight = 500,
+    stack = false,
+    close = true,
+    description = "Take photos that sync to your laptop's Photos app.",
+    client = { export = 'nx_computer.useCamera' }
+},
+```
+
+**Darknet access item.** The Darknet app requires the player to carry
+`Config.Darknet.AccessItem` (default `'usb'`). It is a presence check
+only, so no `client` hook is needed. If your server has no `usb` item,
+register one, point `AccessItem` at an existing item, or set
+`Config.Darknet.Enabled = false`.
+
+## First configuration
+
+Confirm two settings in `config.lua` before first start:
+
+- **`Config.Framework`**: `'esx'`, `'qbcore'`, or `'qbox'` (`'qbx'` is
+  accepted as an alias). The framework core must start before
+  `nx_computer`.
+- **`Config.Locale`**: one of `en`, `fi`, `de`, `fr`, `pt-br`, `es`,
+  `tr`, `nl`, `it`, `pl`. Unknown values fall back to English.
+
+Both files survive updates: `config.lua` and `config_server.lua` are
+excluded from escrow.
+
+**Image uploads (Photos, avatars, site images).** Uploads relay through
+FiveManage using a server-side token. Create an Images token in the
+FiveManage dashboard and set `Config.Media.FiveManageToken` in
+`config_server.lua`. Leave it empty to keep uploads disabled; the rest
+of the laptop works regardless. Keep the token in `config_server.lua`
+only. It is a secret, and `config.lua` downloads to every client.
+
+## Admin access (ACE)
+
+The admin Console app and admin actions (remote PIN reset, device wipe
+and lock, policy overrides) require the `nx_computer.admin` ACE:
+
+```bash
+# Grant to your admin group...
+add_ace group.admin nx_computer.admin allow
+
+# ...or to a specific person:
+add_principal identifier.license:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx group.admin
+```
+
+The broad `command` ACE is not accepted by default because it is often
+granted to non-admin console principals. Set
+`Config.AllowCommandAceAdmin = true` only if you intentionally want
+`command`-ACE holders to be nx_computer admins.
+
+## Banking backend
+
+`Config.Banking.Backend` selects how the Banking app moves money:
+
+- **`'auto'`** (default): use `nx_realbanking` automatically when that
+  resource is started, otherwise fall back to native framework banking.
+- **`'framework'`**: your framework's own cash and bank accounts.
+  Transfers are addressed by `@handle`. No external dependency.
+- **`'realbanking'`**: bridge to `nx_realbanking` (per-character
+  accounts, invoices, credit). Requires `nx_realbanking` to be started;
+  without it the app shows a clean "not configured" state and the boot
+  self-check warns.
+
+Servers on a custom framework (`Config.Framework = 'custom'`) supply a
+money adapter via `Config.Banking.Adapter` instead. See
+[Configuration](./configuration) for the adapter shape.
+
+## Troubleshooting
+
+On start, `nx_computer` prints a configuration self-check to the server
+console. Each warning names the exact `Config` key at fault.
+
+| Symptom | Likely cause and fix |
+|---|---|
+| `Config.Framework ... core resource not started` | Wrong `Config.Framework`, or the framework core ensures after `nx_computer`. Fix the value or the load order. |
+| `Config.LaptopItem ... not registered in ox_inventory` | Add the laptop item snippet above and restart `ox_inventory`. |
+| `Config.Darknet.AccessItem ... not registered` | Register the item (default `usb`), repoint `AccessItem`, or disable Darknet. |
+| `Config.Banking.Backend = 'realbanking' but nx_realbanking is not started` | Start `nx_realbanking`, or use `'auto'` or `'framework'`. |
+| `Config.Locale ... is not a bundled locale` | Use one of the 10 supported codes. |
+| `Database schema did not bootstrap` | Check the oxmysql connection string and that the DB user can `CREATE TABLE`. |
+| Laptop opens slowly or blank for a beat | `Config.Networking.OpenLaptopForAll = true` network-spawns the prop, which adds a short warm-up. Set it `false` for an instant local screen. |
+| Admin Console denied | Grant the `nx_computer.admin` ACE (section above). |
+
+### External calls
+
+Fonts are self-hosted; there are no runtime CDN font dependencies. The
+only optional outbound call is the Exchange chart widget. If your server
+blocks egress, the chart degrades gracefully and the rest of the app,
+including the price data behind it, continues to work locally. The
+optional Satellite and Grid map styles stay off unless you set
+`Config.MapTileCDN`.

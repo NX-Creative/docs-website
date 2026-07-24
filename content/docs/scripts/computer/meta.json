@@ -1,0 +1,17 @@
+{
+  "title": "nx_computer",
+  "pages": [
+    "index",
+    "installation",
+    "configuration",
+    "apps",
+    "displays",
+    "security",
+    "exports",
+    "commands",
+    "events",
+    "sdk",
+    "changelog"
+  ],
+  "defaultOpen": false
+}
